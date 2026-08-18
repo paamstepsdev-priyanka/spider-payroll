@@ -1,0 +1,513 @@
+<?= $this->extend('layout/main') ?>
+
+<?= $this->section('content') ?>
+
+<style>
+  .btn-add-employee {
+    background: linear-gradient(180deg, #0f172a 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: opacity 0.15s ease;
+  }
+
+  .btn-add-employee:hover {
+    opacity: 0.92;
+    color: #ffffff !important;
+  }
+
+  .table-plain,
+  .table-plain>tbody,
+  .table-plain>tbody>tr,
+  .table-plain>tbody>tr>td,
+  .table-plain>tbody>tr>th {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #1f2937 !important;
+  }
+
+  .table-plain thead th {
+    background-color: #f8fafc !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+
+  .table-plain tbody td,
+  .table-plain tbody th {
+    padding: 12px 16px;
+    color: #1f2937 !important;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+
+  .table-plain tbody tr:hover,
+  .table-plain tbody tr:hover>td,
+  .table-plain tbody tr:hover>th {
+    background-color: #f8fafc !important;
+    background: #f8fafc !important;
+  }
+
+  /* Status Badges */
+  .badge-subtle-active {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    font-weight: 500;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .badge-subtle-relieved {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+    font-weight: 500;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .badge-subtle-inactive {
+    background-color: #f1f5f9 !important;
+    color: #64748b !important;
+    font-weight: 500;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  /* Action Buttons */
+  .btn-act {
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 4px;
+    padding: 4px 10px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-act-view,
+  .btn-act-edit {
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+
+  .btn-act-view:hover,
+  .btn-act-edit:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+
+  .btn-act-warning {
+    background-color: #ffffff;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+
+  .btn-act-warning:hover {
+    background-color: #fffbeb;
+    color: #92400e;
+  }
+
+  .btn-act-success {
+    background-color: #ffffff;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+
+  .btn-act-success:hover {
+    background-color: #f0fdf4;
+    color: #166534;
+  }
+
+  .btn-act-delete {
+    background-color: #ffffff;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+  }
+
+  .btn-act-delete:hover {
+    background-color: #fef2f2;
+    color: #991b1b;
+  }
+
+  /* Pagination Styling */
+  .pagination .page-item .page-link {
+    color: #0f172a;
+    border-color: #e2e8f0;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: #0f172a !important;
+    border-color: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  .pagination .page-item.disabled .page-link {
+    color: #94a3b8;
+    background-color: #f8fafc;
+  }
+</style>
+
+<div class="card mb-4" style="background-color: #ffffff !important; border: 1px solid #e5e7eb; border-radius: 6px;">
+  <div class="card-header d-flex justify-content-between align-items-center py-3" style="background-color: #ffffff !important; border-bottom: 1px solid #e5e7eb;">
+    <div>
+      <h4 class="mb-0 fw-semibold text-dark fs-5">Employees</h4>
+      <div class="text-secondary small mt-1">Manage employees</div>
+    </div>
+    <a href="<?= site_url('employees/create') ?>" class="btn btn-add-employee text-decoration-none">
+      + Add Employee
+    </a>
+  </div>
+  <div class="card-body p-4" style="background-color: #ffffff !important;">
+
+    <?php if (session()->getFlashdata('error')): ?>
+      <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="border-radius: 6px; font-size: 14px;">
+        <?= session()->getFlashdata('error') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
+    <?php
+    $currentPage = isset($pager) ? $pager->getCurrentPage() : 1;
+    $perPage     = isset($pager) ? $pager->getPerPage() : 10;
+    $total       = isset($pager) ? $pager->getTotal() : count($employees);
+    $offset      = ($currentPage - 1) * $perPage;
+    $startCount  = $total > 0 ? $offset + 1 : 0;
+    $endCount    = min($offset + $perPage, $total);
+    ?>
+
+    <!-- Search & Filter Form (Standard GET Request) -->
+    <form method="GET" action="<?= site_url('employees') ?>" class="row g-3 mb-4 align-items-end">
+      <div class="col-lg-4 col-md-3">
+        <label for="search" class="form-label small fw-semibold text-secondary">Search</label>
+        <input type="text" name="search" id="search" class="form-control" placeholder="Search employees..." value="<?= esc($search ?? '') ?>">
+      </div>
+      <div class="col-lg-3 col-md-3">
+        <label for="contractor_id" class="form-label small fw-semibold text-secondary">Contractor</label>
+        <select name="contractor_id" id="contractor_id" class="form-select">
+          <option value="">-- All Contractors --</option>
+          <?php foreach ($contractors as $contractor): ?>
+            <option value="<?= $contractor['contractor_id'] ?>" <?= ((string)($contractorId ?? '') === (string)$contractor['contractor_id']) ? 'selected' : '' ?>>
+              <?= esc($contractor['contractor_name']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="col-lg-3 col-md-3">
+        <label for="status" class="form-label small fw-semibold text-secondary">Status</label>
+        <select name="status" id="status" class="form-select">
+          <option value="">-- All Status --</option>
+          <option value="active" <?= ($status ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
+          <option value="relieved" <?= ($status ?? '') === 'relieved' ? 'selected' : '' ?>>Relieved</option>
+          <option value="inactive" <?= ($status ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+        </select>
+      </div>
+      <div class="col-lg-2 col-md-3">
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-fill fw-medium" style="border-radius: 6px; padding: 7px 12px; font-size: 13px;">Search</button>
+          <a href="<?= site_url('employees') ?>" class="btn btn-outline-secondary flex-fill fw-medium text-center text-decoration-none" style="border-radius: 6px; padding: 7px 12px; font-size: 13px;">Reset</a>
+        </div>
+      </div>
+    </form>
+
+    <!-- Employees List Table -->
+    <div class="table-responsive">
+      <table class="table table-plain align-middle mb-0" style="border: 1px solid #e2e8f0; background-color: #ffffff !important;">
+        <thead>
+          <tr>
+            <th scope="col" style="width: 50px;">#</th>
+            <th scope="col" style="width: 100px;">Employee Name</th>
+            <th scope="col" style="width: 100px;">Biometric Code</th>
+            <th scope="col" style="width: 100px;">Contractor</th>
+            <th scope="col" style="width: 100px;">Monthly Salary</th>
+            <th scope="col" class="text-center" style="width: 100px;">Joining Date</th>
+            <th scope="col" class="text-center" style="width: 100px;">Status</th>
+            <th scope="col" class="text-center" style="width: 70px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if (!empty($employees)): ?>
+            <?php $sr = $startCount; ?>
+            <?php foreach ($employees as $employee): ?>
+              <tr>
+                <td class="fw-normal text-secondary"><?= $sr++ ?></td>
+                <td>
+                  <a href="<?= site_url('employees/view/' . $employee['employee_id']) ?>" class="fw-medium text-dark text-decoration-none">
+                    <?= esc($employee['employee_name']) ?>
+                  </a>
+                </td>
+                <td>
+                  <?php if (!empty($employee['biometric_code'])): ?>
+                    <code class="text-dark bg-light px-2 py-1 rounded" style="font-size: 13px; border: 1px solid #e2e8f0;"><?= esc($employee['biometric_code']) ?></code>
+                  <?php else: ?>
+                    <span class="text-muted small">-</span>
+                  <?php endif; ?>
+                </td>
+                <td class="text-secondary"><?= esc($employee['contractor_name'] ?? 'Unassigned') ?></td>
+                <td class="fw-medium text-dark">
+                  ₹<?= number_format((float)$employee['monthly_base_salary'], 2) ?>
+                </td>
+                <td class="text-center text-secondary">
+                  <?= !empty($employee['date_of_joining']) ? date('d/m/Y', strtotime($employee['date_of_joining'])) : '-' ?>
+                </td>
+                <td class="text-center">
+                  <?php if ($employee['status'] === 'active'): ?>
+                    <span class="badge-subtle-active">Active</span>
+                  <?php elseif ($employee['status'] === 'relieved'): ?>
+                    <span class="badge-subtle-relieved">Relieved</span>
+                  <?php else: ?>
+                    <span class="badge-subtle-inactive">Inactive</span>
+                  <?php endif; ?>
+                </td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center gap-1">
+                    <a href="<?= site_url('employees/view/' . $employee['employee_id']) ?>" class="btn-act btn-act-view" title="View Details">
+                      View
+                    </a>
+                    <a href="<?= site_url('employees/edit/' . $employee['employee_id']) ?>" class="btn-act btn-act-edit" title="Edit Employee">
+                      Edit
+                    </a>
+
+                    <form action="<?= site_url('employees/delete/' . $employee['employee_id']) ?>" method="POST" class="d-inline" onsubmit="return confirmDelete(event, '<?= esc($employee['employee_name'], 'js') ?>');">
+                      <?= csrf_field() ?>
+                      <button type="submit" class="btn-act btn-act-delete" title="Delete Employee">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <tr>
+              <td colspan="8" class="text-center py-4 text-secondary small">
+                No employees found matching your search criteria.
+              </td>
+            </tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" style="border-color: #e2e8f0 !important;">
+      <div class="text-secondary small">
+        Showing <span class="fw-semibold text-dark"><?= $startCount ?></span> to <span class="fw-semibold text-dark"><?= $endCount ?></span> of <span class="fw-semibold text-dark"><?= $total ?></span> entries
+      </div>
+      <div>
+        <?php if (!empty($pager) && $pager->getPageCount() > 1): ?>
+          <?= $pager->links('default', 'bootstrap_pagination') ?>
+        <?php endif; ?>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function confirmDelete(event, employeeName) {
+    event.preventDefault();
+    const form = event.target;
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Delete Employee?',
+        text: `Are you sure you want to delete employee "${employeeName}"? This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, Delete',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    } else {
+      if (confirm(`Are you sure you want to delete employee "${employeeName}"?`)) {
+        form.submit();
+      }
+    }
+    return false;
+  }
+
+  function confirmStatusToggle(event, employeeName, currentStatus) {
+    event.preventDefault();
+    const form = event.target;
+    const nextStatusText = currentStatus === 'active' ? 'deactivate' : 'activate';
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Change Employee Status?',
+        text: `Are you sure you want to ${nextStatusText} employee "${employeeName}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: currentStatus === 'active' ? '#b45309' : '#15803d',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: `Yes, ${nextStatusText.charAt(0).toUpperCase() + nextStatusText.slice(1)}`,
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    } else {
+      if (confirm(`Are you sure you want to ${nextStatusText} employee "${employeeName}"?`)) {
+        form.submit();
+      }
+    }
+    return false;
+  document.addEventListener("DOMContentLoaded", function() {
+    const csrfName = "<?= csrf_token() ?>";
+    let csrfHash = "<?= csrf_hash() ?>";
+
+    document.addEventListener("click", function(e) {
+      // Handle opening salary edit form
+      const displayWrap = e.target.closest(".salary-display-wrap");
+      if (displayWrap) {
+        const cell = displayWrap.closest("td");
+        const editWrap = cell.querySelector(".salary-edit-wrap");
+        const input = cell.querySelector(".salary-input");
+
+        displayWrap.classList.add("d-none");
+        editWrap.classList.remove("d-none");
+        editWrap.classList.add("d-flex");
+        input.focus();
+        input.select();
+        return;
+      }
+
+      // Handle cancel salary edit
+      const cancelBtn = e.target.closest(".btn-cancel-salary");
+      if (cancelBtn) {
+        const cell = cancelBtn.closest("td");
+        const displayWrap = cell.querySelector(".salary-display-wrap");
+        const editWrap = cell.querySelector(".salary-edit-wrap");
+        const input = cell.querySelector(".salary-input");
+
+        input.value = displayWrap.getAttribute("data-salary");
+        editWrap.classList.add("d-none");
+        editWrap.classList.remove("d-flex");
+        displayWrap.classList.remove("d-none");
+        return;
+      }
+
+      // Handle save salary edit
+      const saveBtn = e.target.closest(".btn-save-salary");
+      if (saveBtn) {
+        submitSalaryUpdate(saveBtn.closest("td"));
+        return;
+      }
+    });
+
+    // Save on Enter or cancel on Escape inside salary input
+    document.addEventListener("keydown", function(e) {
+      if (e.target.classList.contains("salary-input")) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          submitSalaryUpdate(e.target.closest("td"));
+        } else if (e.key === "Escape") {
+          const cell = e.target.closest("td");
+          const displayWrap = cell.querySelector(".salary-display-wrap");
+          const editWrap = cell.querySelector(".salary-edit-wrap");
+          e.target.value = displayWrap.getAttribute("data-salary");
+          editWrap.classList.add("d-none");
+          editWrap.classList.remove("d-flex");
+          displayWrap.classList.remove("d-none");
+        }
+      }
+    });
+
+    function submitSalaryUpdate(cell) {
+      const displayWrap = cell.querySelector(".salary-display-wrap");
+      const editWrap = cell.querySelector(".salary-edit-wrap");
+      const input = cell.querySelector(".salary-input");
+      const empId = displayWrap.getAttribute("data-id");
+      const newSalary = input.value.trim();
+
+      if (!newSalary || isNaN(newSalary) || parseFloat(newSalary) < 0) {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid Salary',
+            text: 'Please enter a valid non-negative salary amount.'
+          });
+        } else {
+          alert('Please enter a valid non-negative salary amount.');
+        }
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('monthly_base_salary', newSalary);
+      formData.append(csrfName, csrfHash);
+
+      fetch(`<?= site_url('employees/update-salary/') ?>${empId}`, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          cell.querySelector(".salary-text").textContent = data.formatted_salary;
+          displayWrap.setAttribute("data-salary", data.raw_salary);
+          editWrap.classList.add("d-none");
+          editWrap.classList.remove("d-flex");
+          displayWrap.classList.remove("d-none");
+
+          if (typeof Swal !== 'undefined') {
+            const Toast = Swal.mixin({
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3500,
+              timerProgressBar: true
+            });
+            Toast.fire({
+              icon: 'success',
+              title: 'Success',
+              text: data.message
+            });
+          }
+        } else {
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'error',
+              title: 'Update Failed',
+              text: data.message || 'Failed to update salary.'
+            });
+          } else {
+            alert(data.message || 'Failed to update salary.');
+          }
+        }
+      })
+      .catch(err => {
+        console.error('Error updating salary:', err);
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred while updating salary.'
+          });
+        }
+      });
+    }
+  });
+</script>
+
+<?= $this->endSection() ?>
