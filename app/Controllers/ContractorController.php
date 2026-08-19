@@ -103,6 +103,13 @@ class ContractorController extends BaseController
         ];
 
         if (!$this->validate($rules, $messages)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(422);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -118,7 +125,21 @@ class ContractorController extends BaseController
         ];
 
         if ($this->contractorModel->insert($contractorData)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'   => 'success',
+                    'message'  => 'Contractor registered successfully.',
+                    'redirect' => site_url('contractors'),
+                ]);
+            }
             return redirect()->to('contractors')->with('success', 'Contractor registered successfully.');
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Failed to create contractor. Please try again.',
+            ])->setStatusCode(400);
         }
 
         return redirect()->back()->withInput()->with('error', 'Failed to create contractor. Please try again.');
@@ -219,6 +240,13 @@ class ContractorController extends BaseController
         ];
 
         if (!$this->validate($rules, $messages)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(422);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -234,7 +262,21 @@ class ContractorController extends BaseController
         ];
 
         if ($this->contractorModel->skipValidation(true)->update($id, $updateData)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'   => 'success',
+                    'message'  => 'Contractor details updated successfully.',
+                    'redirect' => site_url('contractors'),
+                ]);
+            }
             return redirect()->to('contractors')->with('success', 'Contractor details updated successfully.');
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Failed to update contractor details. Please try again.',
+            ])->setStatusCode(400);
         }
 
         return redirect()->back()->withInput()->with('error', 'Failed to update contractor details. Please try again.');

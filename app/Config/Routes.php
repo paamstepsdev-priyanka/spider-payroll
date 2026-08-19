@@ -39,3 +39,15 @@ $routes->group('employees', static function ($routes) {
     $routes->post('toggle-status/(:num)', 'EmployeeController::toggleStatus/$1');
 });
 
+$routes->group('payroll', static function ($routes) {
+    $routes->get('/', 'PayrollController::index');
+    $routes->get('month/(:num)/(:num)', 'PayrollController::month/$1/$2');
+});
+
+$routes->group('attendance', static function ($routes) {
+    $routes->get('/', 'PayrollController::index');
+    $routes->get('month/(:num)/(:num)', 'PayrollController::month/$1/$2');
+});
+
+
+

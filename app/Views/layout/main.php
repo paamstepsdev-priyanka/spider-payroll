@@ -279,6 +279,15 @@
                     </li>
                 </ul>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link <?= (url_is('payroll*') || url_is('attendance*')) ? 'active' : '' ?>" href="<?= site_url('payroll') ?>">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                        <path fill="var(--ci-primary-color, currentcolor)" d="M32 32v448h448V32H32zm416 416H64V64h384v384zM128 128h256v32H128zm0 64h256v32H128zm0 64h192v32H128z"/>
+                    </svg>
+                    Payroll & Attendance
+                </a>
+            </li>
         </ul>
 
         <div class="sidebar-footer border-top d-none d-md-flex">
@@ -354,10 +363,13 @@
     </div>
 
     <!-- CoreUI and necessary plugins-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
     <script src="<?= base_url('backend/vendors/@coreui/coreui/js/coreui.bundle.min.js') ?>"></script>
     <script src="<?= base_url('backend/vendors/simplebar/js/simplebar.min.js') ?>"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="<?= base_url('backend/js/global-form-validation.js') ?>"></script>
     <script>
         const header = document.querySelector("header.header");
 
@@ -512,6 +524,8 @@
             });
         </script>
     <?php endif; ?>
+    <!-- Global Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;" id="globalToastContainer"></div>
 </body>
 
 </html>

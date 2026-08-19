@@ -132,6 +132,13 @@ class EmployeeController extends BaseController
         ];
 
         if (!$this->validate($rules, $messages)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(422);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -154,7 +161,15 @@ class EmployeeController extends BaseController
         }
 
         if (!empty($customErrors)) {
-            return redirect()->back()->withInput()->with('errors', array_merge($this->validator->getErrors(), $customErrors));
+            $allErrs = array_merge($this->validator->getErrors(), $customErrors);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $allErrs,
+                ])->setStatusCode(422);
+            }
+            return redirect()->back()->withInput()->with('errors', $allErrs);
         }
 
         // If status is active, ensure date of leaving and exit reason are cleared
@@ -187,7 +202,21 @@ class EmployeeController extends BaseController
         ];
 
         if ($this->employeeModel->insert($employeeData)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'   => 'success',
+                    'message'  => "Employee '{$employeeData['employee_name']}' created successfully.",
+                    'redirect' => site_url('employees'),
+                ]);
+            }
             return redirect()->to('employees')->with('success', "Employee '{$employeeData['employee_name']}' created successfully.");
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Failed to create employee. Please try again.',
+            ])->setStatusCode(400);
         }
 
         return redirect()->back()->withInput()->with('error', 'Failed to create employee. Please try again.');
@@ -316,6 +345,13 @@ class EmployeeController extends BaseController
         ];
 
         if (!$this->validate($rules, $messages)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(422);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -338,7 +374,15 @@ class EmployeeController extends BaseController
         }
 
         if (!empty($customErrors)) {
-            return redirect()->back()->withInput()->with('errors', array_merge($this->validator->getErrors(), $customErrors));
+            $allErrs = array_merge($this->validator->getErrors(), $customErrors);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $allErrs,
+                ])->setStatusCode(422);
+            }
+            return redirect()->back()->withInput()->with('errors', $allErrs);
         }
 
         // If status is active, clear date of leaving and exit reason
@@ -371,7 +415,21 @@ class EmployeeController extends BaseController
         ];
 
         if ($this->employeeModel->skipValidation(true)->update($id, $updateData)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'   => 'success',
+                    'message'  => "Employee '{$updateData['employee_name']}' updated successfully.",
+                    'redirect' => site_url('employees'),
+                ]);
+            }
             return redirect()->to('employees')->with('success', "Employee '{$updateData['employee_name']}' updated successfully.");
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Failed to update employee details. Please try again.',
+            ])->setStatusCode(400);
         }
 
         return redirect()->back()->withInput()->with('error', 'Failed to update employee details. Please try again.');

@@ -95,6 +95,13 @@ class UserController extends BaseController
         ];
 
         if (!$this->validate($rules, $messages)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(422);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -107,7 +114,21 @@ class UserController extends BaseController
         ];
 
         if ($this->userModel->insert($userData)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'   => 'success',
+                    'message'  => 'User account created successfully.',
+                    'redirect' => site_url('users'),
+                ]);
+            }
             return redirect()->to('users')->with('success', 'User account created successfully.');
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Failed to create user account. Please try again.',
+            ])->setStatusCode(400);
         }
 
         return redirect()->back()->withInput()->with('error', 'Failed to create user account. Please try again.');
@@ -195,6 +216,13 @@ class UserController extends BaseController
         }
 
         if (!$this->validate($rules, $messages)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Please correct the highlighted validation errors.',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(422);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -210,7 +238,21 @@ class UserController extends BaseController
         }
 
         if ($this->userModel->skipValidation(true)->update($id, $updateData)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'status'   => 'success',
+                    'message'  => 'User account updated successfully.',
+                    'redirect' => site_url('users'),
+                ]);
+            }
             return redirect()->to('users')->with('success', 'User account updated successfully.');
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Failed to update user account. Please try again.',
+            ])->setStatusCode(400);
         }
 
         return redirect()->back()->withInput()->with('error', 'Failed to update user account. Please try again.');
