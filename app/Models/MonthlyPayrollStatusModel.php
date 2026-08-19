@@ -20,6 +20,7 @@ class MonthlyPayrollStatusModel extends Model
         'salary_frozen_at',
         'disbursement_status',
         'disbursement_completed_at',
+        'updated_by_user_id',
     ];
 
     // Dates
@@ -65,5 +66,23 @@ class MonthlyPayrollStatusModel extends Model
         }
 
         return $byDate;
+    }
+
+    /**
+     * Get or initialize status record for a single month_date string (YYYY-MM-01)
+     */
+    public function getOrCreateStatus(string $monthDate): array
+    {
+        $record = $this->where('month_date', $monthDate)->first();
+        if (!$record) {
+            $id = $this->insert([
+                'month_date'          => $monthDate,
+                'attendance_status'   => 'draft',
+                'salary_status'       => 'draft',
+                'disbursement_status' => 'pending',
+            ]);
+            $record = $this->find($id);
+        }
+        return $record;
     }
 }

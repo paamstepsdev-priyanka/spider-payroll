@@ -4,22 +4,12 @@
 
 <!-- Page Header Row -->
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-  <div class="d-flex align-items-center gap-3">
-    <div class="bg-primary-subtle text-primary rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-        <line x1="16" y1="2" x2="16" y2="6"></line>
-        <line x1="8" y1="2" x2="8" y2="6"></line>
-        <line x1="3" y1="10" x2="21" y2="10"></line>
-      </svg>
-    </div>
-    <div>
-      <h3 class="fw-bold mb-1 text-dark"><?= esc($title ?? 'Payroll Processing Status') ?></h3>
-      <p class="text-body-secondary mb-0">Track attendance recording and salary processing for each month for <strong>Nisha Roadway Pvt Ltd.</strong> <span class="text-body-tertiary">(Switch company from the navbar.)</span></p>
-    </div>
+  <div>
+    <h3 class="fw-bold mb-1 text-dark"><?= esc($title ?? 'Payroll Processing Status') ?></h3>
+    <p class="text-body-secondary mb-0">Track attendance recording and salary processing for each month for <strong><?= esc($companyName) ?></strong>.</p>
   </div>
 
-  <!-- Financial Year Switcher -->
+  <!-- Financial Year Switcher Controls -->
   <div class="d-flex align-items-center gap-1 border rounded-3 p-1 bg-white shadow-sm">
     <a href="<?= site_url('payroll?fy=' . $prevFyStart) ?>" class="btn btn-sm btn-light border-0 text-secondary" title="Previous Financial Year">
       &larr;
@@ -51,9 +41,9 @@
 
 <!-- 4 Summary Metric Cards -->
 <div class="row g-3 mb-4">
-  <!-- Attendance Completed -->
+  <!-- 1. Attendance Completed -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-4 p-3 bg-white">
+    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">ATTENDANCE COMPLETED</div>
@@ -64,19 +54,17 @@
         </div>
         <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Salary Processed -->
+  <!-- 2. Salary Processed -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-4 p-3 bg-white">
+    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">SALARY PROCESSED</div>
@@ -95,9 +83,9 @@
     </div>
   </div>
 
-  <!-- In Progress -->
+  <!-- 3. In Progress -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-4 p-3 bg-white">
+    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">IN PROGRESS</div>
@@ -116,9 +104,9 @@
     </div>
   </div>
 
-  <!-- Payslip Generated -->
+  <!-- 4. Payslip Generated -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-4 p-3 bg-white">
+    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">PAYSLIP GENERATED</div>
@@ -133,7 +121,6 @@
             <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
             <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
         </div>
       </div>
@@ -141,9 +128,9 @@
   </div>
 </div>
 
-<!-- Alert Banner (if payroll is behind or needs action) -->
+<!-- Overdue Payroll Danger Alert -->
 <?php if (!empty($alertMonth) && $monthsBehind > 0): ?>
-  <div class="alert alert-danger border-danger-subtle bg-danger-subtle text-danger-emphasis d-flex flex-column flex-md-row align-items-md-center justify-content-between p-3 mb-4 rounded-4 shadow-sm">
+  <div class="alert alert-danger border-danger-subtle bg-danger-subtle text-danger-emphasis d-flex flex-column flex-md-row align-items-md-center justify-content-between p-3 mb-4 rounded-3 shadow-sm" role="alert">
     <div class="d-flex align-items-center gap-3 mb-2 mb-md-0">
       <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
         ⚠️
@@ -152,112 +139,83 @@
         Payroll is <strong><?= esc($monthsBehind) ?> <?= $monthsBehind === 1 ? 'month' : 'months' ?> behind</strong> — <strong><?= esc($alertMonth['name']) ?> <?= esc($alertMonth['year']) ?></strong> still needs attention: attendance hasn't been locked yet.
       </div>
     </div>
-    <a href="<?= esc($alertMonth['url']) ?>" class="btn btn-danger btn-sm px-3 py-2 rounded-3 fw-semibold text-nowrap align-self-start align-self-md-center">
-      Continue <?= esc($alertMonth['name']) ?> payroll &rarr;
+    <a href="<?= esc($alertMonth['url']) ?>" class="btn btn-danger btn-sm px-3 py-2 rounded-2 fw-semibold text-nowrap align-self-start align-self-md-center">
+      Continue <?= esc($alertMonth['name']) ?> Payroll &rarr;
     </a>
   </div>
 <?php endif; ?>
 
-<!-- Financial Year Timeline Section -->
-<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-  <!-- Card Header inside Timeline -->
+<!-- Financial Year Payroll Timeline Section -->
+<div class="card border shadow-sm rounded-3 p-4 mb-4 bg-white">
   <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
     <h5 class="fw-bold mb-0 text-dark"><?= esc($fyLabel) ?> Payroll Timeline</h5>
-    <span class="small fw-semibold text-body-secondary text-uppercase" style="letter-spacing: 0.5px;"><?= esc($fyDateRangeText) ?></span>
+    <span class="small fw-semibold text-body-secondary text-uppercase"><?= esc($fyDateRangeText) ?></span>
   </div>
 
-  <!-- Horizontal Timeline Wrapper -->
+  <!-- Horizontal Scrollable Timeline -->
   <div class="position-relative pt-2 pb-2">
-    <!-- Connecting Line -->
     <div class="position-absolute top-0 start-0 end-0 border-bottom border-2 border-secondary-subtle" style="margin-top: 15px; z-index: 1;"></div>
 
-    <!-- Timeline Nodes Flow -->
     <div class="d-flex flex-nowrap align-items-start gap-3 overflow-x-auto pb-3" style="z-index: 2; position: relative;">
       <?php foreach ($months as $m): ?>
-        <?php
-        $cat = $m['status_category'];
-        ?>
+        <?php $cat = $m['status_category']; ?>
 
         <?php if ($cat === 'action_needed'): ?>
-          <!-- Expanded Overdue / Action Needed Card -->
+          <!-- ACTION REQUIRED / OVERDUE Card -->
           <div class="flex-shrink-0" style="min-width: 250px;">
-            <!-- Timeline Dot -->
             <div class="d-flex justify-content-center mb-3">
               <span class="bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 24px; height: 24px; font-size: 11px;">!</span>
             </div>
-
-            <!-- Overdue Card Box -->
-            <div class="card border border-danger shadow-sm rounded-4 p-3 bg-white" style="border-width: 2px !important;">
-              <!-- Badge top -->
+            <div class="card border border-danger shadow-sm rounded-3 p-3 bg-white">
               <div class="mb-2">
-                <span class="badge bg-danger text-white uppercase rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">ACTION NEEDED - OVERDUE</span>
+                <span class="badge text-bg-danger rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">ACTION NEEDED - OVERDUE</span>
               </div>
               <h6 class="fw-bold text-dark mb-1"><?= esc($m['name']) ?> <?= esc($m['year']) ?></h6>
               <p class="small text-body-secondary mb-3" style="font-size: 0.78rem;">Attendance hasn't been locked yet</p>
-
-              <!-- Progress Detail Table -->
-              <div class="bg-light rounded-3 p-2 mb-3 small" style="font-size: 0.78rem;">
-                <div class="d-flex justify-content-between mb-1">
-                  <span class="text-body-secondary">Attendance</span>
-                  <span class="fw-semibold text-danger">In Progress</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span class="text-body-secondary">Salary</span>
-                  <span class="fw-semibold text-danger">Pending</span>
-                </div>
-              </div>
-
-              <!-- Button -->
-              <a href="<?= esc($m['url']) ?>" class="btn btn-danger btn-sm w-100 rounded-3 fw-semibold py-2">
+              <a href="<?= esc($m['url']) ?>" class="btn btn-danger btn-sm w-100 rounded-2 fw-semibold py-2">
                 Continue <?= esc($m['short_name']) ?> payroll &rarr;
               </a>
             </div>
           </div>
 
         <?php elseif ($cat === 'closed'): ?>
-          <!-- Closed Month -->
-          <div class="flex-shrink-0 text-center" style="min-width: 105px;">
-            <!-- Dot -->
+          <!-- COMPLETED / CLOSED Card -->
+          <div class="flex-shrink-0 text-center" style="min-width: 115px;">
             <div class="d-flex justify-content-center mb-3">
               <span class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 22px; height: 22px; font-size: 11px;">✓</span>
             </div>
-            <!-- Card -->
             <div class="card border border-success-subtle rounded-3 p-2 bg-success-subtle text-center">
               <div class="fw-bold text-dark small mb-1"><?= esc($m['short_name']) ?></div>
               <div class="small text-body-secondary mb-2" style="font-size: 0.7rem;"><?= esc($m['year']) ?></div>
               <span class="badge text-bg-success rounded-pill mb-2" style="font-size: 0.65rem;">✓ Closed</span>
               <div>
-                <a href="<?= esc($m['url']) ?>" class="small text-success text-decoration-none fw-semibold">View</a>
+                <a href="<?= esc($m['url']) ?>" class="btn btn-sm btn-outline-success py-0 px-2 rounded-2 fw-semibold" style="font-size: 0.7rem;">View</a>
               </div>
             </div>
           </div>
 
         <?php elseif ($cat === 'incomplete'): ?>
-          <!-- Incomplete Past Month -->
-          <div class="flex-shrink-0 text-center" style="min-width: 105px;">
-            <!-- Dot -->
+          <!-- INCOMPLETE / PAST Card -->
+          <div class="flex-shrink-0 text-center" style="min-width: 115px;">
             <div class="d-flex justify-content-center mb-3">
               <span class="bg-warning text-warning-emphasis rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 22px; height: 22px; font-size: 11px;">!</span>
             </div>
-            <!-- Card -->
             <div class="card border border-warning-subtle rounded-3 p-2 bg-warning-subtle text-center">
               <div class="fw-bold text-dark small mb-1"><?= esc($m['short_name']) ?></div>
               <div class="small text-body-secondary mb-2" style="font-size: 0.7rem;"><?= esc($m['year']) ?></div>
               <span class="badge text-bg-warning rounded-pill mb-2" style="font-size: 0.65rem;">⚠️ Incomplete</span>
               <div>
-                <a href="<?= esc($m['url']) ?>" class="small text-warning-emphasis text-decoration-none fw-semibold">View</a>
+                <a href="<?= esc($m['url']) ?>" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-2 fw-semibold" style="font-size: 0.7rem;">View</a>
               </div>
             </div>
           </div>
 
         <?php elseif ($cat === 'current'): ?>
-          <!-- Current Month -->
+          <!-- CURRENT MONTH Card -->
           <div class="flex-shrink-0 text-center" style="min-width: 140px;">
-            <!-- Dot -->
             <div class="d-flex justify-content-center mb-3">
               <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 22px; height: 22px; font-size: 11px;">●</span>
             </div>
-            <!-- Card -->
             <div class="card border border-primary shadow-sm rounded-3 p-2 bg-primary-subtle text-center">
               <span class="badge text-bg-primary rounded-pill mb-1" style="font-size: 0.62rem;">CURRENT MONTH</span>
               <div class="fw-bold text-dark small mb-1"><?= esc($m['short_name']) ?> <?= esc($m['year']) ?></div>
@@ -269,16 +227,14 @@
           </div>
 
         <?php else: ?>
-          <!-- Locked / Future Month -->
-          <div class="flex-shrink-0 text-center" style="min-width: 95px;">
-            <!-- Dot -->
+          <!-- FUTURE / LOCKED Card -->
+          <div class="flex-shrink-0 text-center" style="min-width: 100px;">
             <div class="d-flex justify-content-center mb-3">
               <span class="bg-secondary-subtle text-secondary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px; font-size: 10px;">🔒</span>
             </div>
-            <!-- Card -->
             <div class="card border border-secondary-subtle rounded-3 p-2 bg-light text-center opacity-75">
               <div class="fw-semibold text-secondary small mb-1"><?= esc($m['short_name']) ?></div>
-              <div class="text-body-tertiary mb-1" style="font-size: 1.1rem;">🔒</div>
+              <div class="text-body-tertiary mb-1" style="font-size: 1rem;">🔒</div>
               <div class="text-body-tertiary" style="font-size: 0.65rem;"><?= esc($m['opens_text']) ?></div>
             </div>
           </div>
@@ -292,15 +248,15 @@
   <div class="d-flex flex-wrap align-items-center gap-4 pt-3 mt-3 border-top small text-body-secondary">
     <div class="d-flex align-items-center gap-1">
       <span class="badge text-bg-success rounded-circle p-1">✓</span>
-      <span>Closed</span>
+      <span>Completed</span>
     </div>
     <div class="d-flex align-items-center gap-1">
       <span class="badge text-bg-danger rounded-circle p-1">⚠️</span>
-      <span>Action Needed</span>
+      <span>Action Required / Overdue</span>
     </div>
     <div class="d-flex align-items-center gap-1">
       <span class="badge text-bg-warning rounded-circle p-1">⚠️</span>
-      <span>Incomplete (past)</span>
+      <span>Incomplete (Past)</span>
     </div>
     <div class="d-flex align-items-center gap-1">
       <span class="badge text-bg-primary rounded-circle p-1">●</span>
@@ -308,7 +264,7 @@
     </div>
     <div class="d-flex align-items-center gap-1">
       <span class="text-secondary">🔒</span>
-      <span>Locked / Future</span>
+      <span>Future / Locked</span>
     </div>
   </div>
 </div>

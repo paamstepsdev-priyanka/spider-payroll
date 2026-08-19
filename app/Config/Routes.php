@@ -46,12 +46,16 @@ $routes->group('employees', static function ($routes) {
 $routes->group('payroll', static function ($routes) {
     $routes->get('/', 'PayrollController::index');
     $routes->get('month/(:num)/(:num)', 'PayrollController::month/$1/$2');
+    $routes->post('save-attendance', 'PayrollController::saveAttendance');
+    $routes->post('quick-fill-attendance', 'PayrollController::quickFillAttendance');
+    $routes->post('freeze-attendance', 'PayrollController::freezeAttendance');
+    $routes->post('save-salary', 'PayrollController::saveSalary');
+    $routes->post('approve-salary', 'PayrollController::approveSalary');
+    $routes->get('export-neft/(:num)/(:num)', 'PayrollController::exportNeft/$1/$2');
+    $routes->get('export-slips/(:num)/(:num)', 'PayrollController::exportSlips/$1/$2');
 });
 
 $routes->group('attendance', static function ($routes) {
     $routes->get('/', 'PayrollController::index');
     $routes->get('month/(:num)/(:num)', 'PayrollController::month/$1/$2');
 });
-
-
-
