@@ -133,7 +133,7 @@
           <!-- Action Buttons -->
           <div class="d-flex justify-content-end gap-2 border-top pt-3">
             <a href="<?= site_url('contractors') ?>" class="btn btn-outline-secondary">Cancel</a>
-            <button type="submit" class="btn btn-dark">
+            <button type="submit" class="btn btn-primary">
               Update Contractor
             </button>
           </div>

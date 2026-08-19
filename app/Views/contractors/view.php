@@ -74,9 +74,9 @@
                 <th scope="row" class="bg-light text-secondary" style="width: 35%;">Status</th>
                 <td>
                   <?php if ($contractor['status'] === 'active'): ?>
-                    <span class="badge-subtle-active">Active</span>
+                    <span class="badge border border-success text-success">Active</span>
                   <?php else: ?>
-                    <span class="badge-subtle-inactive">Inactive</span>
+                    <span class="badge border border-danger text-danger">Inactive</span>
                   <?php endif; ?>
                 </td>
               </tr>
@@ -93,7 +93,7 @@
         </div>
 
         <div class="d-flex justify-content-end gap-2 border-top pt-3">
-          <a href="<?= site_url('contractors/edit/' . $contractor['contractor_id']) ?>" class="btn text-white px-4 fw-medium" style="background: linear-gradient(180deg, #0f172a 0%, #1d4ed8 100%) !important; border-radius: 6px; border: none;">
+          <a href="<?= site_url('contractors/edit/' . $contractor['contractor_id']) ?>" class="btn btn-primary px-4 fw-medium" style="border-radius: 6px;">
             Edit Contractor
           </a>
           <a href="<?= site_url('contractors') ?>" class="btn btn-outline-secondary px-3" style="border-radius: 6px;">

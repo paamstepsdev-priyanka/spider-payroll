@@ -24,22 +24,22 @@
                 <td class="fw-semibold text-dark"><?= esc($user['name']) ?></td>
               </tr>
               <tr>
-                <th scope="row" class="bg-light text-secondary">Username</th>
-                <td><code>@<?= esc($user['username']) ?></code></td>
+                <th scope="row" class="bg-light text-secondary">Email</th>
+                <td><code><?= esc($user['username']) ?></code></td>
               </tr>
               <tr>
                 <th scope="row" class="bg-light text-secondary">Role</th>
                 <td>
-                  <span class="badge-subtle-admin">Super Admin</span>
+                  <span class="badge border border-primary text-primary">Super Admin</span>
                 </td>
               </tr>
               <tr>
                 <th scope="row" class="bg-light text-secondary">Status</th>
                 <td>
                   <?php if ((int)$user['status'] === 1): ?>
-                    <span class="badge-subtle-active">Active</span>
+                    <span class="badge border border-success text-success">Active</span>
                   <?php else: ?>
-                    <span class="badge-subtle-inactive">Inactive</span>
+                    <span class="badge border border-danger text-danger">Inactive</span>
                   <?php endif; ?>
                 </td>
               </tr>
@@ -56,7 +56,7 @@
         </div>
 
         <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
-          <a href="<?= site_url('users/edit/' . $user['id']) ?>" class="btn text-white px-4 fw-medium" style="background: linear-gradient(180deg, #0f172a 0%, #1d4ed8 100%) !important; border-radius: 6px; border: none;">
+          <a href="<?= site_url('users/edit/' . $user['id']) ?>" class="btn btn-primary px-4 fw-medium" style="border-radius: 6px;">
             Edit User
           </a>
           <a href="<?= site_url('users') ?>" class="btn btn-outline-secondary px-3" style="border-radius: 6px;">

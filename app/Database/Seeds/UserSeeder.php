@@ -8,32 +8,42 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        $data = [
-            [
-                'name'       => 'Super Admin',
-                'username'   => 'super_admin',
-                'password'   => password_hash('admin123', PASSWORD_DEFAULT),
-                'role'       => 'super_admin',
-                'status'     => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ],
-            [
-                'name'       => 'Demo User',
-                'username'   => 'demouser',
-                'password'   => password_hash('password123', PASSWORD_DEFAULT),
-                'role'       => 'super_admin',
-                'status'     => 0,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ],
+        $email    = 'priyanka@gmail.com';
+        $username = 'priyanka@gmail.com';
+        $password = '12345678';
+        $role     = 'super_admin';
+        $status   = 1; // Active status
+
+        $hasEmailField = $this->db->fieldExists('email', 'users');
+
+        $query = $this->db->table('users')->where('username', $username);
+        if ($hasEmailField) {
+            $query->orWhere('email', $email);
+        }
+
+        $existingUser = $query->get()->getRowArray();
+
+        $userData = [
+            'name'       => 'Priyanka',
+            'username'   => $username,
+            'password'   => password_hash($password, PASSWORD_DEFAULT),
+            'role'       => $role,
+            'status'     => $status,
+            'updated_at' => date('Y-m-d H:i:s'),
+            'deleted_at' => null,
         ];
 
-        foreach ($data as $user) {
-            $exists = $this->db->table('users')->where('username', $user['username'])->countAllResults();
-            if ($exists === 0) {
-                $this->db->table('users')->insert($user);
-            }
+        if ($hasEmailField) {
+            $userData['email'] = $email;
+        }
+
+        if ($existingUser) {
+            $this->db->table('users')
+                ->where('id', $existingUser['id'])
+                ->update($userData);
+        } else {
+            $userData['created_at'] = date('Y-m-d H:i:s');
+            $this->db->table('users')->insert($userData);
         }
     }
 }

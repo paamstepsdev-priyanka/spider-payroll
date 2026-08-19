@@ -72,7 +72,7 @@ class EmployeeController extends BaseController
             'biometric_code'      => 'permit_empty|max_length[50]|is_unique[employees.biometric_code]',
             'phone_number'        => 'permit_empty|max_length[20]|is_unique[employees.phone_number]',
             'gender'              => 'required|in_list[male,female,other]',
-            'date_of_birth'       => 'required|valid_date',
+            'date_of_birth'       => 'permit_empty|valid_date',
             'date_of_joining'     => 'required|valid_date',
             'date_of_leaving'     => 'permit_empty|valid_date',
             'exit_reason'         => 'permit_empty|max_length[255]',
@@ -82,8 +82,8 @@ class EmployeeController extends BaseController
             'bank_name'           => 'permit_empty|max_length[100]',
             'bank_account_number' => 'permit_empty|max_length[50]|is_unique[employees.bank_account_number]',
             'ifsc_code'           => 'permit_empty|max_length[20]',
+            'bank_branch'         => 'permit_empty|max_length[100]',
             'pan_number'          => 'permit_empty|max_length[20]',
-            'aadhaar_number'      => 'permit_empty|max_length[20]',
             'status'              => 'required|in_list[active,relieved,inactive]',
         ];
 
@@ -149,6 +149,11 @@ class EmployeeController extends BaseController
         // Additional conditional business logic validation
         $customErrors = [];
 
+        $dob = trim((string) $this->request->getPost('date_of_birth'));
+        if (!empty($dob) && strtotime($dob) > strtotime(date('Y-m-d'))) {
+            $customErrors['date_of_birth'] = 'Date of Birth cannot be a future date.';
+        }
+
         if ($status === 'relieved') {
             if (empty($dateOfLeaving)) {
                 $customErrors['date_of_leaving'] = 'Date of Leaving is required when marking employee as Relieved.';
@@ -186,7 +191,7 @@ class EmployeeController extends BaseController
             'phone_number'        => trim((string) $this->request->getPost('phone_number')) ?: null,
             'employee_name'       => trim((string) $this->request->getPost('employee_name')),
             'gender'              => $this->request->getPost('gender'),
-            'date_of_birth'       => $this->request->getPost('date_of_birth'),
+            'date_of_birth'       => !empty($dob) ? $dob : null,
             'date_of_joining'     => $this->request->getPost('date_of_joining'),
             'date_of_leaving'     => !empty($dateOfLeaving) ? $dateOfLeaving : null,
             'exit_reason'         => !empty($exitReason) ? $exitReason : null,
@@ -196,8 +201,8 @@ class EmployeeController extends BaseController
             'bank_name'           => trim((string) $this->request->getPost('bank_name')) ?: null,
             'bank_account_number' => trim((string) $this->request->getPost('bank_account_number')) ?: null,
             'ifsc_code'           => strtoupper(trim((string) $this->request->getPost('ifsc_code'))) ?: null,
+            'bank_branch'         => trim((string) $this->request->getPost('bank_branch')) ?: null,
             'pan_number'          => strtoupper(trim((string) $this->request->getPost('pan_number'))) ?: null,
-            'aadhaar_number'      => trim((string) $this->request->getPost('aadhaar_number')) ?: null,
             'status'              => $status,
         ];
 
@@ -285,7 +290,7 @@ class EmployeeController extends BaseController
             'biometric_code'      => "permit_empty|max_length[50]|is_unique[employees.biometric_code,employee_id,{$id}]",
             'phone_number'        => "permit_empty|max_length[20]|is_unique[employees.phone_number,employee_id,{$id}]",
             'gender'              => 'required|in_list[male,female,other]',
-            'date_of_birth'       => 'required|valid_date',
+            'date_of_birth'       => 'permit_empty|valid_date',
             'date_of_joining'     => 'required|valid_date',
             'date_of_leaving'     => 'permit_empty|valid_date',
             'exit_reason'         => 'permit_empty|max_length[255]',
@@ -295,8 +300,8 @@ class EmployeeController extends BaseController
             'bank_name'           => 'permit_empty|max_length[100]',
             'bank_account_number' => "permit_empty|max_length[50]|is_unique[employees.bank_account_number,employee_id,{$id}]",
             'ifsc_code'           => 'permit_empty|max_length[20]',
+            'bank_branch'         => 'permit_empty|max_length[100]',
             'pan_number'          => 'permit_empty|max_length[20]',
-            'aadhaar_number'      => 'permit_empty|max_length[20]',
             'status'              => 'required|in_list[active,relieved,inactive]',
         ];
 
@@ -362,6 +367,11 @@ class EmployeeController extends BaseController
         // Additional conditional business logic validation
         $customErrors = [];
 
+        $dob = trim((string) $this->request->getPost('date_of_birth'));
+        if (!empty($dob) && strtotime($dob) > strtotime(date('Y-m-d'))) {
+            $customErrors['date_of_birth'] = 'Date of Birth cannot be a future date.';
+        }
+
         if ($status === 'relieved') {
             if (empty($dateOfLeaving)) {
                 $customErrors['date_of_leaving'] = 'Date of Leaving is required when marking employee as Relieved.';
@@ -399,7 +409,7 @@ class EmployeeController extends BaseController
             'phone_number'        => trim((string) $this->request->getPost('phone_number')) ?: null,
             'employee_name'       => trim((string) $this->request->getPost('employee_name')),
             'gender'              => $this->request->getPost('gender'),
-            'date_of_birth'       => $this->request->getPost('date_of_birth'),
+            'date_of_birth'       => !empty($dob) ? $dob : null,
             'date_of_joining'     => $this->request->getPost('date_of_joining'),
             'date_of_leaving'     => !empty($dateOfLeaving) ? $dateOfLeaving : null,
             'exit_reason'         => !empty($exitReason) ? $exitReason : null,
@@ -409,8 +419,8 @@ class EmployeeController extends BaseController
             'bank_name'           => trim((string) $this->request->getPost('bank_name')) ?: null,
             'bank_account_number' => trim((string) $this->request->getPost('bank_account_number')) ?: null,
             'ifsc_code'           => strtoupper(trim((string) $this->request->getPost('ifsc_code'))) ?: null,
+            'bank_branch'         => trim((string) $this->request->getPost('bank_branch')) ?: null,
             'pan_number'          => strtoupper(trim((string) $this->request->getPost('pan_number'))) ?: null,
-            'aadhaar_number'      => trim((string) $this->request->getPost('aadhaar_number')) ?: null,
             'status'              => $status,
         ];
 

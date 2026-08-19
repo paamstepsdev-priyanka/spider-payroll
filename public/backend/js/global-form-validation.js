@@ -1,5 +1,5 @@
 /**
- * Spider Payroll - Global Form Validation & AJAX Form Processing System
+ * Spider Payroll - Global Form Validation & Datepicker System
  * Built on jQuery Validation, Bootstrap 5, & Flatpickr
  */
 
@@ -82,6 +82,60 @@ function showToast(type, message, title) {
 }
 
 /**
+ * Universal Bootstrap 5 Datepicker Initializer (Flatpickr)
+ * Auto-binds to date inputs with dropdown month/year navigation, clean formatting, & jQuery validation support.
+ * 
+ * @param {string|HTMLElement} [selector] 
+ */
+function initAppDatepickers(selector) {
+    if (typeof flatpickr === 'undefined') return;
+
+    var targetSelector = selector || 'input[type="date"], .datepicker, [data-datepicker]';
+    var $elements = $(targetSelector);
+
+    $elements.each(function () {
+        var el = this;
+        var $el = $(el);
+
+        if ($el.data('flatpickr-active')) return;
+
+        // Change standard HTML5 input type to text to avoid native browser picker conflict
+        if ($el.attr('type') === 'date') {
+            $el.attr('type', 'text');
+        }
+
+        var customFormat = $el.data('date-format') || 'Y-m-d';
+        var altFormat = $el.data('alt-format') || 'd/m/Y';
+        var allowInput = $el.data('allow-input') !== false;
+
+        var instance = flatpickr(el, {
+            dateFormat: customFormat,
+            altInput: true,
+            altFormat: altFormat,
+            allowInput: allowInput,
+            monthSelectorType: 'dropdown',
+            theme: 'airbnb',
+            onReady: function (selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    $(instance.altInput).addClass('form-control').attr('placeholder', $el.attr('placeholder') || 'dd/mm/yyyy');
+                    if ($el.attr('required')) {
+                        $(instance.altInput).attr('required', 'required');
+                    }
+                }
+            },
+            onChange: function (selectedDates, dateStr, instance) {
+                $el.val(dateStr).trigger('change');
+                if (instance.altInput) {
+                    $(instance.altInput).removeClass('is-invalid');
+                }
+            }
+        });
+
+        $el.data('flatpickr-active', instance);
+    });
+}
+
+/**
  * Global Helper to Initialize Standard jQuery Validation with Bootstrap 5
  * 
  * @param {string|HTMLElement} formSelector 
@@ -94,15 +148,24 @@ function initFormValidation(formSelector, rules, messages) {
     if (!$form.length) return null;
 
     return $form.validate({
+        ignore: ":hidden:not(.flatpickr-input, input[type='hidden'].flatpickr-input)",
         rules: rules || {},
         messages: messages || {},
         errorElement: 'div',
         errorClass: 'invalid-feedback d-block',
         highlight: function (element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
+            var $el = $(element);
+            $el.addClass('is-invalid').removeClass('is-valid');
+            if ($el.hasClass('flatpickr-input') && $el.next('.flatpickr-input').length) {
+                $el.next('.flatpickr-input').addClass('is-invalid');
+            }
         },
         unhighlight: function (element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
+            var $el = $(element);
+            $el.removeClass('is-invalid').addClass('is-valid');
+            if ($el.hasClass('flatpickr-input') && $el.next('.flatpickr-input').length) {
+                $el.next('.flatpickr-input').removeClass('is-invalid');
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.next('.select2-container').length) {
@@ -111,6 +174,8 @@ function initFormValidation(formSelector, rules, messages) {
                 error.insertAfter(element.parent('.input-group'));
             } else if (element.prop('type') === 'radio' || element.prop('type') === 'checkbox') {
                 error.appendTo(element.parent());
+            } else if (element.hasClass('flatpickr-input') && element.next('.flatpickr-input').length) {
+                error.insertAfter(element.next('.flatpickr-input'));
             } else {
                 error.insertAfter(element);
             }
@@ -135,15 +200,24 @@ function initAjaxForm(formSelector, options) {
     if (!$form.length) return null;
 
     var validator = $form.validate({
+        ignore: ":hidden:not(.flatpickr-input, input[type='hidden'].flatpickr-input)",
         rules: options.rules || {},
         messages: options.messages || {},
         errorElement: 'div',
         errorClass: 'invalid-feedback d-block',
         highlight: function (element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
+            var $el = $(element);
+            $el.addClass('is-invalid').removeClass('is-valid');
+            if ($el.hasClass('flatpickr-input') && $el.next('.flatpickr-input').length) {
+                $el.next('.flatpickr-input').addClass('is-invalid');
+            }
         },
         unhighlight: function (element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
+            var $el = $(element);
+            $el.removeClass('is-invalid').addClass('is-valid');
+            if ($el.hasClass('flatpickr-input') && $el.next('.flatpickr-input').length) {
+                $el.next('.flatpickr-input').removeClass('is-invalid');
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.next('.select2-container').length) {
@@ -152,6 +226,8 @@ function initAjaxForm(formSelector, options) {
                 error.insertAfter(element.parent('.input-group'));
             } else if (element.prop('type') === 'radio' || element.prop('type') === 'checkbox') {
                 error.appendTo(element.parent());
+            } else if (element.hasClass('flatpickr-input') && element.next('.flatpickr-input').length) {
+                error.insertAfter(element.next('.flatpickr-input'));
             } else {
                 error.insertAfter(element);
             }
@@ -186,11 +262,12 @@ function initAjaxForm(formSelector, options) {
                     if (response.status === 'success') {
                         showToast('success', response.message || 'Operation completed successfully.');
                         
+                        var redirectUrl = response.redirect || response.redirect_url;
                         if (typeof options.onSuccess === 'function') {
                             options.onSuccess(response);
-                        } else if (response.redirect) {
+                        } else if (redirectUrl) {
                             setTimeout(function () {
-                                window.location.href = response.redirect;
+                                window.location.href = redirectUrl;
                             }, 1000);
                         } else {
                             $submitBtn.prop('disabled', false).html(originalBtnHtml);
@@ -238,7 +315,7 @@ function initAjaxForm(formSelector, options) {
     return validator;
 }
 
-// Register Custom Validation Methods
+// Register Custom Validation Methods for jQuery Validation
 if (typeof $.validator !== 'undefined') {
     // Indian Mobile Number
     $.validator.addMethod("indianPhone", function (value, element) {
@@ -266,3 +343,14 @@ if (typeof $.validator !== 'undefined') {
         return this.optional(element) || !isNaN(Date.parse(value));
     }, "Please enter a valid date.");
 }
+
+// Automatic Initialization on Document Ready
+$(document).ready(function () {
+    // 1. Auto Initialize Datepickers
+    initAppDatepickers();
+
+    // 2. Auto Initialize Forms marked with data-ajax-form="true"
+    $('form[data-ajax-form="true"]').each(function () {
+        initAjaxForm(this);
+    });
+});

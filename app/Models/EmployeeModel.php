@@ -27,8 +27,8 @@ class EmployeeModel extends Model
         'bank_name',
         'bank_account_number',
         'ifsc_code',
+        'bank_branch',
         'pan_number',
-        'aadhaar_number',
         'status',
     ];
 

@@ -125,7 +125,7 @@
           <!-- Submit Action Buttons -->
           <div class="d-flex justify-content-end gap-2 border-top pt-3">
             <a href="<?= site_url('contractors') ?>" class="btn btn-outline-secondary px-3" style="border-radius: 6px;">Cancel</a>
-            <button type="submit" class="btn text-white px-4 fw-medium" style="background: linear-gradient(180deg, #0f172a 0%, #1d4ed8 100%) !important; border-radius: 6px; border: none;">
+            <button type="submit" class="btn btn-primary px-4 fw-medium" style="border-radius: 6px;">
               Save Contractor
             </button>
           </div>

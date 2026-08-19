@@ -17,14 +17,6 @@ $maskPan = function ($pan) {
     if ($len < 5) return $pan;
     return str_repeat('X', 5) . substr($pan, 5);
 };
-
-$maskAadhaar = function ($aadhaar) {
-    if (empty($aadhaar)) return '-';
-    $clean = str_replace(' ', '', $aadhaar);
-    $len = strlen($clean);
-    if ($len <= 4) return $clean;
-    return 'XXXX XXXX ' . substr($clean, -4);
-};
 ?>
 
 <div class="card mb-4" style="background-color: #ffffff !important; border: 1px solid #e5e7eb; border-radius: 6px;">
@@ -119,11 +111,11 @@ $maskAadhaar = function ($aadhaar) {
           <div class="text-secondary small fw-semibold">Status</div>
           <div class="mt-1">
             <?php if ($employee['status'] === 'active'): ?>
-              <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-2 py-1">Active</span>
+              <span class="badge border border-success text-success">Active</span>
             <?php elseif ($employee['status'] === 'relieved'): ?>
-              <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-2 py-1">Relieved</span>
+              <span class="badge border border-warning text-warning">Relieved</span>
             <?php else: ?>
-              <span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold px-2 py-1">Inactive</span>
+              <span class="badge border border-danger text-danger">Inactive</span>
             <?php endif; ?>
           </div>
         </div>
@@ -148,19 +140,23 @@ $maskAadhaar = function ($aadhaar) {
         3. Bank Details
       </h6>
       <div class="row g-3">
-        <div class="col-md-4">
-          <div class="text-secondary small fw-semibold">Bank Name</div>
-          <div class="fs-6 text-dark mt-1"><?= esc($employee['bank_name'] ?: '-') ?></div>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="text-secondary small fw-semibold">Bank Account Number</div>
           <div class="fs-6 text-dark fw-monospace mt-1">
             <?= esc($maskBankAccount($employee['bank_account_number'])) ?>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="text-secondary small fw-semibold">IFSC Code</div>
           <div class="fs-6 text-dark fw-monospace mt-1"><?= esc($employee['ifsc_code'] ?: '-') ?></div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small fw-semibold">Bank Name</div>
+          <div class="fs-6 text-dark mt-1"><?= esc($employee['bank_name'] ?: '-') ?></div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small fw-semibold">Bank Branch</div>
+          <div class="fs-6 text-dark mt-1"><?= esc($employee['bank_branch'] ?: '-') ?></div>
         </div>
       </div>
     </div>
@@ -171,16 +167,10 @@ $maskAadhaar = function ($aadhaar) {
         4. Identification
       </h6>
       <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <div class="text-secondary small fw-semibold">PAN Number</div>
           <div class="fs-6 text-dark fw-monospace mt-1">
             <?= esc($maskPan($employee['pan_number'])) ?>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="text-secondary small fw-semibold">Aadhaar Number</div>
-          <div class="fs-6 text-dark fw-monospace mt-1">
-            <?= esc($maskAadhaar($employee['aadhaar_number'])) ?>
           </div>
         </div>
       </div>

@@ -4,6 +4,10 @@ use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
 $routes->get('/', 'UserController::index');
+$routes->get('dashboard', 'PayrollController::index');
+$routes->get('login', 'AuthController::login');
+$routes->post('login', 'AuthController::attemptLogin');
+$routes->get('logout', 'AuthController::logout');
 
 $routes->group('users', static function ($routes) {
     $routes->get('/', 'UserController::index');

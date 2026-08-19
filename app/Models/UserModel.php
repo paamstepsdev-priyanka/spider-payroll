@@ -30,7 +30,7 @@ class UserModel extends Model
     // Validation
     protected $validationRules = [
         'name'     => 'required|min_length[2]|max_length[100]',
-        'username' => 'required|min_length[3]|max_length[100]|is_unique[users.username,id,{id}]',
+        'username' => 'required|valid_email|max_length[100]|is_unique[users.username,id,{id}]',
         'role'     => 'required|in_list[super_admin]',
         'status'   => 'required|in_list[0,1]',
     ];
@@ -42,8 +42,9 @@ class UserModel extends Model
             'max_length' => 'Name cannot exceed 100 characters.',
         ],
         'username' => [
-            'required'  => 'Username is required.',
-            'is_unique' => 'This username is already taken. Please choose another.',
+            'required'    => 'Email address is required.',
+            'valid_email' => 'Please enter a valid email address.',
+            'is_unique'   => 'This email address is already taken. Please choose another.',
         ],
         'role' => [
             'required' => 'Role is required.',

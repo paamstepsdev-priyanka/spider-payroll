@@ -26,11 +26,14 @@
             <?php endif; ?>
           </div>
 
-          <!-- Username Field -->
+          <!-- Email Field (used as Username) -->
           <div class="mb-3">
-            <label for="username" class="form-label small fw-semibold text-secondary">Username <span class="text-danger">*</span></label>
-            <input type="text" name="username" id="username" class="form-control <?= session('errors.username') ? 'is-invalid' : '' ?>" value="<?= old('username') ?>" placeholder="Enter unique username" required>
-            <?php if (session('errors.username')): ?>
+            <label for="email" class="form-label small fw-semibold text-secondary">Email <span class="text-danger">*</span></label>
+            <input type="email" name="email" id="email" class="form-control <?= (session('errors.email') || session('errors.username')) ? 'is-invalid' : '' ?>" value="<?= old('email', old('username')) ?>" placeholder="john@example.com" required>
+            <input type="hidden" name="username" id="username" value="<?= old('username', old('email')) ?>">
+            <?php if (session('errors.email')): ?>
+              <div class="invalid-feedback d-block"><?= session('errors.email') ?></div>
+            <?php elseif (session('errors.username')): ?>
               <div class="invalid-feedback d-block"><?= session('errors.username') ?></div>
             <?php endif; ?>
           </div>
@@ -80,12 +83,24 @@
 
           <div class="d-flex justify-content-end gap-2 border-top pt-3">
             <a href="<?= site_url('users') ?>" class="btn btn-outline-secondary px-3" style="border-radius: 6px;">Cancel</a>
-            <button type="submit" class="btn text-white px-4 fw-medium" style="background: linear-gradient(180deg, #0f172a 0%, #1d4ed8 100%) !important; border-radius: 6px; border: none;">
+            <button type="submit" class="btn btn-primary px-4 fw-medium" style="border-radius: 6px;">
               Save User
             </button>
           </div>
 
         </form>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            const emailInput = document.getElementById('email');
+            const usernameInput = document.getElementById('username');
+            if (emailInput && usernameInput) {
+              emailInput.addEventListener('input', function() {
+                usernameInput.value = this.value;
+              });
+            }
+          });
+        </script>
       </div>
     </div>
   </div>

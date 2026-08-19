@@ -26,33 +26,18 @@
             <?php endif; ?>
           </div>
 
-          <!-- Username Field -->
+          <!-- Email Field (used as Username) -->
           <div class="mb-3">
-            <label for="username" class="form-label small fw-semibold text-secondary">Username <span class="text-danger">*</span></label>
-            <input type="text" name="username" id="username" class="form-control <?= session('errors.username') ? 'is-invalid' : '' ?>" value="<?= old('username', $user['username']) ?>" required>
-            <?php if (session('errors.username')): ?>
+            <label for="email" class="form-label small fw-semibold text-secondary">Email <span class="text-danger">*</span></label>
+            <input type="email" name="email" id="email" class="form-control <?= (session('errors.email') || session('errors.username')) ? 'is-invalid' : '' ?>" value="<?= old('email', old('username', $user['username'])) ?>" placeholder="john@example.com" required>
+            <input type="hidden" name="username" id="username" value="<?= old('username', old('email', $user['username'])) ?>">
+            <?php if (session('errors.email')): ?>
+              <div class="invalid-feedback d-block"><?= session('errors.email') ?></div>
+            <?php elseif (session('errors.username')): ?>
               <div class="invalid-feedback d-block"><?= session('errors.username') ?></div>
             <?php endif; ?>
           </div>
 
-          <!-- Password Field -->
-          <div class="mb-3">
-            <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
-            <input type="password" name="password" id="password" class="form-control <?= session('errors.password') ? 'is-invalid' : '' ?>" autocomplete="new-password">
-            <div class="form-text text-secondary small mt-1">Enter a new password only if you want to change it.</div>
-            <?php if (session('errors.password')): ?>
-              <div class="invalid-feedback d-block"><?= session('errors.password') ?></div>
-            <?php endif; ?>
-          </div>
-
-          <!-- Confirm Password Field -->
-          <div class="mb-3">
-            <label for="confirm_password" class="form-label small fw-semibold text-secondary">Confirm Password</label>
-            <input type="password" name="confirm_password" id="confirm_password" class="form-control <?= session('errors.confirm_password') ? 'is-invalid' : '' ?>" autocomplete="new-password">
-            <?php if (session('errors.confirm_password')): ?>
-              <div class="invalid-feedback d-block"><?= session('errors.confirm_password') ?></div>
-            <?php endif; ?>
-          </div>
 
           <div class="row">
             <!-- Role Field -->
@@ -81,12 +66,24 @@
 
           <div class="d-flex justify-content-end gap-2 border-top pt-3">
             <a href="<?= site_url('users') ?>" class="btn btn-outline-secondary px-3" style="border-radius: 6px;">Cancel</a>
-            <button type="submit" class="btn text-white px-4 fw-medium" style="background: linear-gradient(180deg, #0f172a 0%, #1d4ed8 100%) !important; border-radius: 6px; border: none;">
+            <button type="submit" class="btn btn-primary px-4 fw-medium" style="border-radius: 6px;">
               Update User
             </button>
           </div>
 
         </form>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            const emailInput = document.getElementById('email');
+            const usernameInput = document.getElementById('username');
+            if (emailInput && usernameInput) {
+              emailInput.addEventListener('input', function() {
+                usernameInput.value = this.value;
+              });
+            }
+          });
+        </script>
       </div>
     </div>
   </div>

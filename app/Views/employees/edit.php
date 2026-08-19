@@ -68,7 +68,7 @@
         <button type="button" class="nav-link text-start d-flex align-items-center gap-2" data-step="5" id="step-tab-5">
           <span class="badge bg-secondary text-white rounded-circle p-2 px-3 step-num" id="badge-step-5">5</span>
           <div class="d-none d-sm-block">
-            <div class="fw-semibold text-truncate" style="font-size: 13px;">5 Exit Details</div>
+            <div class="fw-semibold text-truncate" style="font-size: 13px;">5 Review & Submit</div>
           </div>
         </button>
       </div>
@@ -130,10 +130,10 @@
 
           <!-- Date of Birth -->
           <div class="col-md-3 mb-3">
-            <label for="date_of_birth" class="form-label small fw-semibold text-secondary">Date of Birth <span class="text-danger">*</span></label>
-            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control <?= session('errors.date_of_birth') ? 'is-invalid' : '' ?>" value="<?= old('date_of_birth', $employee['date_of_birth']) ?>" required>
+            <label for="date_of_birth" class="form-label small fw-semibold text-secondary">Date of Birth</label>
+            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control <?= session('errors.date_of_birth') ? 'is-invalid' : '' ?>" value="<?= old('date_of_birth', $employee['date_of_birth']) ?>" max="<?= date('Y-m-d') ?>">
             <div class="invalid-feedback" id="err_date_of_birth">
-              <?= session('errors.date_of_birth') ?: 'Date of Birth is required.' ?>
+              <?= session('errors.date_of_birth') ?>
             </div>
           </div>
         </div>
@@ -223,6 +223,36 @@
           </div>
         </div>
 
+        <!-- Exit Details (Shown if Status is Relieved) -->
+        <div class="row d-none" id="exit-details-container">
+          <div class="col-12 mb-3">
+            <div class="p-3 bg-light border rounded">
+              <h6 class="text-secondary fw-semibold mb-3 fs-7">
+                Exit Details <span class="text-muted fw-normal text-lowercase fs-7">(Required when status is Relieved)</span>
+              </h6>
+              <div class="row">
+                <!-- Date of Leaving -->
+                <div class="col-md-6 mb-2">
+                  <label for="date_of_leaving" class="form-label small fw-semibold text-secondary">Date of Leaving <span class="text-danger d-none" id="req_star_date_of_leaving">*</span></label>
+                  <input type="date" name="date_of_leaving" id="date_of_leaving" class="form-control <?= session('errors.date_of_leaving') ? 'is-invalid' : '' ?>" value="<?= old('date_of_leaving', $employee['date_of_leaving']) ?>">
+                  <div class="invalid-feedback" id="err_date_of_leaving">
+                    <?= session('errors.date_of_leaving') ?: 'Date of Leaving is required when employee status is Relieved.' ?>
+                  </div>
+                </div>
+
+                <!-- Exit Reason -->
+                <div class="col-md-6 mb-2">
+                  <label for="exit_reason" class="form-label small fw-semibold text-secondary">Exit Reason <span class="text-danger d-none" id="req_star_exit_reason">*</span></label>
+                  <input type="text" name="exit_reason" id="exit_reason" class="form-control <?= session('errors.exit_reason') ? 'is-invalid' : '' ?>" value="<?= old('exit_reason', $employee['exit_reason']) ?>" placeholder="e.g. Resigned, Contract ended">
+                  <div class="invalid-feedback" id="err_exit_reason">
+                    <?= session('errors.exit_reason') ?: 'Exit Reason is required when employee status is Relieved.' ?>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Buttons -->
         <div class="d-flex justify-content-between pt-3 border-top mt-3">
           <button type="button" class="btn btn-outline-secondary px-4 btn-step-prev" style="border-radius: 6px; font-size: 13px;">
@@ -240,17 +270,8 @@
           Step 3: Bank Details <span class="text-muted fw-normal text-lowercase fs-7">(Optional)</span>
         </h6>
         <div class="row">
-          <!-- Bank Name -->
-          <div class="col-md-4 mb-3">
-            <label for="bank_name" class="form-label small fw-semibold text-secondary">Bank Name</label>
-            <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name', $employee['bank_name']) ?>" placeholder="e.g. HDFC Bank">
-            <?php if (session('errors.bank_name')): ?>
-              <div class="invalid-feedback d-block"><?= session('errors.bank_name') ?></div>
-            <?php endif; ?>
-          </div>
-
-          <!-- Bank Account Number -->
-          <div class="col-md-4 mb-3">
+          <!-- 1. Bank Account Number -->
+          <div class="col-md-3 mb-3">
             <label for="bank_account_number" class="form-label small fw-semibold text-secondary">Bank Account Number</label>
             <input type="text" name="bank_account_number" id="bank_account_number" class="form-control <?= session('errors.bank_account_number') ? 'is-invalid' : '' ?>" value="<?= old('bank_account_number', $employee['bank_account_number']) ?>" placeholder="e.g. 001234567890">
             <?php if (session('errors.bank_account_number')): ?>
@@ -258,12 +279,30 @@
             <?php endif; ?>
           </div>
 
-          <!-- IFSC Code -->
-          <div class="col-md-4 mb-3">
+          <!-- 2. IFSC Code -->
+          <div class="col-md-3 mb-3">
             <label for="ifsc_code" class="form-label small fw-semibold text-secondary">IFSC Code</label>
             <input type="text" name="ifsc_code" id="ifsc_code" class="form-control text-uppercase <?= session('errors.ifsc_code') ? 'is-invalid' : '' ?>" value="<?= old('ifsc_code', $employee['ifsc_code']) ?>" placeholder="e.g. HDFC0001234">
             <?php if (session('errors.ifsc_code')): ?>
               <div class="invalid-feedback d-block"><?= session('errors.ifsc_code') ?></div>
+            <?php endif; ?>
+          </div>
+
+          <!-- 3. Bank Name -->
+          <div class="col-md-3 mb-3">
+            <label for="bank_name" class="form-label small fw-semibold text-secondary">Bank Name</label>
+            <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name', $employee['bank_name']) ?>" placeholder="e.g. HDFC Bank">
+            <?php if (session('errors.bank_name')): ?>
+              <div class="invalid-feedback d-block"><?= session('errors.bank_name') ?></div>
+            <?php endif; ?>
+          </div>
+
+          <!-- 4. Bank Branch -->
+          <div class="col-md-3 mb-3">
+            <label for="bank_branch" class="form-label small fw-semibold text-secondary">Bank Branch</label>
+            <input type="text" name="bank_branch" id="bank_branch" class="form-control <?= session('errors.bank_branch') ? 'is-invalid' : '' ?>" value="<?= old('bank_branch', $employee['bank_branch']) ?>" placeholder="e.g. Andheri West">
+            <?php if (session('errors.bank_branch')): ?>
+              <div class="invalid-feedback d-block"><?= session('errors.bank_branch') ?></div>
             <?php endif; ?>
           </div>
         </div>
@@ -293,15 +332,6 @@
               <div class="invalid-feedback d-block"><?= session('errors.pan_number') ?></div>
             <?php endif; ?>
           </div>
-
-          <!-- Aadhaar Number -->
-          <div class="col-md-6 mb-3">
-            <label for="aadhaar_number" class="form-label small fw-semibold text-secondary">Aadhaar Number</label>
-            <input type="text" name="aadhaar_number" id="aadhaar_number" class="form-control <?= session('errors.aadhaar_number') ? 'is-invalid' : '' ?>" value="<?= old('aadhaar_number', $employee['aadhaar_number']) ?>" placeholder="e.g. 123456789012">
-            <?php if (session('errors.aadhaar_number')): ?>
-              <div class="invalid-feedback d-block"><?= session('errors.aadhaar_number') ?></div>
-            <?php endif; ?>
-          </div>
         </div>
 
         <!-- Buttons -->
@@ -315,38 +345,161 @@
         </div>
       </div>
 
-      <!-- STEP 5 — EXIT DETAILS -->
+      <!-- STEP 5 — REVIEW & SUBMIT -->
       <div class="step-panel d-none" id="step-panel-5">
-        <h6 class="text-primary fw-bold text-uppercase fs-7 tracking-wide border-bottom pb-2 mb-3">
-          Step 5: Exit Details <span class="text-muted fw-normal text-lowercase fs-7" id="exit-required-hint">(Required if Status is Relieved)</span>
-        </h6>
-        <div class="row">
-          <!-- Date of Leaving -->
-          <div class="col-md-6 mb-3">
-            <label for="date_of_leaving" class="form-label small fw-semibold text-secondary">Date of Leaving <span class="text-danger d-none" id="req_star_date_of_leaving">*</span></label>
-            <input type="date" name="date_of_leaving" id="date_of_leaving" class="form-control <?= session('errors.date_of_leaving') ? 'is-invalid' : '' ?>" value="<?= old('date_of_leaving', $employee['date_of_leaving']) ?>">
-            <div class="invalid-feedback" id="err_date_of_leaving">
-              <?= session('errors.date_of_leaving') ?: 'Date of Leaving is required when employee status is Relieved.' ?>
+        <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+          <h6 class="text-primary fw-bold text-uppercase fs-7 tracking-wide mb-0">
+            <i class="bi bi-check2-circle me-1"></i> STEP 5: REVIEW & SUBMIT
+          </h6>
+        </div>
+
+        <div class="text-secondary small mb-3">
+          <i class="bi bi-info-circle me-1"></i> Please review the details below before submitting this employee record.
+        </div>
+
+        <!-- 1. BASIC INFORMATION -->
+        <div class="card border mb-3">
+          <div class="card-header bg-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom">
+            <span class="fw-bold text-primary text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">
+              <i class="bi bi-person-fill me-1"></i> BASIC INFORMATION
+            </span>
+            <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none p-0 btn-jump-step fw-semibold" data-jump="1" style="font-size: 12px;">
+              Edit
+            </button>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Full Name</div>
+                <div class="fw-bold text-dark mt-1" id="rev_employee_name">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Biometric Code</div>
+                <div class="fw-bold text-dark mt-1" id="rev_biometric_code">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Mobile Number</div>
+                <div class="fw-bold text-dark mt-1" id="rev_phone_number">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Gender</div>
+                <div class="fw-bold text-dark mt-1" id="rev_gender">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Date of Birth</div>
+                <div class="fw-bold text-dark mt-1" id="rev_date_of_birth">-</div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <!-- Exit Reason -->
-          <div class="col-md-6 mb-3">
-            <label for="exit_reason" class="form-label small fw-semibold text-secondary">Exit Reason <span class="text-danger d-none" id="req_star_exit_reason">*</span></label>
-            <input type="text" name="exit_reason" id="exit_reason" class="form-control <?= session('errors.exit_reason') ? 'is-invalid' : '' ?>" value="<?= old('exit_reason', $employee['exit_reason']) ?>" placeholder="e.g. Resigned, Contract ended">
-            <div class="invalid-feedback" id="err_exit_reason">
-              <?= session('errors.exit_reason') ?: 'Exit Reason is required when employee status is Relieved.' ?>
+        <!-- 2. EMPLOYMENT DETAILS -->
+        <div class="card border mb-3">
+          <div class="card-header bg-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom">
+            <span class="fw-bold text-primary text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">
+              <i class="bi bi-briefcase-fill me-1"></i> EMPLOYMENT DETAILS
+            </span>
+            <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none p-0 btn-jump-step fw-semibold" data-jump="2" style="font-size: 12px;">
+              Edit
+            </button>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Contractor</div>
+                <div class="fw-bold text-dark mt-1" id="rev_contractor_id">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Date of Joining</div>
+                <div class="fw-bold text-dark mt-1" id="rev_date_of_joining">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Designation</div>
+                <div class="fw-bold text-dark mt-1" id="rev_designation">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Department</div>
+                <div class="fw-bold text-dark mt-1" id="rev_department">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Base Salary</div>
+                <div class="fw-bold text-success mt-1" id="rev_monthly_base_salary">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Status</div>
+                <div class="fw-bold text-dark mt-1" id="rev_status">-</div>
+              </div>
+              <div class="col-6 col-md-3 d-none" id="rev_exit_col_date">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Date of Leaving</div>
+                <div class="fw-bold text-danger mt-1" id="rev_date_of_leaving">-</div>
+              </div>
+              <div class="col-6 col-md-3 d-none" id="rev_exit_col_reason">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Exit Reason</div>
+                <div class="fw-bold text-dark mt-1" id="rev_exit_reason">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. BANK DETAILS -->
+        <div class="card border mb-3">
+          <div class="card-header bg-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom">
+            <span class="fw-bold text-primary text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">
+              <i class="bi bi-bank2 me-1"></i> BANK DETAILS
+            </span>
+            <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none p-0 btn-jump-step fw-semibold" data-jump="3" style="font-size: 12px;">
+              Edit
+            </button>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Account Number</div>
+                <div class="fw-bold text-dark font-monospace mt-1" id="rev_bank_account_number">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">IFSC Code</div>
+                <div class="fw-bold text-dark font-monospace mt-1" id="rev_ifsc_code">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Bank Name</div>
+                <div class="fw-bold text-dark mt-1" id="rev_bank_name">-</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">Bank Branch</div>
+                <div class="fw-bold text-dark mt-1" id="rev_bank_branch">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. IDENTIFICATION -->
+        <div class="card border mb-3">
+          <div class="card-header bg-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom">
+            <span class="fw-bold text-primary text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">
+              <i class="bi bi-card-heading me-1"></i> IDENTIFICATION
+            </span>
+            <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none p-0 btn-jump-step fw-semibold" data-jump="4" style="font-size: 12px;">
+              Edit
+            </button>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="text-secondary text-capitalize" style="font-size: 12px;">PAN Number</div>
+                <div class="fw-bold text-dark font-monospace mt-1" id="rev_pan_number">-</div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Buttons -->
-        <div class="d-flex justify-content-between pt-3 border-top mt-3">
+        <div class="d-flex justify-content-between pt-3 border-top mt-4">
           <button type="button" class="btn btn-outline-secondary px-4 btn-step-prev" style="border-radius: 6px; font-size: 13px;">
             &larr; Previous
           </button>
           <button type="submit" class="btn btn-primary px-4" style="border-radius: 6px; font-size: 13px;">
-            Save Employee
+            Save Employee &rarr;
           </button>
         </div>
       </div>
@@ -373,13 +526,11 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php
       $errs = session('errors');
       $step1Errs = isset($errs['employee_name']) || isset($errs['biometric_code']) || isset($errs['phone_number']) || isset($errs['gender']) || isset($errs['date_of_birth']);
-      $step2Errs = isset($errs['contractor_id']) || isset($errs['date_of_joining']) || isset($errs['designation']) || isset($errs['department']) || isset($errs['monthly_base_salary']) || isset($errs['status']);
-      $step3Errs = isset($errs['bank_name']) || isset($errs['bank_account_number']) || isset($errs['ifsc_code']);
-      $step4Errs = isset($errs['pan_number']) || isset($errs['aadhaar_number']);
-      $step5Errs = isset($errs['date_of_leaving']) || isset($errs['exit_reason']);
+      $step2Errs = isset($errs['contractor_id']) || isset($errs['date_of_joining']) || isset($errs['designation']) || isset($errs['department']) || isset($errs['monthly_base_salary']) || isset($errs['status']) || isset($errs['date_of_leaving']) || isset($errs['exit_reason']);
+      $step3Errs = isset($errs['bank_name']) || isset($errs['bank_account_number']) || isset($errs['ifsc_code']) || isset($errs['bank_branch']);
+      $step4Errs = isset($errs['pan_number']);
 
-      if ($step5Errs) $initialStep = 5;
-      elseif ($step4Errs) $initialStep = 4;
+      if ($step4Errs) $initialStep = 4;
       elseif ($step3Errs) $initialStep = 3;
       elseif ($step2Errs) $initialStep = 2;
       else $initialStep = 1;
@@ -388,16 +539,19 @@ document.addEventListener('DOMContentLoaded', function() {
   <?php endif; ?>
 
   function updateExitRequiredUI() {
-    const isRelieved = (statusSelect.value === 'relieved');
-    if (isRelieved) {
-      if (reqStarDateLeaving) reqStarDateLeaving.classList.remove('d-none');
-      if (reqStarExitReason) reqStarExitReason.classList.remove('d-none');
-    } else {
-      if (reqStarDateLeaving) reqStarDateLeaving.classList.add('d-none');
-      if (reqStarExitReason) reqStarExitReason.classList.add('d-none');
-      dateOfLeavingInput.classList.remove('is-invalid');
-      exitReasonInput.classList.remove('is-invalid');
+    const exitContainer = document.getElementById('exit-details-container');
+    const isRelieved = (statusSelect && statusSelect.value === 'relieved');
+    if (exitContainer) {
+      if (isRelieved) {
+        exitContainer.classList.remove('d-none');
+      } else {
+        exitContainer.classList.add('d-none');
+        if (dateOfLeavingInput) dateOfLeavingInput.classList.remove('is-invalid');
+        if (exitReasonInput) exitReasonInput.classList.remove('is-invalid');
+      }
     }
+    if (reqStarDateLeaving) reqStarDateLeaving.classList.toggle('d-none', !isRelieved);
+    if (reqStarExitReason) reqStarExitReason.classList.toggle('d-none', !isRelieved);
   }
 
   if (statusSelect) {
@@ -405,7 +559,88 @@ document.addEventListener('DOMContentLoaded', function() {
     updateExitRequiredUI();
   }
 
+  function formatDate(dStr) {
+    if (!dStr) return '-';
+    const parts = dStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dStr;
+  }
+
+  function populateReview() {
+    const empName = document.getElementById('employee_name')?.value.trim() || '-';
+    const phone = document.getElementById('phone_number')?.value.trim() || '-';
+    const bioCode = document.getElementById('biometric_code')?.value.trim() || '-';
+    const genderSel = document.getElementById('gender');
+    const genderText = genderSel && genderSel.selectedIndex >= 0 ? genderSel.options[genderSel.selectedIndex].text : '-';
+    const dob = formatDate(document.getElementById('date_of_birth')?.value.trim());
+
+    const contractorSel = document.getElementById('contractor_id');
+    const contractorText = contractorSel && contractorSel.value ? contractorSel.options[contractorSel.selectedIndex].text : '-';
+    const doj = formatDate(document.getElementById('date_of_joining')?.value.trim());
+    const designation = document.getElementById('designation')?.value.trim() || '-';
+    const department = document.getElementById('department')?.value.trim() || '-';
+    const salaryVal = parseFloat(document.getElementById('monthly_base_salary')?.value || 0);
+    const salaryText = '₹' + salaryVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const statusSel = document.getElementById('status');
+    const statusVal = statusSel ? statusSel.value : '';
+    const dateLeaving = formatDate(document.getElementById('date_of_leaving')?.value.trim());
+    const exitReason = document.getElementById('exit_reason')?.value.trim() || '-';
+
+    const accNum = document.getElementById('bank_account_number')?.value.trim() || '-';
+    const ifsc = document.getElementById('ifsc_code')?.value.trim().toUpperCase() || '-';
+    const bankName = document.getElementById('bank_name')?.value.trim() || '-';
+    const bankBranch = document.getElementById('bank_branch')?.value.trim() || '-';
+
+    const pan = document.getElementById('pan_number')?.value.trim().toUpperCase() || '-';
+
+    document.getElementById('rev_employee_name').textContent = empName;
+    document.getElementById('rev_phone_number').textContent = phone;
+    document.getElementById('rev_biometric_code').textContent = bioCode;
+    document.getElementById('rev_gender').textContent = genderText;
+    document.getElementById('rev_date_of_birth').textContent = dob;
+
+    document.getElementById('rev_contractor_id').textContent = contractorText;
+    document.getElementById('rev_date_of_joining').textContent = doj;
+    document.getElementById('rev_designation').textContent = designation;
+    document.getElementById('rev_department').textContent = department;
+    document.getElementById('rev_monthly_base_salary').textContent = salaryText;
+
+    let statusBadge = '<span class="badge text-bg-secondary"><i class="bi bi-pause-circle me-1"></i>Inactive</span>';
+    if (statusVal === 'active') {
+      statusBadge = '<span class="badge text-bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>';
+    } else if (statusVal === 'relieved') {
+      statusBadge = '<span class="badge text-bg-danger"><i class="bi bi-x-circle me-1"></i>Relieved</span>';
+    }
+    const revStatusEl = document.getElementById('rev_status');
+    if (revStatusEl) revStatusEl.innerHTML = statusBadge;
+
+    const exitColDate = document.getElementById('rev_exit_col_date');
+    const exitColReason = document.getElementById('rev_exit_col_reason');
+    if (statusVal === 'relieved') {
+      if (exitColDate) exitColDate.classList.remove('d-none');
+      if (exitColReason) exitColReason.classList.remove('d-none');
+      document.getElementById('rev_date_of_leaving').textContent = dateLeaving;
+      document.getElementById('rev_exit_reason').textContent = exitReason;
+    } else {
+      if (exitColDate) exitColDate.classList.add('d-none');
+      if (exitColReason) exitColReason.classList.add('d-none');
+    }
+
+    document.getElementById('rev_bank_account_number').textContent = accNum;
+    document.getElementById('rev_ifsc_code').textContent = ifsc;
+    document.getElementById('rev_bank_name').textContent = bankName;
+    document.getElementById('rev_bank_branch').textContent = bankBranch;
+
+    document.getElementById('rev_pan_number').textContent = pan;
+  }
+
   function renderStep(step) {
+    if (step === 5) {
+      populateReview();
+    }
+
     // Hide all step panels
     document.querySelectorAll('.step-panel').forEach(panel => panel.classList.add('d-none'));
 
@@ -454,8 +689,11 @@ document.addEventListener('DOMContentLoaded', function() {
         empName.classList.remove('is-invalid');
       }
 
-      if (!dob.value.trim()) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (dob.value.trim() && dob.value > todayStr) {
         dob.classList.add('is-invalid');
+        const errDiv = document.getElementById('err_date_of_birth');
+        if (errDiv) errDiv.textContent = 'Date of Birth cannot be a future date.';
         isValid = false;
       } else {
         dob.classList.remove('is-invalid');
@@ -492,9 +730,8 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         status.classList.remove('is-invalid');
       }
-    } else if (step === 5) {
-      const statusVal = statusSelect.value;
-      if (statusVal === 'relieved') {
+
+      if (status.value === 'relieved') {
         if (!dateOfLeavingInput.value.trim()) {
           dateOfLeavingInput.classList.add('is-invalid');
           isValid = false;
@@ -508,14 +745,24 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           exitReasonInput.classList.remove('is-invalid');
         }
-      } else {
-        dateOfLeavingInput.classList.remove('is-invalid');
-        exitReasonInput.classList.remove('is-invalid');
       }
+    } else if (step === 5) {
+      const isStep1Valid = validateCurrentStep(1);
+      const isStep2Valid = validateCurrentStep(2);
+      isValid = isStep1Valid && isStep2Valid;
     }
 
     return isValid;
   }
+
+  // Handle Jump to Step from Review Cards
+  document.querySelectorAll('.btn-jump-step').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const stepToJump = parseInt(this.getAttribute('data-jump'));
+      currentStep = stepToJump;
+      renderStep(currentStep);
+    });
+  });
 
   // Handle Form Submit on Step 5
   form.addEventListener('submit', function(e) {

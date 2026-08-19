@@ -59,9 +59,11 @@ class UserController extends BaseController
      */
     public function store()
     {
+        $email = trim($this->request->getPost('email') ?? $this->request->getPost('username'));
+
         $rules = [
             'name'             => 'required|min_length[2]|max_length[100]',
-            'username'         => 'required|min_length[3]|max_length[100]|is_unique[users.username]',
+            'email'            => 'required|valid_email|max_length[100]|is_unique[users.username]',
             'password'         => 'required|min_length[6]',
             'confirm_password' => 'required|matches[password]',
             'role'             => 'required|in_list[super_admin]',
@@ -72,9 +74,10 @@ class UserController extends BaseController
             'name' => [
                 'required' => 'Full Name is required.',
             ],
-            'username' => [
-                'required'  => 'Username is required.',
-                'is_unique' => 'This username is already taken. Please choose another.',
+            'email' => [
+                'required'    => 'Email address is required.',
+                'valid_email' => 'Please enter a valid email address.',
+                'is_unique'   => 'This email is already taken. Please choose another.',
             ],
             'password' => [
                 'required'   => 'Password is required.',
@@ -107,7 +110,7 @@ class UserController extends BaseController
 
         $userData = [
             'name'     => trim($this->request->getPost('name')),
-            'username' => trim($this->request->getPost('username')),
+            'username' => $email,
             'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
             'role'     => $this->request->getPost('role'),
             'status'   => (int) $this->request->getPost('status'),
@@ -183,20 +186,23 @@ class UserController extends BaseController
             throw PageNotFoundException::forPageNotFound("User with ID {$id} not found.");
         }
 
+        $email = trim($this->request->getPost('email') ?? $this->request->getPost('username'));
+
         $rules = [
-            'name'     => 'required|min_length[2]|max_length[100]',
-            'username' => "required|min_length[3]|max_length[100]|is_unique[users.username,id,{$id}]",
-            'role'     => 'required|in_list[super_admin]',
-            'status'   => 'required|in_list[0,1]',
+            'name'   => 'required|min_length[2]|max_length[100]',
+            'email'  => "required|valid_email|max_length[100]|is_unique[users.username,id,{$id}]",
+            'role'   => 'required|in_list[super_admin]',
+            'status' => 'required|in_list[0,1]',
         ];
 
         $messages = [
             'name' => [
                 'required' => 'Full Name is required.',
             ],
-            'username' => [
-                'required'  => 'Username is required.',
-                'is_unique' => 'This username is already taken by another user.',
+            'email' => [
+                'required'    => 'Email address is required.',
+                'valid_email' => 'Please enter a valid email address.',
+                'is_unique'   => 'This email address is already taken by another user.',
             ],
             'role' => [
                 'required' => 'Role selection is required.',
@@ -207,7 +213,9 @@ class UserController extends BaseController
         ];
 
         $password = $this->request->getPost('password');
-        if (!empty($password)) {
+        $isPasswordChanged = (!empty($password) && $password !== $user['password']);
+
+        if ($isPasswordChanged) {
             $rules['password']         = 'min_length[6]';
             $rules['confirm_password'] = 'matches[password]';
 
@@ -228,12 +236,12 @@ class UserController extends BaseController
 
         $updateData = [
             'name'     => trim($this->request->getPost('name')),
-            'username' => trim($this->request->getPost('username')),
+            'username' => $email,
             'role'     => $this->request->getPost('role'),
             'status'   => (int) $this->request->getPost('status'),
         ];
 
-        if (!empty($password)) {
+        if ($isPasswordChanged) {
             $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
         }
 
@@ -300,5 +308,14 @@ class UserController extends BaseController
         }
 
         return redirect()->to('users')->with('error', 'Failed to delete user.');
+    }
+
+    /**
+     * Logout user
+     */
+    public function logout()
+    {
+        session()->destroy();
+        return redirect()->to('login')->with('success', 'Logged out successfully.');
     }
 }
