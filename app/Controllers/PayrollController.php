@@ -102,16 +102,16 @@ class PayrollController extends BaseController
             $salStatus  = $record['salary_status']       ?? 'draft';
             $disbStatus = $record['disbursement_status'] ?? 'pending';
 
-            if ($attStatus === 'frozen') {
+            if (in_array($attStatus, ['freeze', 'frozen'])) {
                 $attendanceCompletedCount++;
             }
 
-            if ($salStatus === 'frozen') {
+            if (in_array($salStatus, ['freeze', 'frozen'])) {
                 $salaryProcessedCount++;
                 $payslipsGeneratedCount++;
             }
 
-            $isFullyFrozen = ($attStatus === 'frozen' && $salStatus === 'frozen');
+            $isFullyFrozen = (in_array($attStatus, ['freeze', 'frozen']) && in_array($salStatus, ['freeze', 'frozen']));
 
             if (!$isFullyFrozen && ($attStatus === 'in_progress' || $attStatus === 'draft' || $salStatus === 'draft' || $isCurrent)) {
                 $inProgressCount++;
@@ -232,7 +232,6 @@ class PayrollController extends BaseController
         $monthTimestamp  = mktime(0, 0, 0, $month, 1, $year);
         $monthName       = date('F Y', $monthTimestamp);
         $shortMonthName  = strtoupper(date('M', $monthTimestamp));
-        $companyName     = "Spider Payroll";
 
         // Get or initialize month status
         $statusRecord = $this->payrollStatusModel->getOrCreateStatus($monthDate);
@@ -303,7 +302,7 @@ class PayrollController extends BaseController
 
         // Step 2 Summaries
         $totalPayrollBudget       = 0.0;
-        $totalFrozenAttendanceDays= 0.0;
+        $totalFrozenAttendanceDays = 0.0;
         $totalNetPayableDays      = 0.0;
 
         foreach ($attendanceRows as $row) {
@@ -336,7 +335,6 @@ class PayrollController extends BaseController
         $data = [
             'title'                      => "Payroll Processing — {$monthName}",
             'subtitle'                   => "Monthly Payroll Processing · {$monthName}",
-            'companyName'                => $companyName,
             'breadcrumb_item'            => "Payroll ({$shortMonthName} {$year})",
             'year'                       => $year,
             'month'                      => $month,
@@ -375,10 +373,10 @@ class PayrollController extends BaseController
         }
 
         $status = $this->payrollStatusModel->getOrCreateStatus($monthDate);
-        if ($status['attendance_status'] === 'frozen') {
+        if (in_array($status['attendance_status'], ['freeze', 'frozen'])) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => 'Attendance for this month is frozen and cannot be edited.',
+                'message' => 'Attendance for this month is frozen/locked and cannot be edited.',
             ]);
         }
 
@@ -435,10 +433,10 @@ class PayrollController extends BaseController
         }
 
         $status = $this->payrollStatusModel->getOrCreateStatus($monthDate);
-        if ($status['attendance_status'] === 'frozen') {
+        if (in_array($status['attendance_status'], ['freeze', 'frozen'])) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => 'Attendance for this month is frozen and cannot be edited.',
+                'message' => 'Attendance for this month is frozen/locked and cannot be edited.',
             ]);
         }
 
@@ -493,13 +491,13 @@ class PayrollController extends BaseController
         }
 
         $status = $this->payrollStatusModel->getOrCreateStatus($monthDate);
-        if ($status['attendance_status'] === 'frozen') {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Attendance is already frozen.']);
+        if (in_array($status['attendance_status'], ['freeze', 'frozen'])) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Attendance is already completed & frozen.']);
         }
 
         // Freeze attendance status
         $this->payrollStatusModel->update($status['id'], [
-            'attendance_status'    => 'frozen',
+            'attendance_status'    => 'freeze',
             'attendance_frozen_at' => date('Y-m-d H:i:s'),
             'salary_status'        => 'draft',
         ]);
@@ -567,11 +565,11 @@ class PayrollController extends BaseController
 
         $status = $this->payrollStatusModel->getOrCreateStatus($monthDate);
 
-        if ($status['attendance_status'] !== 'frozen') {
+        if (!in_array($status['attendance_status'], ['freeze', 'frozen'])) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Cannot modify salary before Attendance is frozen.']);
         }
 
-        if ($status['salary_status'] === 'frozen') {
+        if (in_array($status['salary_status'], ['freeze', 'frozen'])) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Salary is frozen/approved and cannot be edited.']);
         }
 
@@ -612,17 +610,17 @@ class PayrollController extends BaseController
 
         $status = $this->payrollStatusModel->getOrCreateStatus($monthDate);
 
-        if ($status['attendance_status'] !== 'frozen') {
+        if (!in_array($status['attendance_status'], ['freeze', 'frozen'])) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Step 1 Attendance must be frozen before approving salary.']);
         }
 
-        if ($status['salary_status'] === 'frozen') {
+        if (in_array($status['salary_status'], ['freeze', 'frozen'])) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Salary is already frozen & approved.']);
         }
 
         // Freeze salary status, but keep disbursement_status as 'pending' until actual disbursement
         $this->payrollStatusModel->update($status['id'], [
-            'salary_status'    => 'frozen',
+            'salary_status'    => 'freeze',
             'salary_frozen_at' => date('Y-m-d H:i:s'),
         ]);
 

@@ -10,9 +10,6 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 <!-- Header Row -->
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between pb-3 mb-4 border-bottom gap-3">
   <div>
-    <h3 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-      <?= esc($companyName) ?>
-    </h3>
     <p class="text-body-secondary mb-0 small">
       Monthly Payroll Processing &middot; <strong><?= esc($monthName) ?></strong>
     </p>
@@ -27,114 +24,114 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 <!-- 3-Step Workflow Header Cards -->
 <div class="row g-3 mb-4">
 
-    <!-- STEP 1 -->
-    <div class="col-12 col-md-4">
-        <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
+  <!-- STEP 1 -->
+  <div class="col-12 col-md-4">
+    <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
             <?= $attFrozen ? 'step-completed' : 'step-active' ?>">
 
-            <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-3">
 
-                <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
-                    <?= $attFrozen ? '✓' : '1' ?>
-                </div>
-
-                <div>
-                    <div class="fw-bold text-dark mb-1">
-                        Step 1: Attendance Register
-                    </div>
-
-                    <?php if ($attFrozen): ?>
-                        <span class="badge rounded-pill status-badge status-success">
-                            Completed & Frozen
-                        </span>
-                    <?php else: ?>
-                        <span class="badge rounded-pill status-badge status-primary">
-                            Active / In Progress
-                        </span>
-                    <?php endif; ?>
-                </div>
-
-            </div>
+        <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
+          <?= $attFrozen ? '✓' : '1' ?>
         </div>
+
+        <div>
+          <div class="fw-bold text-dark mb-1">
+            Step 1: Attendance Register
+          </div>
+
+          <?php if ($attFrozen): ?>
+            <span class="badge rounded-pill status-badge status-success">
+              Completed & Frozen
+            </span>
+          <?php else: ?>
+            <span class="badge rounded-pill status-badge status-primary">
+              Active / In Progress
+            </span>
+          <?php endif; ?>
+        </div>
+
+      </div>
     </div>
+  </div>
 
 
-    <!-- STEP 2 -->
-    <div class="col-12 col-md-4">
-        <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
+  <!-- STEP 2 -->
+  <div class="col-12 col-md-4">
+    <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
             <?= $salFrozen ? 'step-completed' : ($attFrozen ? 'step-unlocked' : 'step-locked') ?>">
 
-            <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-3">
 
-                <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
-                    <?= $salFrozen ? '✓' : '2' ?>
-                </div>
-
-                <div>
-                    <div class="fw-bold text-dark mb-1">
-                        Step 2: Salary Computation
-                    </div>
-
-                    <?php if ($salFrozen): ?>
-
-                        <span class="badge rounded-pill status-badge status-success">
-                            Approved & Locked
-                        </span>
-
-                    <?php elseif ($attFrozen): ?>
-
-                        <span class="badge rounded-pill status-badge status-warning">
-                            Active / Unlocked
-                        </span>
-
-                    <?php else: ?>
-
-                        <span class="badge rounded-pill status-badge status-danger">
-                            🔒 Locked (Complete Step 1)
-                        </span>
-
-                    <?php endif; ?>
-                </div>
-
-            </div>
+        <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
+          <?= $salFrozen ? '✓' : '2' ?>
         </div>
+
+        <div>
+          <div class="fw-bold text-dark mb-1">
+            Step 2: Salary Computation
+          </div>
+
+          <?php if ($salFrozen): ?>
+
+            <span class="badge rounded-pill status-badge status-success">
+              Approved & Locked
+            </span>
+
+          <?php elseif ($attFrozen): ?>
+
+            <span class="badge rounded-pill status-badge status-warning">
+              Active / Unlocked
+            </span>
+
+          <?php else: ?>
+
+            <span class="badge rounded-pill status-badge status-danger">
+              🔒 Locked (Complete Step 1)
+            </span>
+
+          <?php endif; ?>
+        </div>
+
+      </div>
     </div>
+  </div>
 
 
-    <!-- STEP 3 -->
-    <div class="col-12 col-md-4">
-        <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
+  <!-- STEP 3 -->
+  <div class="col-12 col-md-4">
+    <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
             <?= $salFrozen ? 'step-completed' : 'step-locked' ?>">
 
-            <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-3">
 
-                <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
-                    <?= $salFrozen ? '✓' : '3' ?>
-                </div>
-
-                <div>
-                    <div class="fw-bold text-dark mb-1">
-                        Step 3: Payslip & NEFT Export
-                    </div>
-
-                    <?php if ($salFrozen): ?>
-
-                        <span class="badge rounded-pill status-badge status-success">
-                            Generated & Ready
-                        </span>
-
-                    <?php else: ?>
-
-                        <span class="badge rounded-pill status-badge status-danger">
-                            🔒 Locked (Approve Step 2)
-                        </span>
-
-                    <?php endif; ?>
-                </div>
-
-            </div>
+        <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
+          <?= $salFrozen ? '✓' : '3' ?>
         </div>
+
+        <div>
+          <div class="fw-bold text-dark mb-1">
+            Step 3: Payslip & NEFT Export
+          </div>
+
+          <?php if ($salFrozen): ?>
+
+            <span class="badge rounded-pill status-badge status-success">
+              Generated & Ready
+            </span>
+
+          <?php else: ?>
+
+            <span class="badge rounded-pill status-badge status-danger">
+              🔒 Locked (Approve Step 2)
+            </span>
+
+          <?php endif; ?>
+        </div>
+
+      </div>
     </div>
+  </div>
 
 </div>
 
@@ -234,8 +231,8 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
           <button type="button" class="btn btn-outline-warning btn-sm rounded-2 shadow-sm fw-semibold" id="btnSaveAttendanceDraft" <?= $attFrozen ? 'disabled' : '' ?>>
             💾 Save Draft Attendance
           </button>
-          <button type="button" class="btn btn-success btn-sm rounded-2 shadow-sm fw-semibold" id="btnFreezeAttendance" <?= $attFrozen ? 'disabled' : '' ?>>
-            🔒 Freeze & Complete Attendance
+          <button type="button" class="btn btn-success btn-sm rounded-2 shadow-sm fw-semibold text-white" id="btnFreezeAttendance" <?= $attFrozen ? 'disabled' : '' ?>>
+            <?= $attFrozen ? '🔒 Attendance Completed & Locked' : '🔒 Freeze & Complete Attendance' ?>
           </button>
         </div>
       </div>
@@ -250,7 +247,7 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                 <th style="width: 50px;">#</th>
                 <th>Employee Name</th>
                 <th>Contractor</th>
-                <th>Designation</th>
+                <th>Biometric Code</th>
                 <th class="text-center" style="width: 130px;">Total Month Days</th>
                 <th class="text-center" style="width: 130px;">Leave Taken</th>
                 <th class="text-center" style="width: 140px;">Leave Not Deducted</th>
@@ -272,7 +269,6 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                       </div>
                       <div>
                         <div class="fw-bold text-dark mb-0"><?= esc($row['employee_name']) ?></div>
-                        <span class="small text-body-tertiary"><?= esc($row['biometric_code'] ?? 'N/A') ?></span>
                       </div>
                     </div>
                   </td>
@@ -282,8 +278,8 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                     </span>
                   </td>
                   <td>
-                    <span class="badge text-bg-secondary rounded-pill fw-normal">
-                      <?= esc($row['designation']) ?>
+                    <span class="badge text-bg-light border text-dark fw-semibold">
+                      <?= esc($row['biometric_code'] ?? 'N/A') ?>
                     </span>
                   </td>
                   <td class="text-center fw-bold text-dark">
@@ -292,7 +288,7 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                   </td>
                   <td>
                     <input type="number" step="0.5" min="0" max="<?= $daysInMonth ?>"
-                      class="form-select form-select-sm text-center input-leave"
+                      class="form-control form-control-sm text-center input-leave"
                       name="attendance[<?= $row['employee_id'] ?>][leave_days]"
                       value="<?= esc($row['leave_days']) ?>"
                       data-emp-id="<?= $row['employee_id'] ?>"
@@ -300,7 +296,7 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                   </td>
                   <td>
                     <input type="number" step="0.5" min="0" max="<?= $daysInMonth ?>"
-                      class="form-select form-select-sm text-center input-leave-nd"
+                      class="form-control form-control-sm text-center input-leave-nd"
                       name="attendance[<?= $row['employee_id'] ?>][leave_not_deducted]"
                       value="<?= esc($row['leave_not_deducted']) ?>"
                       data-emp-id="<?= $row['employee_id'] ?>"
@@ -323,105 +319,372 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
   <!-- ========================================== -->
   <!-- STEP 2: SALARY COMPUTATION -->
   <!-- ========================================== -->
+  <!-- ========================================== -->
+  <!-- STEP 2: SALARY COMPUTATION -->
+  <!-- ========================================== -->
+
   <div class="tab-pane fade" id="step2-pane" role="tabpanel">
+
     <?php if (!$attFrozen): ?>
-      <div class="card border border-warning shadow-sm rounded-3 p-5 text-center bg-white">
-        <div class="mb-3 fs-1 text-warning">🔒</div>
-        <h4 class="fw-bold text-dark mb-2">Step 2 is Locked</h4>
-        <p class="text-body-secondary mb-0">Please complete and <strong>Freeze Attendance (Step 1)</strong> before computing salary.</p>
+
+      <!-- LOCKED STATE -->
+      <div class="salary-locked-card text-center">
+
+        <div class="salary-lock-icon">
+          🔒
+        </div>
+
+        <h4 class="fw-bold mb-2">
+          Step 2 is Locked
+        </h4>
+
+        <p class="mb-0">
+          Please complete and
+          <strong>Freeze Attendance (Step 1)</strong>
+          before computing salary.
+        </p>
+
       </div>
+
     <?php else: ?>
-      <!-- Summary Bar Cards -->
+
+      <!-- ========================================== -->
+      <!-- SALARY SUMMARY CARDS -->
+      <!-- ========================================== -->
+
       <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-md-3">
-          <div class="card border shadow-sm rounded-3 p-3 bg-white">
-            <div class="text-body-secondary small fw-semibold text-uppercase mb-1">TOTAL PAYROLL BUDGET</div>
-            <div class="fs-4 fw-bold text-dark">₹ <?= number_format($totalPayrollBudget, 2) ?></div>
+
+        <!-- Payroll Budget -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="salary-summary-card salary-budget-card">
+
+            <div class="salary-summary-icon">
+              ₹
+            </div>
+
+            <div class="salary-summary-content">
+              <div class="salary-summary-label">
+                Total Payroll Budget
+              </div>
+
+              <div class="salary-summary-value">
+                ₹ <?= number_format($totalPayrollBudget, 2) ?>
+              </div>
+            </div>
+
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
-          <div class="card border shadow-sm rounded-3 p-3 bg-white">
-            <div class="text-body-secondary small fw-semibold text-uppercase mb-1">TOTAL FROZEN DAYS</div>
-            <div class="fs-4 fw-bold text-dark"><?= number_format($totalFrozenAttendanceDays, 1) ?> Days</div>
+
+
+        <!-- Frozen Days -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="salary-summary-card salary-days-card">
+
+            <div class="salary-summary-icon">
+              📅
+            </div>
+
+            <div class="salary-summary-content">
+              <div class="salary-summary-label">
+                Total Frozen Days
+              </div>
+
+              <div class="salary-summary-value">
+                <?= number_format($totalFrozenAttendanceDays, 1) ?>
+                <small>Days</small>
+              </div>
+            </div>
+
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
-          <div class="card border shadow-sm rounded-3 p-3 bg-white">
-            <div class="text-body-secondary small fw-semibold text-uppercase mb-1">TOTAL EMPLOYEES</div>
-            <div class="fs-4 fw-bold text-dark"><?= esc($totalEmployees) ?> Staff</div>
+
+
+        <!-- Employees -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="salary-summary-card salary-employee-card">
+
+            <div class="salary-summary-icon">
+              👥
+            </div>
+
+            <div class="salary-summary-content">
+              <div class="salary-summary-label">
+                Total Employees
+              </div>
+
+              <div class="salary-summary-value">
+                <?= esc($totalEmployees) ?>
+                <small>Staff</small>
+              </div>
+            </div>
+
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
-          <div class="card border shadow-sm rounded-3 p-3 bg-white">
-            <div class="text-body-secondary small fw-semibold text-uppercase mb-1">TOTAL NET PAYABLE DAYS</div>
-            <div class="fs-4 fw-bold text-dark"><?= number_format($totalNetPayableDays, 1) ?> Days</div>
+
+
+        <!-- Net Payable Days -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="salary-summary-card salary-payable-card">
+
+            <div class="salary-summary-icon">
+              ✓
+            </div>
+
+            <div class="salary-summary-content">
+              <div class="salary-summary-label">
+                Net Payable Days
+              </div>
+
+              <div class="salary-summary-value">
+                <?= number_format($totalNetPayableDays, 1) ?>
+                <small>Days</small>
+              </div>
+            </div>
+
           </div>
         </div>
+
       </div>
 
-      <!-- Salary Calculation Table Card -->
-      <div class="card border shadow-sm rounded-3 bg-white p-3">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pb-3 mb-3 border-bottom gap-2">
+
+      <!-- ========================================== -->
+      <!-- SALARY COMPUTATION SHEET -->
+      <!-- ========================================== -->
+
+      <div class="salary-sheet-card">
+
+        <!-- Header -->
+        <div class="salary-sheet-header">
+
+          <div class="salary-sheet-title">
+
+            <div class="salary-sheet-icon">
+              ₹
+            </div>
+
+            <div>
+              <h5 class="mb-1">
+                Salary Computation Sheet
+              </h5>
+
+              <div class="salary-formula">
+                Formula:
+                <strong>
+                  (Monthly Base Salary /
+                  <?= esc($daysInMonth) ?>)
+                  × Net Days Payable
+                </strong>
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- Actions -->
+          <div class="salary-actions">
+
+            <button
+              type="button"
+              class="btn salary-btn salary-btn-draft"
+              id="btnSaveSalaryDraft"
+              <?= $salFrozen ? 'disabled' : '' ?>>
+              <span>💾</span>
+              Save Draft Salary
+            </button>
+
+            <button
+              type="button"
+              class="btn salary-btn salary-btn-approve"
+              id="btnApproveSalary"
+              <?= $salFrozen ? 'disabled' : '' ?>>
+              <span>🔒</span>
+              Freeze & Approve Salary
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- Formula Info -->
+        <div class="salary-info-bar">
+
           <div>
-            <h5 class="fw-bold mb-0 text-dark">Salary Computation Sheet</h5>
-            <span class="small text-body-secondary">Formula: (Monthly Base Salary / <?= esc($daysInMonth) ?>) &times; Net Days Payable</span>
+            <span class="info-dot"></span>
+            Salary is calculated automatically based on frozen attendance.
           </div>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-warning btn-sm rounded-2 shadow-sm fw-semibold" id="btnSaveSalaryDraft" <?= $salFrozen ? 'disabled' : '' ?>>
-              💾 Save Draft Salary
-            </button>
-            <button type="button" class="btn btn-success btn-sm rounded-2 shadow-sm fw-semibold" id="btnApproveSalary" <?= $salFrozen ? 'disabled' : '' ?>>
-              🔒 Freeze & Approve Salary
-            </button>
+
+          <div class="formula-chip">
+            Base Salary ÷ <?= esc($daysInMonth) ?> × Net Days
           </div>
+
         </div>
 
+
+        <!-- Form -->
         <form id="salaryForm">
-          <input type="hidden" name="month_date" value="<?= esc($monthDate) ?>">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle border mb-0">
-              <thead class="table-light small text-uppercase">
+
+          <input
+            type="hidden"
+            name="month_date"
+            value="<?= esc($monthDate) ?>">
+
+          <div class="salary-table-wrapper">
+
+            <table class="table salary-table align-middle mb-0">
+
+              <thead>
+
                 <tr>
-                  <th style="width: 50px;">#</th>
-                  <th>Employee Name</th>
-                  <th>Contractor</th>
-                  <th class="text-end" style="width: 160px;">Monthly Base Salary</th>
-                  <th class="text-center" style="width: 140px;">Net Days Payable</th>
-                  <th class="text-end" style="width: 170px;">Calculated Salary</th>
-                  <th>Remarks</th>
+
+                  <th class="col-number">#</th>
+
+                  <th>
+                    Employee
+                  </th>
+
+                  <th>
+                    Contractor
+                  </th>
+
+                  <th class="text-end">
+                    Monthly Base Salary
+                  </th>
+
+                  <th class="text-center">
+                    Net Days
+                  </th>
+
+                  <th class="text-end">
+                    Calculated Salary
+                  </th>
+
+                  <th>
+                    Remarks
+                  </th>
+
                 </tr>
+
               </thead>
+
+
               <tbody>
+
                 <?php $sSr = 1; ?>
+
                 <?php foreach ($attendanceRows as $row): ?>
+
                   <tr>
-                    <td class="fw-semibold text-body-secondary"><?= $sSr++ ?></td>
+
+                    <!-- Number -->
                     <td>
-                      <div class="fw-bold text-dark"><?= esc($row['employee_name']) ?></div>
-                      <span class="small text-body-tertiary"><?= esc($row['designation']) ?></span>
+                      <span class="salary-row-number">
+                        <?= $sSr++ ?>
+                      </span>
                     </td>
+
+
+                    <!-- Employee -->
                     <td>
-                      <span class="badge text-bg-light border text-dark fw-normal"><?= esc($row['contractor_name']) ?></span>
+
+                      <div class="employee-cell">
+
+                        <div class="employee-avatar">
+                          <?= strtoupper(substr($row['employee_name'], 0, 1)) ?>
+                        </div>
+
+                        <div>
+
+                          <div class="employee-name">
+                            <?= esc($row['employee_name']) ?>
+                          </div>
+
+                        </div>
+
+                      </div>
+
                     </td>
-                    <td class="text-end fw-semibold">₹ <?= number_format($row['monthly_base_salary'], 2) ?></td>
-                    <td class="text-center fw-bold text-primary"><?= esc($row['net_days_payable']) ?></td>
-                    <td class="text-end fw-bold text-success fs-6">
-                      ₹ <input type="number" step="0.01" class="form-control form-control-sm d-inline-block text-end fw-bold text-success border-0 bg-transparent pe-0" style="width: 110px;"
-                        name="salaries[<?= $row['employee_id'] ?>][calculated_salary]"
-                        value="<?= number_format($row['calculated_salary'], 2, '.', '') ?>"
-                        <?= $salFrozen ? 'readonly disabled' : '' ?>>
-                    </td>
+
+
+                    <!-- Contractor -->
                     <td>
-                      <input type="text" class="form-control form-control-sm" name="salaries[<?= $row['employee_id'] ?>][remarks]" value="<?= esc($row['remarks']) ?>" <?= $salFrozen ? 'readonly disabled' : '' ?> placeholder="Optional note">
+
+                      <span class="contractor-pill">
+                        <?= esc($row['contractor_name']) ?>
+                      </span>
+
                     </td>
+
+
+                    <!-- Base Salary -->
+                    <td class="text-end">
+
+                      <span class="base-salary">
+                        ₹ <?= number_format($row['monthly_base_salary'], 2) ?>
+                      </span>
+
+                    </td>
+
+
+                    <!-- Net Days -->
+                    <td class="text-center">
+
+                      <span class="net-days-pill">
+                        <?= esc($row['net_days_payable']) ?>
+                      </span>
+
+                    </td>
+
+
+                    <!-- Calculated Salary -->
+                    <td class="text-end">
+
+                      <div class="salary-input-wrapper">
+
+                        <span>₹</span>
+
+                        <input
+                          type="number"
+                          step="0.01"
+                          class="salary-amount-input"
+                          name="salaries[<?= $row['employee_id'] ?>][calculated_salary]"
+                          value="<?= number_format($row['calculated_salary'], 2, '.', '') ?>"
+                          <?= $salFrozen ? 'readonly disabled' : '' ?>>
+
+                      </div>
+
+                    </td>
+
+
+                    <!-- Remarks -->
+                    <td>
+
+                      <input
+                        type="text"
+                        class="remarks-input"
+                        name="salaries[<?= $row['employee_id'] ?>][remarks]"
+                        value="<?= esc($row['remarks']) ?>"
+                        <?= $salFrozen ? 'readonly disabled' : '' ?>
+                        placeholder="Optional note">
+
+                    </td>
+
                   </tr>
+
                 <?php endforeach; ?>
+
               </tbody>
+
             </table>
+
           </div>
+
         </form>
+
       </div>
+
     <?php endif; ?>
+
   </div>
 
   <!-- ========================================== -->
@@ -653,7 +916,7 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                 },
                 dataType: 'json',
                 success: function(res) {
-                  btn.prop('disabled', false).html('🔒 Freeze & Complete Attendance');
+                  btn.prop('disabled', true).html('🔒 Attendance Completed & Locked');
                   if (res.status === 'success') {
                     showToast('success', 'Attendance Frozen', res.message);
                     setTimeout(() => location.reload(), 1200);
