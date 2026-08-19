@@ -283,3 +283,200 @@ footer.footer {
     --cui-btn-disabled-bg: #5856d6;
     --cui-btn-disabled-border-color: #5856d6;
 }
+/* =========================
+   PAYROLL STEP CARDS
+   ========================= */
+
+.payroll-step-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 96px;
+    border: 1px solid transparent !important;
+    transition: all 0.25s ease;
+}
+
+/* Hover */
+.payroll-step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+
+/* =========================
+   STEP 1 - ACTIVE
+   Light Blue
+   ========================= */
+
+.step-active {
+    background: #eef4ff !important;
+    border-color: #d7e5ff !important;
+}
+
+.step-active:hover {
+    background: #e8f0ff !important;
+}
+
+
+/* =========================
+   STEP 2 - UNLOCKED
+   Light Yellow
+   ========================= */
+
+.step-unlocked {
+    background: #fff8e6 !important;
+    border-color: #ffebba !important;
+}
+
+.step-unlocked:hover {
+    background: #fff5d8 !important;
+}
+
+
+/* =========================
+   COMPLETED
+   Light Green
+   ========================= */
+
+.step-completed {
+    background: #eafaf2 !important;
+    border-color: #c8efdc !important;
+}
+
+.step-completed:hover {
+    background: #e3f8ed !important;
+}
+
+
+/* =========================
+   LOCKED
+   Light Grey
+   ========================= */
+
+.step-locked {
+    background: #f4f6f8 !important;
+    border-color: #e1e5ea !important;
+}
+
+.step-locked:hover {
+    background: #eef1f4 !important;
+}
+
+
+/* =========================
+   STEP ICON
+   ========================= */
+
+.step-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 50%;
+    font-weight: 700;
+    transition: all 0.25s ease;
+}
+
+
+/* Active icon */
+.step-active .step-icon {
+    background: #dbe7ff !important;
+    color: #5367d8 !important;
+    border: 1px solid #c7d8ff;
+}
+
+
+/* Unlocked icon */
+.step-unlocked .step-icon {
+    background: #ffedbd !important;
+    color: #b87900 !important;
+    border: 1px solid #ffe09a;
+}
+
+
+/* Completed icon */
+.step-completed .step-icon {
+    background: #c9f2dd !important;
+    color: #149568 !important;
+    border: 1px solid #aee8cb;
+}
+
+
+/* Locked icon */
+.step-locked .step-icon {
+    background: #e7eaee !important;
+    color: #8b96a5 !important;
+    border: 1px solid #d8dde4;
+}
+
+
+/* Icon hover */
+.payroll-step-card:hover .step-icon {
+    transform: scale(1.08);
+}
+
+
+/* =========================
+   STATUS BADGES
+   ========================= */
+
+.status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 50px;
+}
+
+
+/* Active */
+.status-primary {
+    background: #dce7ff !important;
+    color: #5367d8 !important;
+    border: 1px solid #c8d8ff;
+}
+
+
+/* Completed */
+.status-success {
+    background: #ccefdc !important;
+    color: #14845e !important;
+    border: 1px solid #b3e5ca;
+}
+
+
+/* Unlocked */
+.status-warning {
+    background: #ffedbe !important;
+    color: #a86f00 !important;
+    border: 1px solid #ffdf91;
+}
+
+
+/* Locked / Danger */
+.status-danger {
+    background: #ffe5e5 !important;
+    color: #d34b4b !important;
+    border: 1px solid #ffd0d0;
+}
+
+
+/* =========================
+   CARD TITLE
+   ========================= */
+
+.payroll-step-card .fw-bold {
+    color: #1f2937 !important;
+}
+
+
+/* Mobile */
+@media (max-width: 767px) {
+
+    .payroll-step-card {
+        min-height: 85px;
+    }
+
+    .step-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+    }
+}

@@ -26,70 +26,116 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 
 <!-- 3-Step Workflow Header Cards -->
 <div class="row g-3 mb-4">
-  <!-- Step 1 Card -->
-  <div class="col-12 col-md-4">
-    <div class="card h-100 border rounded-3 p-3 bg-white <?= !$attFrozen ? 'border-primary shadow-sm' : 'border-success-subtle' ?>">
-      <div class="d-flex align-items-center gap-3">
-        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 <?= !$attFrozen ? 'bg-primary text-white' : 'bg-success text-white' ?>" style="width: 42px; height: 42px;">
-          <?= $attFrozen ? '✓' : '1' ?>
-        </div>
-        <div>
-          <div class="fw-bold text-dark mb-0">Step 1: Attendance Register</div>
-          <div class="small">
-            <?php if ($attFrozen): ?>
-              <span class="badge text-bg-success rounded-pill">Frozen / Completed</span>
-            <?php else: ?>
-              <span class="badge text-bg-primary rounded-pill">Active / In Progress</span>
-            <?php endif; ?>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Step 2 Card -->
-  <div class="col-12 col-md-4">
-    <div class="card h-100 border rounded-3 p-3 bg-white <?= ($attFrozen && !$salFrozen) ? 'border-warning shadow-sm' : ($salFrozen ? 'border-success-subtle' : 'opacity-75 bg-light') ?>">
-      <div class="d-flex align-items-center gap-3">
-        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 <?= $salFrozen ? 'bg-success text-white' : ($attFrozen ? 'bg-warning text-dark' : 'bg-secondary-subtle text-secondary') ?>" style="width: 42px; height: 42px;">
-          <?= $salFrozen ? '✓' : '2' ?>
-        </div>
-        <div>
-          <div class="fw-bold text-dark mb-0">Step 2: Salary Computation</div>
-          <div class="small text-body-secondary">
-            <?php if ($salFrozen): ?>
-              <span class="badge text-bg-success rounded-pill">Frozen / Approved</span>
-            <?php elseif ($attFrozen): ?>
-              <span class="badge text-bg-warning rounded-pill">Active / Unlocked</span>
-            <?php else: ?>
-              <span class="text-secondary small">🔒 Locked (Complete Step 1)</span>
-            <?php endif; ?>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <!-- STEP 1 -->
+    <div class="col-12 col-md-4">
+        <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
+            <?= $attFrozen ? 'step-completed' : 'step-active' ?>">
 
-  <!-- Step 3 Card -->
-  <div class="col-12 col-md-4">
-    <div class="card h-100 border rounded-3 p-3 bg-white <?= $salFrozen ? 'border-success shadow-sm' : 'opacity-75 bg-light' ?>">
-      <div class="d-flex align-items-center gap-3">
-        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 <?= $salFrozen ? 'bg-success text-white' : 'bg-secondary-subtle text-secondary' ?>" style="width: 42px; height: 42px;">
-          <?= $salFrozen ? '✓' : '3' ?>
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
+                    <?= $attFrozen ? '✓' : '1' ?>
+                </div>
+
+                <div>
+                    <div class="fw-bold text-dark mb-1">
+                        Step 1: Attendance Register
+                    </div>
+
+                    <?php if ($attFrozen): ?>
+                        <span class="badge rounded-pill status-badge status-success">
+                            Completed & Frozen
+                        </span>
+                    <?php else: ?>
+                        <span class="badge rounded-pill status-badge status-primary">
+                            Active / In Progress
+                        </span>
+                    <?php endif; ?>
+                </div>
+
+            </div>
         </div>
-        <div>
-          <div class="fw-bold text-dark mb-0">Step 3: Payslip & NEFT Export</div>
-          <div class="small text-body-secondary">
-            <?php if ($salFrozen): ?>
-              <span class="badge text-bg-success rounded-pill">Unlocked & Ready</span>
-            <?php else: ?>
-              <span class="text-secondary small">🔒 Locked (Approve Step 2)</span>
-            <?php endif; ?>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+
+
+    <!-- STEP 2 -->
+    <div class="col-12 col-md-4">
+        <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
+            <?= $salFrozen ? 'step-completed' : ($attFrozen ? 'step-unlocked' : 'step-locked') ?>">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
+                    <?= $salFrozen ? '✓' : '2' ?>
+                </div>
+
+                <div>
+                    <div class="fw-bold text-dark mb-1">
+                        Step 2: Salary Computation
+                    </div>
+
+                    <?php if ($salFrozen): ?>
+
+                        <span class="badge rounded-pill status-badge status-success">
+                            Approved & Locked
+                        </span>
+
+                    <?php elseif ($attFrozen): ?>
+
+                        <span class="badge rounded-pill status-badge status-warning">
+                            Active / Unlocked
+                        </span>
+
+                    <?php else: ?>
+
+                        <span class="badge rounded-pill status-badge status-danger">
+                            🔒 Locked (Complete Step 1)
+                        </span>
+
+                    <?php endif; ?>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- STEP 3 -->
+    <div class="col-12 col-md-4">
+        <div class="card h-100 border-0 rounded-4 p-3 shadow-sm payroll-step-card
+            <?= $salFrozen ? 'step-completed' : 'step-locked' ?>">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="step-icon rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
+                    <?= $salFrozen ? '✓' : '3' ?>
+                </div>
+
+                <div>
+                    <div class="fw-bold text-dark mb-1">
+                        Step 3: Payslip & NEFT Export
+                    </div>
+
+                    <?php if ($salFrozen): ?>
+
+                        <span class="badge rounded-pill status-badge status-success">
+                            Generated & Ready
+                        </span>
+
+                    <?php else: ?>
+
+                        <span class="badge rounded-pill status-badge status-danger">
+                            🔒 Locked (Approve Step 2)
+                        </span>
+
+                    <?php endif; ?>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <!-- Workflow Nav Tabs -->

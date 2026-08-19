@@ -181,12 +181,9 @@ class PayrollController extends BaseController
             $availableFys[$y] = "FY {$y}-" . substr((string) $yEnd, -2);
         }
 
-        $companyName = "Nisha Roadway Pvt Ltd";
 
         $data = [
             'title'                      => 'Payroll Processing Status',
-            'subtitle'                   => "Track attendance recording and salary processing for each month for {$companyName}.",
-            'companyName'                => $companyName,
             'breadcrumb_item'            => 'Payroll',
             'fyStartYear'                => $fyStartYear,
             'fyEndYear'                  => $fyEndYear,
@@ -235,7 +232,7 @@ class PayrollController extends BaseController
         $monthTimestamp  = mktime(0, 0, 0, $month, 1, $year);
         $monthName       = date('F Y', $monthTimestamp);
         $shortMonthName  = strtoupper(date('M', $monthTimestamp));
-        $companyName     = "Nisha Roadway Pvt Ltd";
+        $companyName     = "Spider Payroll";
 
         // Get or initialize month status
         $statusRecord = $this->payrollStatusModel->getOrCreateStatus($monthDate);
