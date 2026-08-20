@@ -26,7 +26,7 @@
 <!-- Key Performance Metrics Cards (4 Stat Grid) -->
 <div class="row g-3 mb-4">
   <!-- Active Employees Card -->
-  <div class="col-12 col-sm-6 col-xl-3">
+  <div class="col-12 col-sm-6 col-xl-6">
     <div class="card border shadow-sm rounded-3 h-100 bg-white">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -49,7 +49,7 @@
   </div>
 
   <!-- Active Contractors Card -->
-  <div class="col-12 col-sm-6 col-xl-3">
+  <div class="col-12 col-sm-6 col-xl-6">
     <div class="card border shadow-sm rounded-3 h-100 bg-white">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -71,49 +71,6 @@
     </div>
   </div>
 
-  <!-- Monthly Payroll Base Budget Card -->
-  <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card border shadow-sm rounded-3 h-100 bg-white">
-      <div class="card-body p-3">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <span class="text-dark fw-bold text-uppercase fs-7" style="letter-spacing: 0.5px;">Base Payroll Budget</span>
-          <div class="rounded-3 p-2 text-warning-emphasis fw-bold" style="background-color: #fef3c7; color: #b45309;">
-            <i class="bi bi-currency-rupee fs-5"></i>
-          </div>
-        </div>
-        <div class="d-flex align-items-baseline justify-content-between">
-          <h3 class="fw-bold text-dark mb-0">₹<?= number_format($totalMonthlyBase, 0) ?></h3>
-          <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 fs-7 fw-bold">Monthly</span>
-        </div>
-        <div class="mt-2 text-secondary fw-semibold fs-7">
-          <span>Estimated monthly base liability</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Active System Users Card -->
-  <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card border shadow-sm rounded-3 h-100 bg-white">
-      <div class="card-body p-3">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <span class="text-dark fw-bold text-uppercase fs-7" style="letter-spacing: 0.5px;">System Administrators</span>
-          <div class="rounded-3 p-2 text-info-emphasis fw-bold" style="background-color: #ccfbf1; color: #0f766e;">
-            <i class="bi bi-person-badge-fill fs-5"></i>
-          </div>
-        </div>
-        <div class="d-flex align-items-baseline justify-content-between">
-          <h3 class="fw-bold text-dark mb-0"><?= esc($activeUsers) ?></h3>
-          <span class="badge bg-info text-white rounded-pill px-2.5 py-1 fs-7 fw-bold" style="background-color: #0284c7 !important;">
-            <?= esc($totalUsers) ?> Accounts
-          </span>
-        </div>
-        <div class="mt-2 text-secondary fw-semibold fs-7">
-          <span>Active portal admin users</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Active Month Status Banner & Quick Navigation -->
@@ -304,9 +261,9 @@
                   <td class="ps-3 fw-bold text-dark"><?= esc($c['contractor_name']) ?></td>
                   <td class="text-end pe-3">
                     <?php if (($c['status'] ?? 'active') === 'active'): ?>
-                      <span class="badge text-bg-success rounded-pill px-2 py-1">Active</span>
+                      <span class="badge text-bg-success text-white rounded-pill px-2 py-1">Active</span>
                     <?php else: ?>
-                      <span class="badge text-bg-danger rounded-pill px-2 py-1">Inactive</span>
+                      <span class="badge text-bg-danger text-white rounded-pill px-2 py-1">Inactive</span>
                     <?php endif; ?>
                   </td>
                 </tr>
