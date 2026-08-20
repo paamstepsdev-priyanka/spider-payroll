@@ -22,7 +22,7 @@
         </a>
       </div>
       <div class="card-body p-4">
-        <form action="<?= site_url('contractors/update/' . $contractor['contractor_id']) ?>" method="post" novalidate>
+        <form action="<?= site_url('contractors/update/' . $contractor['contractor_id']) ?>" method="post" class="jquery-validation" novalidate>
           <?= csrf_field() ?>
 
           <!-- SECTION 1 — CONTRACTOR DETAILS -->

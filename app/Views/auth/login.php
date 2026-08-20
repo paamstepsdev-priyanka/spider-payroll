@@ -6,56 +6,47 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title><?= esc($title ?? 'Login - Spider Payroll') ?></title>
-    <!-- CoreUI & Main Styles -->
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CoreUI & Custom Styles -->
     <link href="<?= base_url('backend/css/style.css') ?>" rel="stylesheet">
     <link href="<?= base_url('backend/css/custom.css') ?>" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        .login-card {
-            max-width: 420px;
-            width: 100%;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        }
-        .login-header {
-            background-color: #212631;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
-    </style>
 </head>
-<body class="d-flex align-items-center min-vh-100 py-5">
+<body class="bg-light d-flex align-items-center justify-content-center min-vh-100 py-5" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); font-family: 'Inter', sans-serif;">
 
     <div class="container d-flex justify-content-center">
-        <div class="card login-card">
-            <!-- Header Logo Banner -->
-            <div class="login-header text-white text-center py-4 px-3">
-                <div class="d-flex align-items-center justify-content-center mb-2">
-                    <svg class="me-2" width="32" height="32" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M256 32C132.3 32 32 132.3 32 256s100.3 224 224 224 224-100.3 224-224S379.7 32 256 32zm0 400c-97 0-176-79-176-176S159 80 256 80s176 79 176 176-79 176-176 176z" />
-                    </svg>
-                    <span class="fs-4 fw-bold">Spider Payroll</span>
-                </div>
-                <p class="text-white-50 small mb-0">Sign in to access your administrative dashboard</p>
-            </div>
+        <div class="card border-0 rounded-4 shadow-lg overflow-hidden" style="max-width: 440px; width: 100%;">
+            
+            <!-- Top Decorative Accent Line -->
+            <div class="bg-primary" style="height: 5px;"></div>
 
-            <div class="card-body p-4">
+            <div class="card-body p-4 p-sm-5">
+                
+                <!-- Brand Header -->
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3" style="width: 56px; height: 56px;">
+                        <i class="bi bi-shield-lock-fill fs-3"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Spider Payroll</h3>
+                    <p class="text-secondary small mb-0">Sign in to your administrative account</p>
+                </div>
+
                 <!-- Flash Alerts -->
                 <?php if (session()->getFlashdata('error')): ?>
-                    <div class="alert alert-danger alert-dismissible fade show text-center py-2 px-3 mb-3" role="alert" style="font-size: 13px;">
+                    <div class="alert alert-danger alert-dismissible fade show text-center py-2 px-3 mb-4 rounded-3" role="alert" style="font-size: 13px;">
                         <i class="bi bi-exclamation-triangle-fill me-1"></i> <?= esc(session()->getFlashdata('error')) ?>
                         <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
 
                 <?php if (session()->getFlashdata('success')): ?>
-                    <div class="alert alert-success alert-dismissible fade show text-center py-2 px-3 mb-3" role="alert" style="font-size: 13px;">
+                    <div class="alert alert-success alert-dismissible fade show text-center py-2 px-3 mb-4 rounded-3" role="alert" style="font-size: 13px;">
                         <i class="bi bi-check-circle-fill me-1"></i> <?= esc(session()->getFlashdata('success')) ?>
                         <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -65,31 +56,47 @@
                 <form action="<?= site_url('login') ?>" method="POST" id="loginForm" class="needs-validation" novalidate>
                     <?= csrf_field() ?>
 
+                    <!-- Email Field -->
                     <div class="mb-3">
-                        <label for="username" class="form-label text-secondary fw-semibold" style="font-size: 13px;">Email Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-secondary"><i class="bi bi-envelope"></i></span>
-                            <input type="email" class="form-control" id="username" name="username" placeholder="name@company.com" value="<?= old('username') ?>" required style="font-size: 14px;">
+                        <label for="username" class="form-label small fw-semibold text-secondary mb-1">Email Address</label>
+                        <div class="position-relative">
+                            <i class="bi bi-envelope text-secondary position-absolute fs-6" style="left: 16px; top: 50%; transform: translateY(-50%); z-index: 5; opacity: 0.7;"></i>
+                            <input type="email" class="form-control form-control-modern ps-5" id="username" name="username" placeholder="name@company.com" value="<?= old('username') ?>" required>
                         </div>
                     </div>
 
+                    <!-- Password Field -->
                     <div class="mb-4">
-                        <label for="password" class="form-label text-secondary fw-semibold" style="font-size: 13px;">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-secondary"><i class="bi bi-lock"></i></span>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required style="font-size: 14px;">
+                        <label for="password" class="form-label small fw-semibold text-secondary mb-1">Password</label>
+                        <div class="position-relative">
+                            <i class="bi bi-lock text-secondary position-absolute fs-6" style="left: 16px; top: 50%; transform: translateY(-50%); z-index: 5; opacity: 0.7;"></i>
+                            <input type="password" class="form-control form-control-modern px-5" id="password" name="password" placeholder="••••••••" required>
+                            <button type="button" class="btn btn-link text-secondary position-absolute p-0 border-0 shadow-none" id="togglePasswordBtn" style="right: 14px; top: 50%; transform: translateY(-50%); z-index: 5; opacity: 0.7;">
+                                <i class="bi bi-eye fs-6" id="togglePasswordIcon"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm" style="border-radius: 6px; font-size: 14px;">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" style="font-size: 14px; height: 48px;">
+                        <span>Sign In</span>
+                        <i class="bi bi-arrow-right"></i>
                     </button>
                 </form>
+
             </div>
 
-            <div class="card-footer bg-light text-center py-3 border-0 text-secondary" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; font-size: 12px;">
-                &copy; <?= date('Y') ?> <strong>Spider Payroll</strong>. All rights reserved.
+            <!-- Card Footer -->
+            <div class="card-footer bg-light bg-opacity-75 border-top py-3 text-center text-secondary small">
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-1" style="font-size: 11px;">
+                    <i class="bi bi-shield-check text-success"></i>
+                    <span>Secure Administrative Portal</span>
+                </div>
+                <div class="text-muted" style="font-size: 11px;">
+                    &copy; <?= date('Y') ?> <strong>Spider Payroll System v2.0</strong>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -101,6 +108,19 @@
     <script src="<?= base_url('backend/js/global-form-validation.js') ?>"></script>
     <script>
         $(document).ready(function () {
+            // Password Visibility Toggle
+            $('#togglePasswordBtn').on('click', function() {
+                var pwdInput = $('#password');
+                var icon = $('#togglePasswordIcon');
+                if (pwdInput.attr('type') === 'password') {
+                    pwdInput.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    pwdInput.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+
             if (typeof initAjaxForm === 'function') {
                 initAjaxForm('#loginForm', {
                     onSuccess: function (response) {

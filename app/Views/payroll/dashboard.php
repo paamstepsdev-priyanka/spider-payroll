@@ -3,38 +3,31 @@
 <?= $this->section('content') ?>
 
 <!-- Page Header Row -->
-<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
   <div>
     <h3 class="fw-bold mb-1 text-dark"><?= esc($title ?? 'Payroll Processing Status') ?></h3>
-    <p class="text-body-secondary mb-0">Track attendance recording and salary processing for each month.</p>
+    <p class="text-body-secondary mb-0 small">Track attendance recording and salary processing for each month.</p>
   </div>
 
   <!-- Financial Year Switcher Controls -->
-  <div class="d-flex align-items-center gap-1 border rounded-3 p-1 bg-white shadow-sm">
-    <a href="<?= site_url('payroll?fy=' . $prevFyStart) ?>" class="btn btn-sm btn-light border-0 text-secondary" title="Previous Financial Year">
-      &larr;
+  <div class="d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm">
+    <a href="<?= site_url('payroll?fy=' . $prevFyStart) ?>" class="btn btn-sm btn-light rounded-circle p-0 d-inline-flex align-items-center justify-content-center text-secondary border-0" style="width: 32px; height: 32px;" title="Previous Financial Year">
+      <i class="bi bi-chevron-left fs-6"></i>
     </a>
-    <form method="get" action="<?= site_url('payroll') ?>" class="m-0 d-flex align-items-center">
-      <div class="input-group input-group-sm">
-        <span class="input-group-text bg-transparent border-0 text-primary pe-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-        </span>
-        <select name="fy" class="form-select form-select-sm border-0 fw-bold text-dark bg-transparent pe-4" style="cursor: pointer;" onchange="this.form.submit()">
-          <?php foreach ($availableFys as $y => $label): ?>
-            <option value="<?= esc($y) ?>" <?= $y == $fyStartYear ? 'selected' : '' ?>>
-              <?= esc($label) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
+
+    <form method="get" action="<?= site_url('payroll') ?>" class="m-0 d-inline-flex align-items-center px-1">
+      <i class="bi bi-calendar-event ms-2 me-1" style="color: #059669; font-size: 1rem;"></i>
+      <select name="fy" class="form-select form-select-sm border-0 bg-transparent fw-bold text-dark py-1 px-2 pe-4 shadow-none" style="cursor: pointer; font-size: 0.875rem;" onchange="this.form.submit()">
+        <?php foreach ($availableFys as $y => $label): ?>
+          <option value="<?= esc($y) ?>" <?= $y == $fyStartYear ? 'selected' : '' ?>>
+            <?= esc($label) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
     </form>
-    <a href="<?= site_url('payroll?fy=' . $nextFyStart) ?>" class="btn btn-sm btn-light border-0 text-secondary" title="Next Financial Year">
-      &rarr;
+
+    <a href="<?= site_url('payroll?fy=' . $nextFyStart) ?>" class="btn btn-sm btn-light rounded-circle p-0 d-inline-flex align-items-center justify-content-center text-secondary border-0" style="width: 32px; height: 32px;" title="Next Financial Year">
+      <i class="bi bi-chevron-right fs-6"></i>
     </a>
   </div>
 </div>
@@ -43,7 +36,7 @@
 <div class="row g-3 mb-4">
   <!-- 1. Attendance Completed -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
+    <div class="card h-100 rounded-4 p-3 dashboard-stat-card attendance-card">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">ATTENDANCE COMPLETED</div>
@@ -64,7 +57,7 @@
 
   <!-- 2. Salary Processed -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
+    <div class="card h-100 rounded-4 p-3 dashboard-stat-card salary-card">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">SALARY PROCESSED</div>
@@ -85,7 +78,7 @@
 
   <!-- 3. In Progress -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
+    <div class="card h-100 rounded-4 p-3 dashboard-stat-card progress-card">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">IN PROGRESS</div>
@@ -106,7 +99,7 @@
 
   <!-- 4. Payslip Generated -->
   <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
+    <div class="card h-100 rounded-4 p-3 dashboard-stat-card payslip-card">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <div class="text-body-secondary small fw-semibold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.72rem;">PAYSLIP GENERATED</div>
@@ -139,7 +132,7 @@
         Payroll is <strong><?= esc($monthsBehind) ?> <?= $monthsBehind === 1 ? 'month' : 'months' ?> behind</strong> — <strong><?= esc($alertMonth['name']) ?> <?= esc($alertMonth['year']) ?></strong> still needs attention: attendance hasn't been locked yet.
       </div>
     </div>
-    <a href="<?= esc($alertMonth['url']) ?>" class="btn btn-danger btn-sm px-3 py-2 rounded-2 fw-semibold text-nowrap align-self-start align-self-md-center">
+    <a href="<?= esc($alertMonth['url']) ?>" class="btn btn-danger text-white btn-sm px-3 py-2 rounded-2 fw-semibold text-nowrap align-self-start align-self-md-center">
       Continue <?= esc($alertMonth['name']) ?> Payroll &rarr;
     </a>
   </div>
@@ -168,11 +161,11 @@
             </div>
             <div class="card border border-danger shadow-sm rounded-3 p-3 bg-white">
               <div class="mb-2">
-                <span class="badge text-bg-danger rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">ACTION NEEDED - OVERDUE</span>
+                <span class="badge text-bg-danger text-white rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">ACTION NEEDED - OVERDUE</span>
               </div>
               <h6 class="fw-bold text-dark mb-1"><?= esc($m['name']) ?> <?= esc($m['year']) ?></h6>
               <p class="small text-body-secondary mb-3" style="font-size: 0.78rem;">Attendance hasn't been locked yet</p>
-              <a href="<?= esc($m['url']) ?>" class="btn btn-danger btn-sm w-100 rounded-2 fw-semibold py-2">
+              <a href="<?= esc($m['url']) ?>" class="btn btn-danger text-white btn-sm w-100 rounded-2 fw-semibold py-2">
                 Continue <?= esc($m['short_name']) ?> payroll &rarr;
               </a>
             </div>
@@ -187,7 +180,7 @@
             <div class="card border border-success-subtle rounded-3 p-2 bg-success-subtle text-center">
               <div class="fw-bold text-dark small mb-1"><?= esc($m['short_name']) ?></div>
               <div class="small text-body-secondary mb-2" style="font-size: 0.7rem;"><?= esc($m['year']) ?></div>
-              <span class="badge text-bg-success rounded-pill mb-2" style="font-size: 0.65rem;">✓ Closed</span>
+              <span class="badge text-bg-success text-white rounded-pill mb-2" style="font-size: 0.65rem;">✓ Closed</span>
               <div>
                 <a href="<?= esc($m['url']) ?>" class="btn btn-sm btn-outline-success py-0 px-2 rounded-2 fw-semibold" style="font-size: 0.7rem;">View</a>
               </div>
@@ -203,7 +196,7 @@
             <div class="card border border-warning-subtle rounded-3 p-2 bg-warning-subtle text-center">
               <div class="fw-bold text-dark small mb-1"><?= esc($m['short_name']) ?></div>
               <div class="small text-body-secondary mb-2" style="font-size: 0.7rem;"><?= esc($m['year']) ?></div>
-              <span class="badge text-bg-warning rounded-pill mb-2" style="font-size: 0.65rem;">⚠️ Incomplete</span>
+              <span class="badge text-bg-warning text-white rounded-pill mb-2" style="font-size: 0.65rem;">⚠️ Incomplete</span>
               <div>
                 <a href="<?= esc($m['url']) ?>" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-2 fw-semibold" style="font-size: 0.7rem;">View</a>
               </div>
@@ -217,7 +210,7 @@
               <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 22px; height: 22px; font-size: 11px;">●</span>
             </div>
             <div class="card border border-primary shadow-sm rounded-3 p-2 bg-primary-subtle text-center">
-              <span class="badge text-bg-primary rounded-pill mb-1" style="font-size: 0.62rem;">CURRENT MONTH</span>
+              <span class="badge text-bg-primary text-white rounded-pill mb-1" style="font-size: 0.62rem;">CURRENT MONTH</span>
               <div class="fw-bold text-dark small mb-1"><?= esc($m['short_name']) ?> <?= esc($m['year']) ?></div>
               <div class="small text-primary mb-2" style="font-size: 0.72rem;">Attendance in progress</div>
               <div>

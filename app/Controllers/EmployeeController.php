@@ -113,7 +113,6 @@ class EmployeeController extends BaseController
                 'in_list'  => 'Please select a valid gender option.',
             ],
             'date_of_birth' => [
-                'required'   => 'Date of Birth is required.',
                 'valid_date' => 'Please enter a valid Date of Birth.',
             ],
             'date_of_joining' => [
@@ -331,7 +330,6 @@ class EmployeeController extends BaseController
                 'in_list'  => 'Please select a valid gender option.',
             ],
             'date_of_birth' => [
-                'required'   => 'Date of Birth is required.',
                 'valid_date' => 'Please enter a valid Date of Birth.',
             ],
             'date_of_joining' => [

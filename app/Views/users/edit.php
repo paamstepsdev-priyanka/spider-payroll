@@ -12,15 +12,13 @@
         </a>
       </div>
       <div class="card-body p-4" style="background-color: #ffffff !important;">
-        <form action="<?= site_url('users/update/' . $user['id']) ?>" method="post" novalidate>
+        <form action="<?= site_url('users/update/' . $user['id']) ?>" method="post" class="jquery-validation" novalidate>
           <?= csrf_field() ?>
-
-
 
           <!-- Name Field -->
           <div class="mb-3">
             <label for="name" class="form-label small fw-semibold text-secondary">Name <span class="text-danger">*</span></label>
-            <input type="text" name="name" id="name" class="form-control <?= session('errors.name') ? 'is-invalid' : '' ?>" value="<?= old('name', $user['name']) ?>" required>
+            <input type="text" name="name" id="name" class="form-control <?= session('errors.name') ? 'is-invalid' : '' ?>" value="<?= old('name', $user['name']) ?>" required minlength="2">
             <?php if (session('errors.name')): ?>
               <div class="invalid-feedback d-block"><?= session('errors.name') ?></div>
             <?php endif; ?>
@@ -37,7 +35,6 @@
               <div class="invalid-feedback d-block"><?= session('errors.username') ?></div>
             <?php endif; ?>
           </div>
-
 
           <div class="row">
             <!-- Role Field -->
@@ -73,17 +70,6 @@
 
         </form>
 
-        <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            const emailInput = document.getElementById('email');
-            const usernameInput = document.getElementById('username');
-            if (emailInput && usernameInput) {
-              emailInput.addEventListener('input', function() {
-                usernameInput.value = this.value;
-              });
-            }
-          });
-        </script>
       </div>
     </div>
   </div>

@@ -261,14 +261,18 @@ class PayrollController extends BaseController
             $att   = $dbAttendance[$empId] ?? null;
 
             if ($att) {
-                $leaveDays        = (float) $att['leave_days'];
+                $attendedDays     = (isset($att['attended_days']) && $att['attended_days'] !== null && $att['attended_days'] !== '') ? (float) $att['attended_days'] : '';
+                $leaveDays        = (float) ($att['leave_days'] ?? 0);
                 $leaveNotDeducted = (float) ($att['leave_not_deducted'] ?? 0);
-                $netDays          = (float) $att['net_days_payable'];
-                $filledCount++;
+                $netDays          = (float) ($att['net_days_payable'] ?? 0);
+                if ($attendedDays !== '') {
+                    $filledCount++;
+                }
             } else {
+                $attendedDays     = ''; // Default blank for manual admin entry
                 $leaveDays        = 0.0;
                 $leaveNotDeducted = 0.0;
-                $netDays          = (float) $daysInMonth;
+                $netDays          = 0.0;
             }
 
             $baseSalary = (float) $emp['monthly_base_salary'];
@@ -288,6 +292,7 @@ class PayrollController extends BaseController
                 'contractor_name'     => $emp['contractor_name'] ?? 'Direct / No Contractor',
                 'monthly_base_salary' => $baseSalary,
                 'total_month_days'    => $daysInMonth,
+                'attended_days'       => $attendedDays,
                 'leave_days'          => $leaveDays,
                 'leave_not_deducted'  => $leaveNotDeducted,
                 'net_days_payable'    => $netDays,
@@ -381,10 +386,11 @@ class PayrollController extends BaseController
         }
 
         foreach ($rows as $empId => $data) {
-            $leaveDays        = max(0, (float) ($data['leave_days'] ?? 0));
-            $leaveNotDeducted = max(0, (float) ($data['leave_not_deducted'] ?? 0));
-            $totalDays        = (float) ($data['total_month_days'] ?? 30);
-            $netDays          = max(0, $totalDays - $leaveDays + $leaveNotDeducted);
+            $totalDays    = (float) ($data['total_month_days'] ?? 30);
+            $attendedDays = isset($data['attended_days']) ? (float) $data['attended_days'] : (isset($data['leave_days']) ? max(0, $totalDays - (float)$data['leave_days']) : $totalDays);
+            $attendedDays = max(0, min($totalDays, $attendedDays));
+            $leaveDays    = max(0, $totalDays - $attendedDays);
+            $netDays      = $attendedDays;
 
             $existing = $this->attendanceModel
                 ->where('employee_id', $empId)
@@ -395,9 +401,9 @@ class PayrollController extends BaseController
                 'employee_id'        => $empId,
                 'month_date'         => $monthDate,
                 'total_month_days'   => $totalDays,
-                'attended_days'      => max(0, $totalDays - $leaveDays),
+                'attended_days'      => $attendedDays,
                 'leave_days'         => $leaveDays,
-                'leave_not_deducted' => $leaveNotDeducted,
+                'leave_not_deducted' => 0,
                 'net_days_payable'   => $netDays,
                 'remarks'            => $data['remarks'] ?? null,
             ];
@@ -640,7 +646,7 @@ class PayrollController extends BaseController
         $monthDate = sprintf('%04d-%02d-01', $year, $month);
 
         $status = $this->payrollStatusModel->where('month_date', $monthDate)->first();
-        if (!$status || $status['salary_status'] !== 'frozen') {
+        if (!$status || !in_array($status['salary_status'], ['freeze', 'frozen', 'approved', 'completed'])) {
             return redirect()->to(site_url("payroll/month/{$year}/{$month}"))
                 ->with('error', 'NEFT Export requires Step 2 Salary Computation to be approved first.');
         }
@@ -688,7 +694,7 @@ class PayrollController extends BaseController
         $monthDate = sprintf('%04d-%02d-01', $year, $month);
 
         $status = $this->payrollStatusModel->where('month_date', $monthDate)->first();
-        if (!$status || $status['salary_status'] !== 'frozen') {
+        if (!$status || !in_array($status['salary_status'], ['freeze', 'frozen', 'approved', 'completed'])) {
             return redirect()->to(site_url("payroll/month/{$year}/{$month}"))
                 ->with('error', 'Payslips Export requires Step 2 Salary Computation to be approved first.');
         }

@@ -12,7 +12,7 @@
         </a>
       </div>
       <div class="card-body p-4" style="background-color: #ffffff !important;">
-        <form action="<?= site_url('contractors/store') ?>" method="post" novalidate>
+        <form action="<?= site_url('contractors/store') ?>" method="post" class="jquery-validation" novalidate>
           <?= csrf_field() ?>
 
 

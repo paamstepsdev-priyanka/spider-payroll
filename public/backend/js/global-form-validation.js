@@ -162,9 +162,9 @@ function initFormValidation(formSelector, rules, messages) {
         },
         unhighlight: function (element) {
             var $el = $(element);
-            $el.removeClass('is-invalid').addClass('is-valid');
+            $el.removeClass('is-invalid is-valid');
             if ($el.hasClass('flatpickr-input') && $el.next('.flatpickr-input').length) {
-                $el.next('.flatpickr-input').removeClass('is-invalid');
+                $el.next('.flatpickr-input').removeClass('is-invalid is-valid');
             }
         },
         errorPlacement: function (error, element) {
@@ -214,9 +214,9 @@ function initAjaxForm(formSelector, options) {
         },
         unhighlight: function (element) {
             var $el = $(element);
-            $el.removeClass('is-invalid').addClass('is-valid');
+            $el.removeClass('is-invalid is-valid');
             if ($el.hasClass('flatpickr-input') && $el.next('.flatpickr-input').length) {
-                $el.next('.flatpickr-input').removeClass('is-invalid');
+                $el.next('.flatpickr-input').removeClass('is-invalid is-valid');
             }
         },
         errorPlacement: function (error, element) {
@@ -349,8 +349,33 @@ $(document).ready(function () {
     // 1. Auto Initialize Datepickers
     initAppDatepickers();
 
-    // 2. Auto Initialize Forms marked with data-ajax-form="true"
-    $('form[data-ajax-form="true"]').each(function () {
+    // 2. Auto Initialize Forms marked with class="jquery-validation" or data-ajax-form="true"
+    $('form.jquery-validation, form[data-ajax-form="true"]').each(function () {
         initAjaxForm(this);
+    });
+
+    // 3. Global Email-to-Username Sync Listener
+    $(document).on('input', 'form input[name="email"]', function () {
+        var $form = $(this).closest('form');
+        var $username = $form.find('input[name="username"]');
+        if ($username.length) {
+            $username.val($(this).val());
+        }
+    });
+
+    // 4. Disable accidental mouse wheel scrolling on number inputs
+    document.addEventListener('wheel', function (e) {
+        if (document.activeElement && document.activeElement.type === 'number') {
+            document.activeElement.blur();
+        }
+    }, { passive: true });
+
+    // 5. Disable ArrowUp and ArrowDown value changes on number inputs
+    document.addEventListener('keydown', function (e) {
+        if (document.activeElement && document.activeElement.type === 'number') {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+        }
     });
 });

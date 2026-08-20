@@ -3,20 +3,22 @@
 <?= $this->section('content') ?>
 
 <?php
-$attFrozen = ($statusRecord['attendance_status'] === 'frozen');
-$salFrozen = ($statusRecord['salary_status'] === 'frozen');
+$attFrozen = in_array($statusRecord['attendance_status'] ?? '', ['freeze', 'frozen', 'locked', 'completed']);
+$salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen', 'locked', 'completed']);
 ?>
 
-<!-- Header Row -->
+<!-- Standardized Page Header Row -->
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between pb-3 mb-4 border-bottom gap-3">
   <div>
-    <p class="text-body-secondary mb-0 small">
-      Monthly Payroll Processing &middot; <strong><?= esc($monthName) ?></strong>
-    </p>
+    <h3 class="fw-bold text-dark mb-1 d-flex align-items-center flex-wrap gap-2">
+      Monthly Payroll Processing
+      <span class="badge text-white fs-6 fw-semibold rounded-pill px-3 py-1 shadow-sm" style="background-color: #047857;"><?= esc($monthName) ?></span>
+    </h3>
+    <p class="text-body-secondary mb-0 small">Record employee attendance, calculate monthly salary breakdowns, and export payslips or NEFT files.</p>
   </div>
   <div>
-    <a href="<?= site_url('payroll?fy=' . $year) ?>" class="btn btn-outline-secondary btn-sm fw-medium d-inline-flex align-items-center gap-2 shadow-sm">
-      &larr; Back to Dashboard
+    <a href="<?= site_url('payroll?fy=' . $year) ?>" class="btn btn-dark btn-sm fw-bold d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-2">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
     </a>
   </div>
 </div>
@@ -41,11 +43,11 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
           </div>
 
           <?php if ($attFrozen): ?>
-            <span class="badge rounded-pill status-badge status-success">
+            <span class="badge rounded-pill status-badge status-success text-white">
               Completed & Frozen
             </span>
           <?php else: ?>
-            <span class="badge rounded-pill status-badge status-primary">
+            <span class="badge rounded-pill status-badge status-primary text-white">
               Active / In Progress
             </span>
           <?php endif; ?>
@@ -74,19 +76,19 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 
           <?php if ($salFrozen): ?>
 
-            <span class="badge rounded-pill status-badge status-success">
+            <span class="badge rounded-pill status-badge status-success text-white">
               Approved & Locked
             </span>
 
           <?php elseif ($attFrozen): ?>
 
-            <span class="badge rounded-pill status-badge status-warning">
+            <span class="badge rounded-pill status-badge status-warning text-white">
               Active / Unlocked
             </span>
 
           <?php else: ?>
 
-            <span class="badge rounded-pill status-badge status-danger">
+            <span class="badge rounded-pill status-badge status-danger text-white">
               🔒 Locked (Complete Step 1)
             </span>
 
@@ -116,13 +118,13 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 
           <?php if ($salFrozen): ?>
 
-            <span class="badge rounded-pill status-badge status-success">
+            <span class="badge rounded-pill status-badge status-success text-white">
               Generated & Ready
             </span>
 
           <?php else: ?>
 
-            <span class="badge rounded-pill status-badge status-danger">
+            <span class="badge rounded-pill status-badge status-danger text-white">
               🔒 Locked (Approve Step 2)
             </span>
 
@@ -136,39 +138,39 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 </div>
 
 <!-- Workflow Nav Tabs -->
-<ul class="nav nav-tabs mb-4 border-bottom" id="payrollWorkflowTabs" role="tablist">
+<ul class="nav nav-tabs" id="payrollWorkflowTabs" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active fw-bold text-dark" id="tab-step1" data-coreui-toggle="tab" data-coreui-target="#step1-pane" type="button" role="tab">
+    <button class="nav-link active fw-bold" id="tab-step1" data-coreui-toggle="tab" data-coreui-target="#step1-pane" type="button" role="tab">
       1. Attendance Register
       <?php if ($attFrozen): ?>
-        <span class="badge text-bg-success ms-1">✓</span>
+        <i class="bi bi-check-circle-fill text-success ms-1 fs-6"></i>
       <?php endif; ?>
     </button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link fw-bold text-dark <?= !$attFrozen ? 'disabled opacity-50' : '' ?>" id="tab-step2" data-coreui-toggle="tab" data-coreui-target="#step2-pane" type="button" role="tab">
+    <button class="nav-link fw-bold <?= !$attFrozen ? 'disabled' : '' ?>" id="tab-step2" data-coreui-toggle="tab" data-coreui-target="#step2-pane" type="button" role="tab">
       2. Salary Computation
       <?php if (!$attFrozen): ?>
-        🔒
+        <i class="bi bi-lock-fill text-warning ms-1"></i>
       <?php elseif ($salFrozen): ?>
-        <span class="badge text-bg-success ms-1">✓</span>
+        <i class="bi bi-check-circle-fill text-success ms-1 fs-6"></i>
       <?php endif; ?>
     </button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link fw-bold text-dark <?= !$salFrozen ? 'disabled opacity-50' : '' ?>" id="tab-step3" data-coreui-toggle="tab" data-coreui-target="#step3-pane" type="button" role="tab">
+    <button class="nav-link fw-bold <?= !$salFrozen ? 'disabled' : '' ?>" id="tab-step3" data-coreui-toggle="tab" data-coreui-target="#step3-pane" type="button" role="tab">
       3. Payslip & NEFT Export
       <?php if (!$salFrozen): ?>
-        🔒
+        <i class="bi bi-lock-fill text-warning ms-1"></i>
       <?php else: ?>
-        <span class="badge text-bg-success ms-1">✓</span>
+        <i class="bi bi-check-circle-fill text-success ms-1 fs-6"></i>
       <?php endif; ?>
     </button>
   </li>
 </ul>
 
-<!-- Tab Contents -->
-<div class="tab-content" id="payrollWorkflowTabsContent">
+<!-- Tab Contents Container (Seamless Zero Gap) -->
+<div class="tab-content border rounded-bottom-3 p-4 bg-white shadow-sm mb-4" id="payrollWorkflowTabsContent" style="border-color: #94a3b8 !important;">
 
   <!-- ========================================== -->
   <!-- STEP 1: ATTENDANCE REGISTER -->
@@ -222,18 +224,24 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 
         <!-- Action Buttons -->
         <div class="d-flex flex-wrap gap-2">
-          <button type="button" class="btn btn-outline-primary btn-sm rounded-2 shadow-sm" id="btnImportExcel" <?= $attFrozen ? 'disabled' : '' ?>>
-            Import Attendance Excel
-          </button>
-          <button type="button" class="btn btn-outline-primary btn-sm rounded-2 shadow-sm" id="btnQuickFill" <?= $attFrozen ? 'disabled' : '' ?>>
-            ⚡ Quick Fill (Full Attendance)
-          </button>
-          <button type="button" class="btn btn-outline-warning btn-sm rounded-2 shadow-sm fw-semibold" id="btnSaveAttendanceDraft" <?= $attFrozen ? 'disabled' : '' ?>>
-            💾 Save Draft Attendance
-          </button>
-          <button type="button" class="btn btn-success btn-sm rounded-2 shadow-sm fw-semibold text-white" id="btnFreezeAttendance" <?= $attFrozen ? 'disabled' : '' ?>>
-            <?= $attFrozen ? '🔒 Attendance Completed & Locked' : '🔒 Freeze & Complete Attendance' ?>
-          </button>
+          <?php if (!$attFrozen): ?>
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-2 shadow-sm" id="btnImportExcel">
+              Import Attendance Excel
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-2 shadow-sm" id="btnQuickFill">
+              ⚡ Quick Fill (Full Attendance)
+            </button>
+            <button type="button" class="btn btn-outline-warning btn-sm rounded-2 shadow-sm fw-semibold" id="btnSaveAttendanceDraft">
+              💾 Save Draft Attendance
+            </button>
+            <button type="button" class="btn btn-success btn-sm rounded-2 shadow-sm fw-semibold text-white" id="btnFreezeAttendance">
+              🔒 Freeze & Complete Attendance
+            </button>
+          <?php else: ?>
+            <button type="button" class="btn btn-success btn-sm rounded-2 shadow-sm fw-semibold text-white" disabled>
+              🔒 Attendance Completed & Locked
+            </button>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -248,9 +256,8 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                 <th>Employee Name</th>
                 <th>Contractor</th>
                 <th>Biometric Code</th>
-                <th class="text-center" style="width: 130px;">Total Month Days</th>
-                <th class="text-center" style="width: 130px;">Leave Taken</th>
-                <th class="text-center" style="width: 140px;">Leave Not Deducted</th>
+                <th class="text-center" style="width: 140px;">Total Month Days</th>
+                <th class="text-center" style="width: 140px;">Attended Days</th>
                 <th class="text-center" style="width: 140px;">Net Days Payable</th>
               </tr>
             </thead>
@@ -288,17 +295,9 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
                   </td>
                   <td>
                     <input type="number" step="0.5" min="0" max="<?= $daysInMonth ?>"
-                      class="form-control form-control-sm text-center input-leave"
-                      name="attendance[<?= $row['employee_id'] ?>][leave_days]"
-                      value="<?= esc($row['leave_days']) ?>"
-                      data-emp-id="<?= $row['employee_id'] ?>"
-                      <?= $attFrozen ? 'readonly disabled' : '' ?>>
-                  </td>
-                  <td>
-                    <input type="number" step="0.5" min="0" max="<?= $daysInMonth ?>"
-                      class="form-control form-control-sm text-center input-leave-nd"
-                      name="attendance[<?= $row['employee_id'] ?>][leave_not_deducted]"
-                      value="<?= esc($row['leave_not_deducted']) ?>"
+                      class="form-control form-control-sm text-center input-attended"
+                      name="attendance[<?= $row['employee_id'] ?>][attended_days]"
+                      value="<?= esc($row['attended_days']) ?>"
                       data-emp-id="<?= $row['employee_id'] ?>"
                       <?= $attFrozen ? 'readonly disabled' : '' ?>>
                   </td>
@@ -347,106 +346,6 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
       </div>
 
     <?php else: ?>
-
-      <!-- ========================================== -->
-      <!-- SALARY SUMMARY CARDS -->
-      <!-- ========================================== -->
-
-      <div class="row g-3 mb-4">
-
-        <!-- Payroll Budget -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="salary-summary-card salary-budget-card">
-
-            <div class="salary-summary-icon">
-              ₹
-            </div>
-
-            <div class="salary-summary-content">
-              <div class="salary-summary-label">
-                Total Payroll Budget
-              </div>
-
-              <div class="salary-summary-value">
-                ₹ <?= number_format($totalPayrollBudget, 2) ?>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-
-        <!-- Frozen Days -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="salary-summary-card salary-days-card">
-
-            <div class="salary-summary-icon">
-              📅
-            </div>
-
-            <div class="salary-summary-content">
-              <div class="salary-summary-label">
-                Total Frozen Days
-              </div>
-
-              <div class="salary-summary-value">
-                <?= number_format($totalFrozenAttendanceDays, 1) ?>
-                <small>Days</small>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-
-        <!-- Employees -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="salary-summary-card salary-employee-card">
-
-            <div class="salary-summary-icon">
-              👥
-            </div>
-
-            <div class="salary-summary-content">
-              <div class="salary-summary-label">
-                Total Employees
-              </div>
-
-              <div class="salary-summary-value">
-                <?= esc($totalEmployees) ?>
-                <small>Staff</small>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-
-        <!-- Net Payable Days -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="salary-summary-card salary-payable-card">
-
-            <div class="salary-summary-icon">
-              ✓
-            </div>
-
-            <div class="salary-summary-content">
-              <div class="salary-summary-label">
-                Net Payable Days
-              </div>
-
-              <div class="salary-summary-value">
-                <?= number_format($totalNetPayableDays, 1) ?>
-                <small>Days</small>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-
       <!-- ========================================== -->
       <!-- SALARY COMPUTATION SHEET -->
       <!-- ========================================== -->
@@ -482,25 +381,31 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
 
           <!-- Actions -->
           <div class="salary-actions">
+            <?php if (!$salFrozen): ?>
+              <button
+                type="button"
+                class="btn salary-btn salary-btn-draft"
+                id="btnSaveSalaryDraft">
+                <span>💾</span>
+                Save Draft Salary
+              </button>
 
-            <button
-              type="button"
-              class="btn salary-btn salary-btn-draft"
-              id="btnSaveSalaryDraft"
-              <?= $salFrozen ? 'disabled' : '' ?>>
-              <span>💾</span>
-              Save Draft Salary
-            </button>
-
-            <button
-              type="button"
-              class="btn salary-btn salary-btn-approve"
-              id="btnApproveSalary"
-              <?= $salFrozen ? 'disabled' : '' ?>>
-              <span>🔒</span>
-              Freeze & Approve Salary
-            </button>
-
+              <button
+                type="button"
+                class="btn salary-btn salary-btn-approve"
+                id="btnApproveSalary">
+                <span>🔒</span>
+                Freeze & Approve Salary
+              </button>
+            <?php else: ?>
+              <button
+                type="button"
+                class="btn salary-btn salary-btn-approve"
+                disabled>
+                <span>🔒</span>
+                Salary Approved & Locked
+              </button>
+            <?php endif; ?>
           </div>
 
         </div>
@@ -709,9 +614,6 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
             <a href="<?= site_url("payroll/export-neft/{$year}/{$month}") ?>" class="btn btn-primary btn-sm rounded-2 shadow-sm fw-semibold">
               📥 Download NEFT Excel Sheet
             </a>
-            <button type="button" class="btn btn-outline-secondary btn-sm rounded-2 shadow-sm fw-semibold" onclick="window.print();">
-              🖨️ Print Contractor Summary
-            </button>
             <a href="<?= site_url("payroll/export-slips/{$year}/{$month}") ?>" class="btn btn-outline-success btn-sm rounded-2 shadow-sm fw-semibold">
               📄 Export Salary Slips
             </a>
@@ -777,9 +679,8 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
           $(this).show();
           visibleCount++;
 
-          const leaveVal = parseFloat($(this).find('.input-leave').val()) || 0;
-          const leaveNdVal = parseFloat($(this).find('.input-leave-nd').val()) || 0;
-          if (leaveVal > 0 || leaveNdVal > 0 || daysInMonth > 0) {
+          const attVal = $(this).find('.input-attended').val();
+          if (attVal !== undefined && attVal !== '') {
             filledCount++;
           }
         } else {
@@ -794,18 +695,33 @@ $salFrozen = ($statusRecord['salary_status'] === 'frozen');
       $('#progressBar').css('width', pct + '%').attr('aria-valuenow', pct);
     });
 
-    // 2. Real-time Net Days calculation on leave input change
-    $(document).on('input change', '.input-leave, .input-leave-nd', function() {
+    // 2. Real-time Net Days calculation on attended days input change
+    $(document).on('input change', '.input-attended', function() {
       const empId = $(this).data('emp-id');
-      const row = $(this).closest('tr');
-      const leaveDays = parseFloat(row.find('.input-leave').val()) || 0;
-      const leaveNd = parseFloat(row.find('.input-leave-nd').val()) || 0;
+      const rawVal = $(this).val();
+      const val = rawVal !== undefined && rawVal !== null ? rawVal.trim() : '';
+      const attendedDays = val !== '' ? parseFloat(val) : 0;
 
-      let netDays = daysInMonth - leaveDays + leaveNd;
+      let netDays = attendedDays;
       if (netDays < 0) netDays = 0;
       if (netDays > daysInMonth) netDays = daysInMonth;
 
-      $('#net-days-' + empId).text(netDays.toFixed(1));
+      $('#net-days-' + empId).text(val !== '' ? netDays.toFixed(1) : '0');
+
+      // Update progress bar counter in real-time
+      let visibleCount = 0;
+      let filledCount = 0;
+      $('.attendance-row:visible').each(function() {
+        visibleCount++;
+        const attVal = $(this).find('.input-attended').val();
+        if (attVal !== undefined && attVal !== null && attVal.trim() !== '') {
+          filledCount++;
+        }
+      });
+      const pendingCount = Math.max(0, visibleCount - filledCount);
+      $('#progressText').html(filledCount + ' / ' + visibleCount + ' Filled &middot; ' + pendingCount + ' Pending');
+      const pct = visibleCount > 0 ? Math.round((filledCount / visibleCount) * 100) : 0;
+      $('#progressBar').css('width', pct + '%').attr('aria-valuenow', pct);
     });
 
     // Toast Notification Utility

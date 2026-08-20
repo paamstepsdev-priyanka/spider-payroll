@@ -12,15 +12,13 @@
         </a>
       </div>
       <div class="card-body p-4" style="background-color: #ffffff !important;">
-        <form action="<?= site_url('users/store') ?>" method="post" novalidate>
+        <form action="<?= site_url('users/store') ?>" method="post" class="jquery-validation" novalidate>
           <?= csrf_field() ?>
-
-
 
           <!-- Name Field -->
           <div class="mb-3">
             <label for="name" class="form-label small fw-semibold text-secondary">Name <span class="text-danger">*</span></label>
-            <input type="text" name="name" id="name" class="form-control <?= session('errors.name') ? 'is-invalid' : '' ?>" value="<?= old('name') ?>" placeholder="Enter name" required>
+            <input type="text" name="name" id="name" class="form-control <?= session('errors.name') ? 'is-invalid' : '' ?>" value="<?= old('name') ?>" placeholder="Enter name" required minlength="2">
             <?php if (session('errors.name')): ?>
               <div class="invalid-feedback d-block"><?= session('errors.name') ?></div>
             <?php endif; ?>
@@ -41,7 +39,7 @@
           <!-- Password Field -->
           <div class="mb-3">
             <label for="password" class="form-label small fw-semibold text-secondary">Password <span class="text-danger">*</span></label>
-            <input type="password" name="password" id="password" class="form-control <?= session('errors.password') ? 'is-invalid' : '' ?>" placeholder="Min 6 characters" required>
+            <input type="password" name="password" id="password" class="form-control <?= session('errors.password') ? 'is-invalid' : '' ?>" placeholder="Min 6 characters" required minlength="6">
             <?php if (session('errors.password')): ?>
               <div class="invalid-feedback d-block"><?= session('errors.password') ?></div>
             <?php endif; ?>
@@ -50,7 +48,7 @@
           <!-- Confirm Password Field -->
           <div class="mb-3">
             <label for="confirm_password" class="form-label small fw-semibold text-secondary">Confirm Password <span class="text-danger">*</span></label>
-            <input type="password" name="confirm_password" id="confirm_password" class="form-control <?= session('errors.confirm_password') ? 'is-invalid' : '' ?>" placeholder="Re-enter password" required>
+            <input type="password" name="confirm_password" id="confirm_password" class="form-control <?= session('errors.confirm_password') ? 'is-invalid' : '' ?>" placeholder="Re-enter password" required minlength="6" data-rule-equalTo="#password" data-msg-equalTo="Confirm Password does not match Password.">
             <?php if (session('errors.confirm_password')): ?>
               <div class="invalid-feedback d-block"><?= session('errors.confirm_password') ?></div>
             <?php endif; ?>
@@ -90,17 +88,6 @@
 
         </form>
 
-        <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            const emailInput = document.getElementById('email');
-            const usernameInput = document.getElementById('username');
-            if (emailInput && usernameInput) {
-              emailInput.addEventListener('input', function() {
-                usernameInput.value = this.value;
-              });
-            }
-          });
-        </script>
       </div>
     </div>
   </div>
