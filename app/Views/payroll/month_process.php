@@ -181,14 +181,29 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
     <div class="card border shadow-sm rounded-3 p-3 bg-white mb-4">
       <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
         <!-- Contractor Filter -->
+        <?php
+        $contractorEmpCounts = [];
+        foreach ($attendanceRows as $r) {
+            $cId = (int) ($r['contractor_id'] ?? 0);
+            if ($cId > 0) {
+                $contractorEmpCounts[$cId] = ($contractorEmpCounts[$cId] ?? 0) + 1;
+            }
+        }
+        ?>
         <div class="d-flex align-items-center gap-2">
           <label for="contractorFilter" class="form-label fw-bold mb-0 text-nowrap">Filter by Contractor:</label>
-          <select id="contractorFilter" class="form-select form-select-sm" style="min-width: 220px;">
+          <select id="contractorFilter" class="form-select form-select-sm" style="min-width: 260px;">
             <option value="">All Contractors</option>
             <?php foreach ($contractors as $c): ?>
-              <option value="<?= esc($c['contractor_id']) ?>">
-                <?= esc($c['contractor_name']) ?> (<?= esc($c['contractor_code']) ?>)
-              </option>
+              <?php 
+              $cId = (int) $c['contractor_id'];
+              $empCount = $contractorEmpCounts[$cId] ?? 0;
+              if ($empCount > 0): 
+              ?>
+                <option value="<?= esc($cId) ?>">
+                  <?= esc($c['contractor_name']) ?> (<?= esc($c['contractor_code']) ?>) - <?= $empCount ?> <?= $empCount === 1 ? 'Employee' : 'Employees' ?>
+                </option>
+              <?php endif; ?>
             <?php endforeach; ?>
           </select>
           <span class="badge bg-secondary-subtle text-secondary border fw-medium px-2 py-1" id="employeeCountBadge">
@@ -264,7 +279,7 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
                 <?php
                 $initial = strtoupper(substr($row['employee_name'], 0, 1));
                 ?>
-                <tr class="attendance-row" data-contractor-id="<?= esc($row['contractor_id']) ?>">
+                <tr class="attendance-row" data-contractor-id="<?= esc($row['contractor_id']) ?>" data-biometric-code="<?= esc(strtoupper(trim($row['biometric_code'] ?? ''))) ?>">
                   <td class="fw-semibold text-body-secondary"><?= $sr++ ?></td>
                   <td>
                     <div class="d-flex align-items-center gap-2">
@@ -658,7 +673,52 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
 
 </div>
 
+<!-- Import Attendance Excel Modal -->
+<div class="modal fade" id="excelImportModal" tabindex="-1" aria-labelledby="excelImportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white py-3">
+        <h5 class="modal-title fs-6 fw-bold" id="excelImportModalLabel">
+          <i class="bi bi-file-earmark-excel me-2"></i>Import Attendance Excel
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" data-coreui-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="alert alert-info border-0 bg-info-subtle text-info-emphasis small rounded-3 mb-3">
+          <div class="fw-semibold mb-1"><i class="bi bi-info-circle me-1"></i> Biometric Code Import Rules:</div>
+          <ul class="mb-0 ps-3">
+            <li><strong>Column 1:</strong> Employee Name</li>
+            <li><strong>Column 2:</strong> Biometric Code (Used for database matching)</li>
+            <li><strong>Column 3:</strong> Attended Days</li>
+            <li class="mt-1 text-primary-emphasis">✓ Only existing database employees with matching Biometric Codes are updated.</li>
+            <li class="text-secondary">✓ Extra / unmatched Excel rows are automatically ignored.</li>
+            <li class="text-secondary">✓ Existing database employees not in Excel remain unchanged.</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <label for="excelFileInput" class="form-label small fw-semibold text-secondary">Select Excel / CSV File</label>
+          <input type="file" class="form-control" id="excelFileInput" accept=".xlsx, .xls, .csv">
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="btnDownloadSampleExcel">
+            <i class="bi bi-download me-1"></i> Sample Template
+          </button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" data-coreui-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-primary" id="btnProcessExcelImport">
+              <i class="bi bi-upload me-1"></i> Upload & Import
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- JavaScript Integration -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const daysInMonth = <?= (int) $daysInMonth ?>;
@@ -671,11 +731,10 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
       let filledCount = 0;
 
       $('.attendance-row').each(function() {
-        const rowCId = $(this).attr('data-contractor-id');
-        if (!contractorId || rowCId === contractorId) {
+        const rowContractorId = $(this).data('contractor-id');
+        if (contractorId === '' || String(rowContractorId) === String(contractorId)) {
           $(this).show();
           visibleCount++;
-
           const attVal = $(this).find('.input-attended').val();
           if (attVal !== undefined && attVal !== '') {
             filledCount++;
@@ -741,35 +800,143 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
       }
     }
 
-    // 3. Quick Fill Attendance
-    $('#btnQuickFill').on('click', function() {
-      const contractorId = $('#contractorFilter').val();
-      const btn = $(this);
-      btn.prop('disabled', true).html('Processing...');
+    // 3. Open Import Excel Modal
+    $('#btnImportExcel').on('click', function() {
+      $('#excelFileInput').val('');
+      const modalEl = document.getElementById('excelImportModal');
+      if (typeof coreui !== 'undefined' && coreui.Modal) {
+        coreui.Modal.getOrCreateInstance(modalEl).show();
+      } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+      } else {
+        $('#excelImportModal').modal('show');
+      }
+    });
 
-      $.ajax({
-        url: '<?= site_url("payroll/quick-fill-attendance") ?>',
-        method: 'POST',
-        data: {
-          month_date: monthDate,
-          contractor_id: contractorId,
-          days_in_month: daysInMonth
-        },
-        dataType: 'json',
-        success: function(res) {
-          btn.prop('disabled', false).html('⚡ Quick Fill (Full Attendance)');
-          if (res.status === 'success') {
-            showToast('success', 'Quick Fill Completed', res.message);
-            setTimeout(() => location.reload(), 1200);
-          } else {
-            showToast('error', 'Action Failed', res.message);
-          }
-        },
-        error: function() {
-          btn.prop('disabled', false).html('⚡ Quick Fill (Full Attendance)');
-          showToast('error', 'Error', 'Failed to communicate with server.');
-        }
+    // Download Sample Template
+    $('#btnDownloadSampleExcel').on('click', function() {
+      let csvContent = "Employee Name,Biometric Code,Attended Days\n";
+      $('.attendance-row').each(function() {
+        const name = $(this).find('.fw-bold.text-dark').text().trim().replace(/,/g, '');
+        const code = $(this).data('biometric-code') || '';
+        const att = $(this).find('.input-attended').val() || daysInMonth;
+        csvContent += `"${name}","${code}",${att}\n`;
       });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "Attendance_Import_Template.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Process Excel Import
+    $('#btnProcessExcelImport').on('click', function() {
+      const fileInput = document.getElementById('excelFileInput');
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        showToast('error', 'No File Selected', 'Please select an Excel or CSV file to import.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          if (!jsonRows || jsonRows.length === 0) {
+            showToast('error', 'Empty File', 'The uploaded file contains no readable data.');
+            return;
+          }
+
+          let bioColIndex = 1;
+          let attColIndex = 2;
+
+          // Header detection if present
+          if (jsonRows.length > 0) {
+            const firstRow = jsonRows[0];
+            firstRow.forEach((colHeader, idx) => {
+              if (colHeader && typeof colHeader === 'string') {
+                const h = colHeader.toLowerCase().trim();
+                if (h.includes('biometric') || h.includes('bio') || h.includes('code')) {
+                  bioColIndex = idx;
+                }
+                if (h.includes('attended') || h.includes('days') || h.includes('present') || h.includes('attendance')) {
+                  attColIndex = idx;
+                }
+              }
+            });
+          }
+
+          let updatedCount = 0;
+          let ignoredCount = 0;
+
+          for (let i = 0; i < jsonRows.length; i++) {
+            const row = jsonRows[i];
+            if (!row || row.length === 0) continue;
+
+            const bioVal = row[bioColIndex];
+            const attVal = row[attColIndex];
+
+            if (bioVal === undefined || bioVal === null || bioVal === '') continue;
+
+            const bioCode = String(bioVal).trim().toUpperCase();
+            if (bioCode.toLowerCase().includes('biometric')) continue; // Skip header row
+
+            const attendedDays = (attVal !== undefined && attVal !== null && attVal !== '' && !isNaN(attVal)) ? parseFloat(attVal) : null;
+
+            if (attendedDays !== null && attendedDays >= 0) {
+              const $targetRow = $('.attendance-row').filter(function() {
+                return String($(this).data('biometric-code')).trim().toUpperCase() === bioCode;
+              });
+
+              if ($targetRow.length) {
+                const $input = $targetRow.find('.input-attended');
+                if ($input.length) {
+                  $input.val(attendedDays).trigger('input');
+                  updatedCount++;
+                }
+              } else {
+                // Biometric Code not in database -> Completely ignore
+                ignoredCount++;
+              }
+            }
+          }
+
+          const modalEl = document.getElementById('excelImportModal');
+          if (typeof coreui !== 'undefined' && coreui.Modal) {
+            coreui.Modal.getInstance(modalEl)?.hide();
+          } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getInstance(modalEl)?.hide();
+          } else {
+            $('#excelImportModal').modal('hide');
+          }
+
+          if (updatedCount > 0) {
+            let msg = 'Imported attendance for ' + updatedCount + ' matched employee(s).';
+            if (ignoredCount > 0) {
+              msg += ' (' + ignoredCount + ' unmatched Excel row(s) ignored)';
+            }
+            showToast('success', 'Import Complete', msg);
+          } else {
+            showToast('warning', 'No Match Found', 'No matching biometric codes found in database. Unmatched rows were ignored.');
+          }
+
+        } catch (err) {
+          console.error(err);
+          showToast('error', 'File Parse Error', 'Failed to parse file. Please ensure it is a valid .xlsx, .xls, or .csv file.');
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
     });
 
     // 4. Save Draft Attendance
@@ -800,10 +967,21 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
     // 5. Freeze & Complete Attendance
     $('#btnFreezeAttendance').on('click', function() {
       const btn = $(this);
+      const monthNameStr = "<?= esc($monthName) ?>";
 
       Swal.fire({
         title: 'Freeze & Complete Attendance?',
-        text: 'Freezing attendance will lock Step 1 and enable Step 2 Salary Computation for <?= esc($monthName) ?>.',
+        html: `
+          <div class="mb-3 text-start small text-secondary">
+            Freezing attendance will lock Step 1 and enable Step 2 Salary Computation for <strong>${monthNameStr}</strong>.
+          </div>
+          <div class="mb-2 text-start">
+            <label for="freezeConfirmInput" class="form-label small fw-bold text-dark mb-1">
+              Confirmation note / remark (optional):
+            </label>
+            <input type="text" id="freezeConfirmInput" class="form-control form-control-sm text-center fw-bold" placeholder="e.g. FREEZE, DONE, OK" autocomplete="off">
+          </div>
+        `,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#198754',
@@ -835,6 +1013,7 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
                     setTimeout(() => location.reload(), 1200);
                   } else {
                     showToast('error', 'Action Failed', res.message);
+                    btn.prop('disabled', false).html('🔒 Freeze & Complete Attendance');
                   }
                 },
                 error: function() {
@@ -842,6 +1021,10 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
                   showToast('error', 'Error', 'Server error while freezing attendance.');
                 }
               });
+            },
+            error: function() {
+              btn.prop('disabled', false).html('🔒 Freeze & Complete Attendance');
+              showToast('error', 'Error', 'Failed to save draft attendance before freezing.');
             }
           });
         }
@@ -876,10 +1059,21 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
     // 7. Freeze & Approve Salary
     $('#btnApproveSalary').on('click', function() {
       const btn = $(this);
+      const monthNameStr = "<?= esc($monthName) ?>";
 
       Swal.fire({
         title: 'Freeze & Approve Salary?',
-        text: 'Approving salary will lock Step 2 and generate NEFT disbursement cards & payslips for <?= esc($monthName) ?>.',
+        html: `
+          <div class="mb-3 text-start small text-secondary">
+            Approving salary will lock Step 2 and generate NEFT disbursement cards & payslips for <strong>${monthNameStr}</strong>.
+          </div>
+          <div class="mb-2 text-start">
+            <label for="salaryConfirmInput" class="form-label small fw-bold text-dark mb-1">
+              Confirmation note / remark (optional):
+            </label>
+            <input type="text" id="salaryConfirmInput" class="form-control form-control-sm text-center fw-bold" placeholder="e.g. APPROVED, DONE, OK" autocomplete="off">
+          </div>
+        `,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#198754',
