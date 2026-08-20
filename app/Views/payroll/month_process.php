@@ -228,9 +228,6 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
             <button type="button" class="btn btn-outline-primary btn-sm rounded-2 shadow-sm" id="btnImportExcel">
               Import Attendance Excel
             </button>
-            <button type="button" class="btn btn-outline-primary btn-sm rounded-2 shadow-sm" id="btnQuickFill">
-              ⚡ Quick Fill (Full Attendance)
-            </button>
             <button type="button" class="btn btn-outline-warning btn-sm rounded-2 shadow-sm fw-semibold" id="btnSaveAttendanceDraft">
               💾 Save Draft Attendance
             </button>

@@ -341,9 +341,9 @@
                 <!-- 2. IFSC Code -->
                 <div class="col-md-3 mb-3">
                   <label for="ifsc_code" class="form-label small fw-semibold text-secondary">IFSC Code</label>
-                  <input type="text" name="ifsc_code" id="ifsc_code" class="form-control text-uppercase <?= session('errors.ifsc_code') ? 'is-invalid' : '' ?>" value="<?= old('ifsc_code') ?>" placeholder="e.g. HDFC0001234">
+                  <input type="text" name="ifsc_code" id="ifsc_code" class="form-control text-uppercase <?= session('errors.ifsc_code') ? 'is-invalid' : '' ?>" value="<?= old('ifsc_code') ?>" placeholder="e.g. HDFC0001234" maxlength="11">
                   <?php if (session('errors.ifsc_code')): ?>
-                    <div class="invalid-feedback d-block"><?= session('errors.ifsc_code') ?></div>
+                    <div class="invalid-feedback d-block ifsc-feedback-msg"><?= session('errors.ifsc_code') ?></div>
                   <?php endif; ?>
                 </div>
 

@@ -315,6 +315,138 @@ function initAjaxForm(formSelector, options) {
     return validator;
 }
 
+/**
+ * Auto-fill Bank Name and Branch Name using Razorpay IFSC API
+ * 
+ * @param {string|HTMLElement} [ifscSelector='#ifsc_code']
+ * @param {string|HTMLElement} [bankNameSelector='#bank_name']
+ * @param {string|HTMLElement} [bankBranchSelector='#bank_branch, #branch_name']
+ */
+function initIfscAutoFill(ifscSelector, bankNameSelector, bankBranchSelector) {
+    ifscSelector = ifscSelector || '#ifsc_code';
+    bankNameSelector = bankNameSelector || '#bank_name';
+    bankBranchSelector = bankBranchSelector || '#bank_branch, #branch_name';
+
+    var $ifsc = $(ifscSelector);
+    if (!$ifsc.length) return;
+
+    var $bankName = $(bankNameSelector);
+    var $bankBranch = $(bankBranchSelector);
+
+    var lastFetchedIfsc = '';
+
+    // If Bank Name is already filled on load (e.g., edit view), set it readonly & set lastFetchedIfsc
+    var initialIfsc = $ifsc.val() ? $ifsc.val().trim().toUpperCase() : '';
+    if (initialIfsc && $bankName.val()) {
+        lastFetchedIfsc = initialIfsc;
+        $bankName.prop('readonly', true).addClass('bg-light');
+        $bankBranch.prop('readonly', true).addClass('bg-light');
+    }
+
+    function clearIfscFeedback() {
+        $ifsc.removeClass('is-invalid is-valid');
+        var $parent = $ifsc.closest('.mb-3, .col-md-3, .col-md-6, div');
+        $parent.find('.ifsc-feedback-msg').remove();
+    }
+
+    function showIfscMessage(type, message) {
+        clearIfscFeedback();
+        var $parent = $ifsc.closest('.mb-3, .col-md-3, .col-md-6, div');
+
+        if (type === 'error') {
+            $ifsc.addClass('is-invalid').removeClass('is-valid');
+            $parent.append('<div class="invalid-feedback d-block ifsc-feedback-msg">' + message + '</div>');
+        } else if (type === 'success') {
+            $ifsc.addClass('is-valid').removeClass('is-invalid');
+            $parent.append('<div class="valid-feedback d-block ifsc-feedback-msg"><i class="bi bi-check-circle me-1"></i>' + message + '</div>');
+        } else if (type === 'loading') {
+            $ifsc.removeClass('is-invalid is-valid');
+            $parent.append('<div class="form-text text-primary small ifsc-feedback-msg"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>' + message + '</div>');
+        }
+    }
+
+    function fetchBankDetails() {
+        var rawVal = $ifsc.val() || '';
+        var ifsc = rawVal.trim().toUpperCase();
+        $ifsc.val(ifsc);
+
+        if (!ifsc) {
+            clearIfscFeedback();
+            $bankName.val('').prop('readonly', false).removeClass('bg-light');
+            $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+            lastFetchedIfsc = '';
+            return;
+        }
+
+        // IFSC standard format validation: 11 characters (4 letters, '0', 6 alphanumeric)
+        var ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+        if (!ifscRegex.test(ifsc)) {
+            showIfscMessage('error', 'Please enter a valid 11-character IFSC code (e.g. HDFC0001234).');
+            $bankName.val('').prop('readonly', false).removeClass('bg-light');
+            $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+            lastFetchedIfsc = '';
+            return;
+        }
+
+        // Avoid duplicate API call if IFSC code has not changed
+        if (ifsc === lastFetchedIfsc) {
+            return;
+        }
+
+        showIfscMessage('loading', 'Fetching bank details...');
+
+        $.ajax({
+            url: 'https://ifsc.razorpay.com/' + encodeURIComponent(ifsc),
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                var bank = (response && (response.bank || response.BANK)) ? (response.bank || response.BANK) : '';
+                var branch = (response && (response.branch || response.BRANCH)) ? (response.branch || response.BRANCH) : '';
+
+                if (bank) {
+                    $bankName.val(bank).prop('readonly', true).addClass('bg-light');
+                    $bankBranch.val(branch).prop('readonly', true).addClass('bg-light');
+                    showIfscMessage('success', 'Bank details fetched successfully.');
+                    lastFetchedIfsc = ifsc;
+                } else {
+                    $bankName.val('').prop('readonly', false).removeClass('bg-light');
+                    $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+                    showIfscMessage('error', 'Invalid IFSC Code. Bank details not found.');
+                    lastFetchedIfsc = '';
+                }
+            },
+            error: function (xhr) {
+                $bankName.val('').prop('readonly', false).removeClass('bg-light');
+                $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+                if (xhr.status === 404) {
+                    showIfscMessage('error', 'Invalid IFSC Code or bank details not found.');
+                } else {
+                    showIfscMessage('error', 'Unable to fetch bank details. Please check your network connection.');
+                }
+                lastFetchedIfsc = '';
+            }
+        });
+    }
+
+    // Trigger API call on blur
+    $ifsc.on('blur', function () {
+        fetchBankDetails();
+    });
+
+    // Handle typing: convert to uppercase, trim, and trigger fetch when 11 chars complete
+    $ifsc.on('input keyup', function () {
+        var val = $(this).val().toUpperCase().trim();
+        $(this).val(val);
+
+        if (val !== lastFetchedIfsc) {
+            $ifsc.removeClass('is-valid');
+            if (val.length === 11) {
+                fetchBankDetails();
+            }
+        }
+    });
+}
+
 // Register Custom Validation Methods for jQuery Validation
 if (typeof $.validator !== 'undefined') {
     // Indian Mobile Number
@@ -354,7 +486,10 @@ $(document).ready(function () {
         initAjaxForm(this);
     });
 
-    // 3. Global Email-to-Username Sync Listener
+    // 3. Auto Initialize IFSC Auto-Fill
+    initIfscAutoFill();
+
+    // 4. Global Email-to-Username Sync Listener
     $(document).on('input', 'form input[name="email"]', function () {
         var $form = $(this).closest('form');
         var $username = $form.find('input[name="username"]');
@@ -363,14 +498,14 @@ $(document).ready(function () {
         }
     });
 
-    // 4. Disable accidental mouse wheel scrolling on number inputs
+    // 5. Disable accidental mouse wheel scrolling on number inputs
     document.addEventListener('wheel', function (e) {
         if (document.activeElement && document.activeElement.type === 'number') {
             document.activeElement.blur();
         }
     }, { passive: true });
 
-    // 5. Disable ArrowUp and ArrowDown value changes on number inputs
+    // 6. Disable ArrowUp and ArrowDown value changes on number inputs
     document.addEventListener('keydown', function (e) {
         if (document.activeElement && document.activeElement.type === 'number') {
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
