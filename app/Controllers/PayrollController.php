@@ -658,17 +658,12 @@ class PayrollController extends BaseController
         $year  = (int) $year;
         $month = (int) $month;
         $monthDate = sprintf('%04d-%02d-01', $year, $month);
-
-        $status = $this->payrollStatusModel->where('month_date', $monthDate)->first();
-        if (!$status || !in_array($status['salary_status'], ['freeze', 'frozen', 'approved', 'completed'])) {
-            return redirect()->to(site_url("payroll/month/{$year}/{$month}"))
-                ->with('error', 'NEFT Export requires Step 2 Salary Computation to be approved first.');
-        }
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month > 0 ? $month : (int)date('n'), $year > 0 ? $year : (int)date('Y'));
 
         $contractorId = $this->request->getGet('contractor_id');
 
         $query = $this->salaryModel
-            ->select('calculated_salary.*, employees.employee_name, employees.bank_account_number, employees.ifsc_code, employees.bank_name, contractors.contractor_name')
+            ->select('calculated_salary.*, employees.employee_name, employees.account_holder_name, employees.biometric_code, employees.phone_number, employees.monthly_base_salary, employees.bank_account_number, employees.ifsc_code, employees.bank_name, contractors.contractor_name')
             ->join('employees', 'employees.employee_id = calculated_salary.employee_id')
             ->join('contractors', 'contractors.contractor_id = calculated_salary.contractor_id', 'left')
             ->where('calculated_salary.month_date', $monthDate);
@@ -683,30 +678,112 @@ class PayrollController extends BaseController
 
         $salaries = $query->findAll();
 
-        $contractorSuffix = ($contractorId !== null && $contractorId !== '') ? "_Contractor_" . $contractorId : "";
-        $filename = "NEFT_Payout" . $contractorSuffix . "_" . date('M_Y', strtotime($monthDate)) . ".csv";
+        // Fallback: If no calculated salary records exist yet for this month/contractor, fetch from active employees
+        if (empty($salaries)) {
+            $empQuery = $this->employeeModel
+                ->select('employees.*, contractors.contractor_name')
+                ->join('contractors', 'contractors.contractor_id = employees.contractor_id', 'left')
+                ->where('employees.status', 'active');
 
-        header('Content-Type: text/csv');
+            if ($contractorId !== null && $contractorId !== '') {
+                if ((int)$contractorId === 0) {
+                    $empQuery->where('(employees.contractor_id IS NULL OR employees.contractor_id = 0)');
+                } else {
+                    $empQuery->where('employees.contractor_id', (int)$contractorId);
+                }
+            }
+
+            $employeesList = $empQuery->findAll();
+            $dbAttendance = $this->attendanceModel->getAttendanceByMonth($monthDate);
+
+            $salaries = [];
+            foreach ($employeesList as $emp) {
+                $empId   = $emp['employee_id'];
+                $att     = $dbAttendance[$empId] ?? null;
+                $netDays = $att ? (float)$att['net_days_payable'] : (float)$daysInMonth;
+                $baseSalary = (float)$emp['monthly_base_salary'];
+                $calcSalary = round(($baseSalary / $daysInMonth) * $netDays, 2);
+
+                $salaries[] = [
+                    'employee_name'       => $emp['employee_name'],
+                    'account_holder_name' => $emp['account_holder_name'],
+                    'biometric_code'      => $emp['biometric_code'],
+                    'phone_number'        => $emp['phone_number'],
+                    'employee_id'         => $emp['employee_id'],
+                    'monthly_base_salary' => $baseSalary,
+                    'bank_account_number' => $emp['bank_account_number'],
+                    'ifsc_code'           => $emp['ifsc_code'],
+                    'net_days_payable'    => $netDays,
+                    'calculated_salary'   => $calcSalary,
+                ];
+            }
+        }
+
+        $contractorName = 'Contractors_Payout';
+        if ($contractorId !== null && $contractorId !== '') {
+            if ((int)$contractorId === 0) {
+                $contractorName = 'Direct_Employees';
+            } else {
+                $c = $this->contractorModel->find((int)$contractorId);
+                if ($c && !empty($c['contractor_name'])) {
+                    $contractorName = preg_replace('/[^A-Za-z0-9_\-]/', '_', trim($c['contractor_name']));
+                }
+            }
+        }
+
+        $dateStr  = date('M_Y', strtotime($monthDate));
+        $filename = "{$contractorName}_{$dateStr}.xls";
+
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
 
-        $output = fopen('php://output', 'w');
-        fputcsv($output, ['Sr No', 'Contractor', 'Employee Name', 'Bank Name', 'Account Number', 'IFSC Code', 'Net Payable Days', 'Payout Amount']);
+        echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        echo '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+        echo '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Payout Sheet</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+        echo '<style>';
+        echo '  th { background-color: #FFF2CC !important; color: #000000; font-weight: bold; border: 0.5pt solid #B0C4DE; padding: 6px; text-align: center; font-family: Calibri, Arial, sans-serif; font-size: 11pt; }';
+        echo '  td { border: 0.5pt solid #D3D3D3; padding: 5px; font-family: Calibri, Arial, sans-serif; font-size: 11pt; vertical-align: middle; }';
+        echo '  .text-cell { mso-number-format:"\@"; }';
+        echo '  .num-cell { mso-number-format:"0\.00"; text-align: right; }';
+        echo '  .center-cell { text-align: center; }';
+        echo '</style></head><body><table><thead><tr>';
+        echo '  <th style="background-color: #FFF2CC;">SL No</th>';
+        echo '  <th style="background-color: #FFF2CC;">Staff name (NAME AS PER BANK)</th>';
+        echo '  <th style="background-color: #FFF2CC;">Staff No.</th>';
+        echo '  <th style="background-color: #FFF2CC;">AC No</th>';
+        echo '  <th style="background-color: #FFF2CC;">IFSC No</th>';
+        echo '  <th style="background-color: #FFF2CC;">Salary</th>';
+        echo '  <th style="background-color: #FFF2CC;">Attendance</th>';
+        echo '  <th style="background-color: #FFF2CC;">Amount</th>';
+        echo '  <th style="background-color: #FFF2CC;">Desc (Narration)</th>';
+        echo '</tr></thead><tbody>';
 
         $sr = 1;
         foreach ($salaries as $row) {
-            fputcsv($output, [
-                $sr++,
-                $row['contractor_name'] ?? 'Direct',
-                $row['employee_name'],
-                $row['bank_name'] ?? 'N/A',
-                $row['bank_account_number'] ?? 'N/A',
-                $row['ifsc_code'] ?? 'N/A',
-                $row['net_days_payable'],
-                number_format((float) $row['calculated_salary'], 2, '.', ''),
-            ]);
+            $accountHolder = !empty($row['account_holder_name']) ? htmlspecialchars($row['account_holder_name']) : htmlspecialchars($row['employee_name']);
+            $rawStaffNo    = !empty($row['biometric_code']) ? $row['biometric_code'] : (!empty($row['phone_number']) ? $row['phone_number'] : $row['employee_id']);
+            $staffNo       = htmlspecialchars((string)$rawStaffNo);
+            $accNo         = !empty($row['bank_account_number']) ? htmlspecialchars((string)$row['bank_account_number']) : '';
+            $ifsc          = !empty($row['ifsc_code']) ? htmlspecialchars($row['ifsc_code']) : '';
+            $baseSalary    = number_format((float) ($row['monthly_base_salary'] ?? 0), 2, '.', '');
+            $attendance    = htmlspecialchars((string)($row['net_days_payable'] ?? 0));
+            $calcAmount    = number_format((float) ($row['calculated_salary'] ?? 0), 2, '.', '');
+
+            echo '<tr>';
+            echo '  <td class="center-cell">' . $sr++ . '</td>';
+            echo '  <td>' . $accountHolder . '</td>';
+            echo '  <td class="text-cell">' . $staffNo . '</td>';
+            echo '  <td class="text-cell">' . $accNo . '</td>';
+            echo '  <td class="center-cell">' . $ifsc . '</td>';
+            echo '  <td class="num-cell">' . $baseSalary . '</td>';
+            echo '  <td class="center-cell">' . $attendance . '</td>';
+            echo '  <td class="num-cell">' . $calcAmount . '</td>';
+            echo '  <td>Employee Payment</td>';
+            echo '</tr>';
         }
 
-        fclose($output);
+        echo '</tbody></table></body></html>';
         exit;
     }
 

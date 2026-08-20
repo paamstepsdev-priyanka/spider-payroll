@@ -22,6 +22,7 @@ $routes->group('users', static function ($routes) {
 
 $routes->group('contractors', static function ($routes) {
     $routes->get('/', 'ContractorController::index');
+    $routes->get('export', 'ContractorController::exportExcel');
     $routes->get('create', 'ContractorController::create');
     $routes->post('store', 'ContractorController::store');
     $routes->get('edit/(:num)', 'ContractorController::edit/$1');

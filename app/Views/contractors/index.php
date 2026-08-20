@@ -10,9 +10,14 @@
       <h4 class="mb-0 fw-semibold text-dark fs-5">Contractors</h4>
       <div class="text-secondary small mt-1">Manage contractors</div>
     </div>
-    <a href="<?= site_url('contractors/create') ?>" class="btn btn-primary px-3 py-2 text-decoration-none" style="border-radius: 6px; font-size: 13px;">
-      + Add Contractor
-    </a>
+    <div class="d-flex gap-2">
+      <a href="<?= site_url('contractors/export') ?>" class="btn btn-outline-success px-3 py-2 text-decoration-none" style="border-radius: 6px; font-size: 13px;">
+        <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+      </a>
+      <a href="<?= site_url('contractors/create') ?>" class="btn btn-primary px-3 py-2 text-decoration-none" style="border-radius: 6px; font-size: 13px;">
+        + Add Contractor
+      </a>
+    </div>
   </div>
   <div class="card-body p-4" style="background-color: #ffffff !important;">
     <!-- Search & Filter Form with Live AJAX Search -->
