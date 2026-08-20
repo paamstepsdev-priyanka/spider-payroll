@@ -13,17 +13,27 @@
  */
 function showToast(type, message, title) {
     type = type || 'info';
-    title = title || (type.charAt(0).toUpperCase() + type.slice(1));
+    if (!title) {
+        title = (type === 'success') ? 'Success!' : (type.charAt(0).toUpperCase() + type.slice(1));
+    }
 
     // Try SweetAlert2 Toast first if available
     if (typeof Swal !== 'undefined') {
         var iconType = (type === 'error') ? 'error' : (type === 'warning' ? 'warning' : (type === 'info' ? 'info' : 'success'));
+        var bgColor = '#25c974'; // Light green for success
+        if (type === 'error') bgColor = '#ef4444';
+        else if (type === 'warning') bgColor = '#f59e0b';
+        else if (type === 'info') bgColor = '#3b82f6';
+
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
             timer: 4000,
             timerProgressBar: true,
+            background: bgColor,
+            color: '#ffffff',
+            iconColor: '#ffffff',
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
@@ -335,12 +345,13 @@ function initIfscAutoFill(ifscSelector, bankNameSelector, bankBranchSelector) {
 
     var lastFetchedIfsc = '';
 
-    // If Bank Name is already filled on load (e.g., edit view), set it readonly & set lastFetchedIfsc
+    // Ensure Bank Name and Branch inputs are always readonly with light grayish background
+    $bankName.prop('readonly', true).addClass('bg-light');
+    $bankBranch.prop('readonly', true).addClass('bg-light');
+
     var initialIfsc = $ifsc.val() ? $ifsc.val().trim().toUpperCase() : '';
-    if (initialIfsc && $bankName.val()) {
+    if (initialIfsc) {
         lastFetchedIfsc = initialIfsc;
-        $bankName.prop('readonly', true).addClass('bg-light');
-        $bankBranch.prop('readonly', true).addClass('bg-light');
     }
 
     function clearIfscFeedback() {
@@ -372,8 +383,8 @@ function initIfscAutoFill(ifscSelector, bankNameSelector, bankBranchSelector) {
 
         if (!ifsc) {
             clearIfscFeedback();
-            $bankName.val('').prop('readonly', false).removeClass('bg-light');
-            $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+            $bankName.val('').prop('readonly', true).addClass('bg-light');
+            $bankBranch.val('').prop('readonly', true).addClass('bg-light');
             lastFetchedIfsc = '';
             return;
         }
@@ -382,8 +393,8 @@ function initIfscAutoFill(ifscSelector, bankNameSelector, bankBranchSelector) {
         var ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
         if (!ifscRegex.test(ifsc)) {
             showIfscMessage('error', 'Please enter a valid 11-character IFSC code (e.g. HDFC0001234).');
-            $bankName.val('').prop('readonly', false).removeClass('bg-light');
-            $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+            $bankName.val('').prop('readonly', true).addClass('bg-light');
+            $bankBranch.val('').prop('readonly', true).addClass('bg-light');
             lastFetchedIfsc = '';
             return;
         }
@@ -409,15 +420,15 @@ function initIfscAutoFill(ifscSelector, bankNameSelector, bankBranchSelector) {
                     showIfscMessage('success', 'Bank details fetched successfully.');
                     lastFetchedIfsc = ifsc;
                 } else {
-                    $bankName.val('').prop('readonly', false).removeClass('bg-light');
-                    $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+                    $bankName.val('').prop('readonly', true).addClass('bg-light');
+                    $bankBranch.val('').prop('readonly', true).addClass('bg-light');
                     showIfscMessage('error', 'Invalid IFSC Code. Bank details not found.');
                     lastFetchedIfsc = '';
                 }
             },
             error: function (xhr) {
-                $bankName.val('').prop('readonly', false).removeClass('bg-light');
-                $bankBranch.val('').prop('readonly', false).removeClass('bg-light');
+                $bankName.val('').prop('readonly', true).addClass('bg-light');
+                $bankBranch.val('').prop('readonly', true).addClass('bg-light');
                 if (xhr.status === 404) {
                     showIfscMessage('error', 'Invalid IFSC Code or bank details not found.');
                 } else {

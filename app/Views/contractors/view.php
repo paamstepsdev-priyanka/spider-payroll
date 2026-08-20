@@ -25,12 +25,12 @@
                 <td class="fw-semibold text-dark"><?= esc($contractor['contractor_name']) ?></td>
               </tr>
               <tr>
-                <th scope="row" class="bg-light text-secondary">Contractor Code</th>
-                <td><code class="text-dark bg-light px-2 py-1 rounded" style="font-size: 13px;"><?= esc($contractor['contractor_code']) ?></code></td>
-              </tr>
-              <tr>
                 <th scope="row" class="bg-light text-secondary">Phone Number</th>
                 <td><?= esc($contractor['phone_number'] ?: '-') ?></td>
+              </tr>
+              <tr>
+                <th scope="row" class="bg-light text-secondary">Date of Birth (DOB)</th>
+                <td><?= !empty($contractor['dob']) ? date('d/m/Y', strtotime($contractor['dob'])) : '-' ?></td>
               </tr>
               <tr>
                 <th scope="row" class="bg-light text-secondary">Email Address</th>

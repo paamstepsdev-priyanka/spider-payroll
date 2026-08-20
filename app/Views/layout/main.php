@@ -260,23 +260,9 @@
     <?php if (session()->getFlashdata('success')): ?>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer);
-                        toast.addEventListener('mouseleave', Swal.resumeTimer);
-                    }
-                });
-
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '<?= esc(session()->getFlashdata('success'), 'js') ?>'
-                });
+                if (typeof showToast === 'function') {
+                    showToast('success', '<?= esc(session()->getFlashdata('success'), 'js') ?>', 'Success!');
+                }
             });
         </script>
     <?php endif; ?>
@@ -284,23 +270,9 @@
     <?php if (session()->getFlashdata('error')): ?>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 4000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer);
-                        toast.addEventListener('mouseleave', Swal.resumeTimer);
-                    }
-                });
-
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Action Failed',
-                    text: '<?= esc(session()->getFlashdata('error'), 'js') ?>'
-                });
+                if (typeof showToast === 'function') {
+                    showToast('error', '<?= esc(session()->getFlashdata('error'), 'js') ?>', 'Action Failed');
+                }
             });
         </script>
     <?php endif; ?>

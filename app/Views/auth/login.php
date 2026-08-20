@@ -123,6 +123,24 @@
 
             if (typeof initAjaxForm === 'function') {
                 initAjaxForm('#loginForm', {
+                    rules: {
+                        username: {
+                            required: true,
+                            email: true
+                        },
+                        password: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        username: {
+                            required: "Please enter your email address.",
+                            email: "Please enter a valid email address."
+                        },
+                        password: {
+                            required: "Please enter your password."
+                        }
+                    },
                     onSuccess: function (response) {
                         var targetUrl = response.redirect || response.redirect_url || '<?= site_url('users') ?>';
                         setTimeout(function () {

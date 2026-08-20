@@ -13,7 +13,6 @@ $endCount    = min($offset + $perPage, $total);
       <tr>
         <th scope="col" style="width: 60px;">#</th>
         <th scope="col">Contractor Name</th>
-        <th scope="col">Code</th>
         <th scope="col">Phone</th>
         <th scope="col">Status</th>
         <th scope="col">Created Date</th>
@@ -26,8 +25,11 @@ $endCount    = min($offset + $perPage, $total);
         <?php foreach ($contractors as $item): ?>
           <tr style="background-color: #ffffff !important;">
             <th scope="row" class="fw-normal text-secondary" style="background-color: #ffffff !important;"><?= $sr++ ?></th>
-            <td class="fw-medium text-dark" style="background-color: #ffffff !important;"><?= esc($item['contractor_name']) ?></td>
-            <td style="background-color: #ffffff !important;"><code class="text-dark bg-light px-2 py-1 rounded" style="font-size: 13px;"><?= esc($item['contractor_code']) ?></code></td>
+            <td class="fw-medium text-dark" style="background-color: #ffffff !important;">
+              <a href="javascript:void(0)" class="text-decoration-none fw-semibold text-dark btn-view-contractor" data-id="<?= $item['contractor_id'] ?>" title="Click to view details">
+                <?= esc($item['contractor_name']) ?>
+              </a>
+            </td>
             <td style="background-color: #ffffff !important;"><?= esc($item['phone_number'] ?: '-') ?></td>
             <td style="background-color: #ffffff !important;">
               <?php if ($item['status'] === 'active'): ?>
@@ -44,20 +46,20 @@ $endCount    = min($offset + $perPage, $total);
             <td class="text-end" style="background-color: #ffffff !important;">
               <div class="d-flex justify-content-end gap-1">
                 <!-- View Button -->
-                <a href="<?= site_url('contractors/view/' . $item['contractor_id']) ?>" class="btn btn-sm btn-outline-secondary" title="View Details">
-                  View
-                </a>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-view-contractor" data-id="<?= $item['contractor_id'] ?>" title="View Details">
+                  <i class="bi bi-eye"></i>
+                </button>
 
                 <!-- Edit Button -->
                 <a href="<?= site_url('contractors/edit/' . $item['contractor_id']) ?>" class="btn btn-sm btn-outline-primary" title="Edit Contractor">
-                  Edit
+                  <i class="bi bi-pencil"></i>
                 </a>
 
                 <!-- Delete Button with SweetAlert2 -->
                 <form method="post" action="<?= site_url('contractors/delete/' . $item['contractor_id']) ?>" class="d-inline">
                   <?= csrf_field() ?>
                   <button type="button" class="btn btn-sm btn-outline-danger btn-sweet-delete-contractor" data-name="<?= esc($item['contractor_name']) ?>" title="Delete Contractor">
-                    Delete
+                    <i class="bi bi-trash"></i>
                   </button>
                 </form>
               </div>

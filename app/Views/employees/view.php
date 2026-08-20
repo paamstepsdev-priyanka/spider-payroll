@@ -40,19 +40,19 @@ $maskPan = function ($pan) {
 
     <!-- SECTION 1 — EMPLOYEE DETAILS -->
     <div class="mb-4">
-      <h6 class="text-primary fw-bold text-uppercase fs-7 tracking-wide border-bottom pb-2 mb-3">
+      <h6 class="text-primary fw-bold text-uppercase border-bottom pb-2 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
         1. Employee Details
       </h6>
       <div class="row g-3">
-        <div class="col-md-4">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Employee Name</div>
           <div class="fs-6 text-dark fw-medium mt-1"><?= esc($employee['employee_name']) ?></div>
         </div>
-        <div class="col-md-4">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Phone Number</div>
           <div class="fs-6 text-dark mt-1"><?= esc($employee['phone_number'] ?: '-') ?></div>
         </div>
-        <div class="col-md-4">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Biometric Code</div>
           <div class="fs-6 text-dark mt-1">
             <?php if (!empty($employee['biometric_code'])): ?>
@@ -62,13 +62,11 @@ $maskPan = function ($pan) {
             <?php endif; ?>
           </div>
         </div>
-      </div>
-      <div class="row g-3 mt-1">
-        <div class="col-md-6">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Gender</div>
-          <div class="fs-6 text-dark mt-1"><?= ucfirst(esc($employee['gender'])) ?></div>
+          <div class="fs-6 text-dark mt-1"><?= ucfirst(esc($employee['gender'] ?: '-')) ?></div>
         </div>
-        <div class="col-md-6">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Date of Birth</div>
           <div class="fs-6 text-dark mt-1">
             <?= !empty($employee['date_of_birth']) ? date('d/m/Y', strtotime($employee['date_of_birth'])) : '-' ?>
@@ -79,35 +77,33 @@ $maskPan = function ($pan) {
 
     <!-- SECTION 2 — EMPLOYMENT DETAILS -->
     <div class="mb-4">
-      <h6 class="text-primary fw-bold text-uppercase fs-7 tracking-wide border-bottom pb-2 mb-3">
+      <h6 class="text-primary fw-bold text-uppercase border-bottom pb-2 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
         2. Employment Details
       </h6>
       <div class="row g-3">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Contractor</div>
           <div class="fs-6 text-dark fw-medium mt-1"><?= esc($employee['contractor_name'] ?? '-') ?></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Designation</div>
           <div class="fs-6 text-dark mt-1"><?= esc($employee['designation'] ?: '-') ?></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Department</div>
           <div class="fs-6 text-dark mt-1"><?= esc($employee['department'] ?: '-') ?></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Monthly Base Salary</div>
           <div class="fs-6 text-dark fw-bold mt-1">₹<?= number_format((float)$employee['monthly_base_salary'], 2) ?></div>
         </div>
-      </div>
-      <div class="row g-3 mt-1">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Date of Joining</div>
           <div class="fs-6 text-dark mt-1">
             <?= !empty($employee['date_of_joining']) ? date('d/m/Y', strtotime($employee['date_of_joining'])) : '-' ?>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Status</div>
           <div class="mt-1">
             <?php if ($employee['status'] === 'active'): ?>
@@ -120,13 +116,13 @@ $maskPan = function ($pan) {
           </div>
         </div>
         <?php if (!empty($employee['date_of_leaving']) || $employee['status'] === 'relieved'): ?>
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             <div class="text-secondary small fw-semibold">Date of Leaving</div>
             <div class="fs-6 text-dark mt-1">
               <?= !empty($employee['date_of_leaving']) ? date('d/m/Y', strtotime($employee['date_of_leaving'])) : '-' ?>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             <div class="text-secondary small fw-semibold">Exit Reason</div>
             <div class="fs-6 text-dark mt-1"><?= esc($employee['exit_reason'] ?: '-') ?></div>
           </div>
@@ -136,25 +132,25 @@ $maskPan = function ($pan) {
 
     <!-- SECTION 3 — BANK DETAILS -->
     <div class="mb-4">
-      <h6 class="text-primary fw-bold text-uppercase fs-7 tracking-wide border-bottom pb-2 mb-3">
+      <h6 class="text-primary fw-bold text-uppercase border-bottom pb-2 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
         3. Bank Details
       </h6>
       <div class="row g-3">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Bank Account Number</div>
           <div class="fs-6 text-dark fw-monospace mt-1">
             <?= esc($maskBankAccount($employee['bank_account_number'])) ?>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">IFSC Code</div>
           <div class="fs-6 text-dark fw-monospace mt-1"><?= esc($employee['ifsc_code'] ?: '-') ?></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Bank Name</div>
           <div class="fs-6 text-dark mt-1"><?= esc($employee['bank_name'] ?: '-') ?></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Bank Branch</div>
           <div class="fs-6 text-dark mt-1"><?= esc($employee['bank_branch'] ?: '-') ?></div>
         </div>
@@ -163,11 +159,11 @@ $maskPan = function ($pan) {
 
     <!-- SECTION 4 — IDENTIFICATION -->
     <div class="mb-4">
-      <h6 class="text-primary fw-bold text-uppercase fs-7 tracking-wide border-bottom pb-2 mb-3">
+      <h6 class="text-primary fw-bold text-uppercase border-bottom pb-2 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
         4. Identification
       </h6>
       <div class="row g-3">
-        <div class="col-md-12">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">PAN Number</div>
           <div class="fs-6 text-dark fw-monospace mt-1">
             <?= esc($maskPan($employee['pan_number'])) ?>
@@ -178,17 +174,17 @@ $maskPan = function ($pan) {
 
     <!-- SECTION 5 — SYSTEM INFORMATION -->
     <div class="mb-2">
-      <h6 class="text-primary fw-bold text-uppercase fs-7 tracking-wide border-bottom pb-2 mb-3">
+      <h6 class="text-primary fw-bold text-uppercase border-bottom pb-2 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
         5. System Information
       </h6>
       <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Created Date</div>
           <div class="fs-6 text-dark mt-1">
             <?= !empty($employee['created_at']) ? date('d M Y, h:i A', strtotime($employee['created_at'])) : '-' ?>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Last Updated</div>
           <div class="fs-6 text-dark mt-1">
             <?= !empty($employee['updated_at']) ? date('d M Y, h:i A', strtotime($employee['updated_at'])) : '-' ?>

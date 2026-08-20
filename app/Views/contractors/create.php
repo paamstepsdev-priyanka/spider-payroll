@@ -25,7 +25,7 @@
 
             <div class="row">
               <!-- Contractor Name -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label for="contractor_name" class="form-label small fw-semibold text-secondary">Contractor Name <span class="text-danger">*</span></label>
                 <input type="text" name="contractor_name" id="contractor_name" class="form-control <?= session('errors.contractor_name') ? 'is-invalid' : '' ?>" value="<?= old('contractor_name') ?>" placeholder="e.g. ABC Contractor" required>
                 <?php if (session('errors.contractor_name')): ?>
@@ -33,19 +33,8 @@
                 <?php endif; ?>
               </div>
 
-              <!-- Contractor Code -->
-              <div class="col-md-6 mb-3">
-                <label for="contractor_code" class="form-label small fw-semibold text-secondary">Contractor Code <span class="text-danger">*</span></label>
-                <input type="text" name="contractor_code" id="contractor_code" class="form-control <?= session('errors.contractor_code') ? 'is-invalid' : '' ?>" value="<?= old('contractor_code') ?>" placeholder="e.g. ABC001" required>
-                <?php if (session('errors.contractor_code')): ?>
-                  <div class="invalid-feedback d-block"><?= session('errors.contractor_code') ?></div>
-                <?php endif; ?>
-              </div>
-            </div>
-
-            <div class="row">
               <!-- Phone Number -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label for="phone_number" class="form-label small fw-semibold text-secondary">Phone Number</label>
                 <input type="text" name="phone_number" id="phone_number" class="form-control <?= session('errors.phone_number') ? 'is-invalid' : '' ?>" value="<?= old('phone_number') ?>" placeholder="e.g. 9876543210">
                 <?php if (session('errors.phone_number')): ?>
@@ -53,6 +42,17 @@
                 <?php endif; ?>
               </div>
 
+              <!-- Date of Birth (DOB) -->
+              <div class="col-md-4 mb-3">
+                <label for="dob" class="form-label small fw-semibold text-secondary">Date of Birth (DOB)</label>
+                <input type="date" name="dob" id="dob" class="form-control flatpickr-date <?= session('errors.dob') ? 'is-invalid' : '' ?>" value="<?= old('dob') ?>" placeholder="Select DOB">
+                <?php if (session('errors.dob')): ?>
+                  <div class="invalid-feedback d-block"><?= session('errors.dob') ?></div>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <div class="row">
               <!-- Email -->
               <div class="col-md-6 mb-3">
                 <label for="email" class="form-label small fw-semibold text-secondary">Email Address</label>
@@ -104,8 +104,8 @@
             <div class="row">
               <!-- Bank Name -->
               <div class="col-md-6 mb-3">
-                <label for="bank_name" class="form-label small fw-semibold text-secondary">Bank Name</label>
-                <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name') ?>" placeholder="e.g. State Bank of India">
+                <label for="bank_name" class="form-label small fw-semibold text-secondary">Bank Name <span class="text-danger">*</span></label>
+                <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name') ?>" placeholder="Auto-filled from IFSC or enter manually" required>
                 <?php if (session('errors.bank_name')): ?>
                   <div class="invalid-feedback d-block"><?= session('errors.bank_name') ?></div>
                 <?php endif; ?>
@@ -113,8 +113,8 @@
 
               <!-- Branch Name -->
               <div class="col-md-6 mb-3">
-                <label for="branch_name" class="form-label small fw-semibold text-secondary">Branch Name</label>
-                <input type="text" name="branch_name" id="branch_name" class="form-control <?= session('errors.branch_name') ? 'is-invalid' : '' ?>" value="<?= old('branch_name') ?>" placeholder="e.g. Andheri West">
+                <label for="branch_name" class="form-label small fw-semibold text-secondary">Branch Name <span class="text-danger">*</span></label>
+                <input type="text" name="branch_name" id="branch_name" class="form-control <?= session('errors.branch_name') ? 'is-invalid' : '' ?>" value="<?= old('branch_name') ?>" placeholder="Auto-filled from IFSC or enter manually" required>
                 <?php if (session('errors.branch_name')): ?>
                   <div class="invalid-feedback d-block"><?= session('errors.branch_name') ?></div>
                 <?php endif; ?>
@@ -166,5 +166,64 @@
     }
   });
 </script>
+
+<?= $this->section('scripts') ?>
+<script>
+  $(document).ready(function () {
+    initAjaxForm('form.jquery-validation', {
+      rules: {
+        contractor_name: {
+          required: true,
+          maxlength: 150
+        },
+        phone_number: {
+          indianPhone: true
+        },
+        email: {
+          email: true,
+          maxlength: 100
+        },
+        bank_account_number: {
+          required: true,
+          digits: true,
+          maxlength: 50
+        },
+        ifsc_code: {
+          required: true,
+          ifscCode: true
+        },
+        status: {
+          required: true
+        }
+      },
+      messages: {
+        contractor_name: {
+          required: "Please enter the contractor name.",
+          maxlength: "Contractor name cannot exceed 150 characters."
+        },
+        phone_number: {
+          indianPhone: "Please enter a valid 10-digit mobile number."
+        },
+        email: {
+          email: "Please enter a valid email address.",
+          maxlength: "Email address cannot exceed 100 characters."
+        },
+        bank_account_number: {
+          required: "Please enter the bank account number.",
+          digits: "Bank account number must contain numbers only.",
+          maxlength: "Bank account number cannot exceed 50 digits."
+        },
+        ifsc_code: {
+          required: "Please enter the bank IFSC code.",
+          ifscCode: "Please enter a valid 11-character IFSC code (e.g. HDFC0001234)."
+        },
+        status: {
+          required: "Please select contractor status."
+        }
+      }
+    });
+  });
+</script>
+<?= $this->endSection() ?>
 
 <?= $this->endSection() ?>

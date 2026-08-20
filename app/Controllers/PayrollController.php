@@ -241,7 +241,7 @@ class PayrollController extends BaseController
 
         // Fetch employees with contractor details
         $employees = $this->employeeModel
-            ->select('employees.*, contractors.contractor_name, contractors.contractor_code')
+            ->select('employees.*, contractors.contractor_name')
             ->join('contractors', 'contractors.contractor_id = employees.contractor_id', 'left')
             ->where('employees.status', 'active')
             ->orderBy('employees.employee_id', 'ASC')
@@ -327,13 +327,27 @@ class PayrollController extends BaseController
             $contractorPayouts[] = [
                 'contractor_id'          => $cId,
                 'contractor_name'        => $c['contractor_name'],
-                'contractor_code'        => $c['contractor_code'],
                 'phone_number'           => $c['phone_number'],
                 'bank_account_number'    => $c['bank_account_number'],
                 'ifsc_code'              => $c['ifsc_code'],
                 'bank_name'              => $c['bank_name'] ?? 'N/A',
                 'associated_employees'   => $empCount,
                 'total_payout'           => $payoutAmount,
+            ];
+        }
+
+        // Direct / No Contractor employees summary row
+        $directEmps = array_filter($attendanceRows, fn($r) => empty($r['contractor_id']));
+        if (!empty($directEmps)) {
+            $contractorPayouts[] = [
+                'contractor_id'          => 0,
+                'contractor_name'        => 'Direct / No Contractor',
+                'phone_number'           => '-',
+                'bank_account_number'    => '-',
+                'ifsc_code'              => '-',
+                'bank_name'              => '-',
+                'associated_employees'   => count($directEmps),
+                'total_payout'           => array_sum(array_column($directEmps, 'calculated_salary')),
             ];
         }
 
@@ -651,14 +665,26 @@ class PayrollController extends BaseController
                 ->with('error', 'NEFT Export requires Step 2 Salary Computation to be approved first.');
         }
 
-        $salaries = $this->salaryModel
+        $contractorId = $this->request->getGet('contractor_id');
+
+        $query = $this->salaryModel
             ->select('calculated_salary.*, employees.employee_name, employees.bank_account_number, employees.ifsc_code, employees.bank_name, contractors.contractor_name')
             ->join('employees', 'employees.employee_id = calculated_salary.employee_id')
             ->join('contractors', 'contractors.contractor_id = calculated_salary.contractor_id', 'left')
-            ->where('calculated_salary.month_date', $monthDate)
-            ->findAll();
+            ->where('calculated_salary.month_date', $monthDate);
 
-        $filename = "NEFT_Payout_" . date('M_Y', strtotime($monthDate)) . ".csv";
+        if ($contractorId !== null && $contractorId !== '') {
+            if ((int)$contractorId === 0) {
+                $query->where('(calculated_salary.contractor_id IS NULL OR calculated_salary.contractor_id = 0)');
+            } else {
+                $query->where('calculated_salary.contractor_id', (int)$contractorId);
+            }
+        }
+
+        $salaries = $query->findAll();
+
+        $contractorSuffix = ($contractorId !== null && $contractorId !== '') ? "_Contractor_" . $contractorId : "";
+        $filename = "NEFT_Payout" . $contractorSuffix . "_" . date('M_Y', strtotime($monthDate)) . ".csv";
 
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '"');

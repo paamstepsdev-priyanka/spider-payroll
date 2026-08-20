@@ -33,12 +33,17 @@
     ?>
 
     <!-- Search & Filter Form (Standard GET Request) -->
-    <form method="GET" action="<?= site_url('employees') ?>" class="row g-3 mb-4 align-items-end">
-      <div class="col-lg-4 col-md-3">
+    <form method="GET" action="<?= site_url('employees') ?>" class="row g-3 mb-3 align-items-end">
+      <input type="hidden" name="sort_column" value="<?= esc($sortColumn ?? 'employee_id') ?>">
+      <input type="hidden" name="sort_order" value="<?= esc($sortOrder ?? 'DESC') ?>">
+      <?php if (!empty($status)): ?>
+        <input type="hidden" name="status" value="<?= esc($status) ?>">
+      <?php endif; ?>
+      <div class="col-lg-5 col-md-4">
         <label for="search" class="form-label small fw-semibold text-secondary">Search</label>
         <input type="text" name="search" id="search" class="form-control" placeholder="Search employees..." value="<?= esc($search ?? '') ?>">
       </div>
-      <div class="col-lg-3 col-md-3">
+      <div class="col-lg-2 col-md-5">
         <label for="contractor_id" class="form-label small fw-semibold text-secondary">Contractor</label>
         <select name="contractor_id" id="contractor_id" class="form-select">
           <option value="">-- All Contractors --</option>
@@ -50,15 +55,6 @@
         </select>
       </div>
       <div class="col-lg-3 col-md-3">
-        <label for="status" class="form-label small fw-semibold text-secondary">Status</label>
-        <select name="status" id="status" class="form-select">
-          <option value="">-- All Status --</option>
-          <option value="active" <?= ($status ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
-          <option value="relieved" <?= ($status ?? '') === 'relieved' ? 'selected' : '' ?>>Relieved</option>
-          <option value="inactive" <?= ($status ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
-        </select>
-      </div>
-      <div class="col-lg-2 col-md-3">
         <div class="d-flex gap-2">
           <button type="submit" class="btn btn-primary flex-fill fw-medium" style="border-radius: 6px; padding: 7px 12px; font-size: 13px;">Search</button>
           <a href="<?= site_url('employees') ?>" class="btn btn-outline-secondary flex-fill fw-medium text-center text-decoration-none" style="border-radius: 6px; padding: 7px 12px; font-size: 13px;">Reset</a>
@@ -66,18 +62,81 @@
       </div>
     </form>
 
+    <!-- Status Quick Filter Tabs (Touching Top of Table) -->
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+      <?php
+      $buildTabUrl = function ($st) use ($search, $contractorId, $sortColumn, $sortOrder) {
+        $params = [];
+        if (!empty($search)) $params['search'] = $search;
+        if (!empty($contractorId)) $params['contractor_id'] = $contractorId;
+        if (!empty($st)) $params['status'] = $st;
+        if (!empty($sortColumn)) $params['sort_column'] = $sortColumn;
+        if (!empty($sortOrder)) $params['sort_order'] = $sortOrder;
+        return site_url('employees') . (!empty($params) ? '?' . http_build_query($params) : '');
+      };
+
+      $sortHeader = function ($column, $title, $align = 'text-start') use ($search, $contractorId, $status, $sortColumn, $sortOrder) {
+        $isCurrent = ($sortColumn === $column);
+        $nextOrder = ($isCurrent && $sortOrder === 'ASC') ? 'DESC' : 'ASC';
+
+        $params = [];
+        if (!empty($search)) $params['search'] = $search;
+        if (!empty($contractorId)) $params['contractor_id'] = $contractorId;
+        if (!empty($status)) $params['status'] = $status;
+        $params['sort_column'] = $column;
+        $params['sort_order']  = $nextOrder;
+
+        $url = site_url('employees') . '?' . http_build_query($params);
+
+        $iconClass = 'bi bi-arrow-down-up opacity-25 ms-1 small';
+        if ($isCurrent) {
+          if ($sortOrder === 'ASC') {
+            $iconClass = 'bi bi-sort-alpha-down text-primary ms-1';
+            if (in_array($column, ['monthly_base_salary', 'date_of_joining', 'employee_id'])) {
+              $iconClass = 'bi bi-sort-numeric-down text-primary ms-1';
+            }
+          } else {
+            $iconClass = 'bi bi-sort-alpha-down-alt text-primary ms-1';
+            if (in_array($column, ['monthly_base_salary', 'date_of_joining', 'employee_id'])) {
+              $iconClass = 'bi bi-sort-numeric-down-alt text-primary ms-1';
+            }
+          }
+        }
+
+        return '<a href="' . $url . '" class="text-decoration-none text-dark d-inline-flex align-items-center ' . $align . '" title="Click to sort by ' . esc($title) . '">'
+          . esc($title) . ' <i class="' . $iconClass . '" style="font-size: 12px;"></i></a>';
+      };
+      ?>
+      <a href="<?= $buildTabUrl('active') ?>"
+        class="btn btn-sm <?= ($status === 'active') ? 'btn-success text-white fw-bold shadow-sm' : 'btn-outline-success' ?> rounded-2 px-3 py-1 text-decoration-none" style="font-size: 13px;">
+        Active <span class="badge <?= ($status === 'active') ? 'text-bg-light text-success' : 'text-bg-success' ?> ms-1 rounded-pill"><?= $statusCounts['active'] ?? 0 ?></span>
+      </a>
+      <a href="<?= $buildTabUrl('inactive') ?>"
+        class="btn btn-sm <?= ($status === 'inactive') ? 'btn-danger text-white fw-bold shadow-sm' : 'btn-outline-danger' ?> rounded-2 px-3 py-1 text-decoration-none" style="font-size: 13px;">
+        Inactive <span class="badge <?= ($status === 'inactive') ? 'text-bg-light text-danger' : 'text-bg-danger' ?> ms-1 rounded-pill"><?= $statusCounts['inactive'] ?? 0 ?></span>
+      </a>
+      <a href="<?= $buildTabUrl('relieved') ?>"
+        class="btn btn-sm <?= ($status === 'relieved') ? 'btn-warning text-dark fw-bold shadow-sm' : 'btn-outline-warning text-dark' ?> rounded-2 px-3 py-1 text-decoration-none" style="font-size: 13px;">
+        Relieved <span class="badge <?= ($status === 'relieved') ? 'text-bg-dark text-warning' : 'text-bg-warning text-dark' ?> ms-1 rounded-pill"><?= $statusCounts['relieved'] ?? 0 ?></span>
+      </a>
+      <a href="<?= $buildTabUrl('all') ?>"
+        class="btn btn-sm <?= ($status === 'all') ? 'btn-primary text-white fw-bold shadow-sm' : 'btn-outline-secondary text-dark' ?> rounded-2 px-3 py-1 text-decoration-none" style="font-size: 13px;">
+        All <span class="badge <?= ($status === 'all') ? 'text-bg-light text-primary' : 'text-bg-secondary' ?> ms-1 rounded-pill"><?= $statusCounts['all'] ?? 0 ?></span>
+      </a>
+    </div>
+
     <!-- Employees List Table -->
     <div class="table-responsive">
       <table class="table table-plain align-middle mb-0" style="border: 1px solid #e2e8f0; background-color: #ffffff !important;">
         <thead>
           <tr>
-            <th scope="col" style="width: 50px;">#</th>
-            <th scope="col" style="width: 100px;">Employee Name</th>
-            <th scope="col" style="width: 100px;">Biometric Code</th>
-            <th scope="col" style="width: 100px;">Contractor</th>
-            <th scope="col" style="width: 100px;">Monthly Salary</th>
-            <th scope="col" class="text-center" style="width: 100px;">Joining Date</th>
-            <th scope="col" class="text-center" style="width: 100px;">Status</th>
+            <th scope="col" style="width: 50px;"><?= $sortHeader('employee_id', '#') ?></th>
+            <th scope="col" style="width: 130px;"><?= $sortHeader('employee_name', 'Employee Name') ?></th>
+            <th scope="col" style="width: 120px;"><?= $sortHeader('biometric_code', 'Biometric Code') ?></th>
+            <th scope="col" style="width: 120px;"><?= $sortHeader('contractor_name', 'Contractor') ?></th>
+            <th scope="col" style="width: 120px;"><?= $sortHeader('monthly_base_salary', 'Monthly Salary') ?></th>
+            <th scope="col" class="text-center" style="width: 110px;"><?= $sortHeader('date_of_joining', 'Joining Date', 'justify-content-center') ?></th>
+            <th scope="col" class="text-center" style="width: 90px;"><?= $sortHeader('status', 'Status', 'justify-content-center') ?></th>
             <th scope="col" class="text-center" style="width: 70px;">Actions</th>
           </tr>
         </thead>
@@ -118,15 +177,17 @@
                 <td class="text-center">
                   <div class="d-flex justify-content-center gap-1">
                     <a href="<?= site_url('employees/view/' . $employee['employee_id']) ?>" class="btn btn-sm btn-outline-secondary" title="View Details">
-                      View
+                      <i class="bi bi-eye"></i>
                     </a>
                     <a href="<?= site_url('employees/edit/' . $employee['employee_id']) ?>" class="btn btn-sm btn-outline-primary" title="Edit Employee">
-                      Edit
+                      <i class="bi bi-pencil"></i>
                     </a>
 
                     <form action="<?= site_url('employees/delete/' . $employee['employee_id']) ?>" method="POST" class="d-inline" onsubmit="return confirmDelete(event, '<?= esc($employee['employee_name'], 'js') ?>');">
                       <?= csrf_field() ?>
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Employee">Delete</button>
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Employee">
+                        <i class="bi bi-trash"></i>
+                      </button>
                     </form>
                   </div>
                 </td>
@@ -211,145 +272,134 @@
       }
     }
     return false;
-  document.addEventListener("DOMContentLoaded", function() {
-    const csrfName = "<?= csrf_token() ?>";
-    let csrfHash = "<?= csrf_hash() ?>";
+    document.addEventListener("DOMContentLoaded", function() {
+      const csrfName = "<?= csrf_token() ?>";
+      let csrfHash = "<?= csrf_hash() ?>";
 
-    document.addEventListener("click", function(e) {
-      // Handle opening salary edit form
-      const displayWrap = e.target.closest(".salary-display-wrap");
-      if (displayWrap) {
-        const cell = displayWrap.closest("td");
-        const editWrap = cell.querySelector(".salary-edit-wrap");
-        const input = cell.querySelector(".salary-input");
+      document.addEventListener("click", function(e) {
+        // Handle opening salary edit form
+        const displayWrap = e.target.closest(".salary-display-wrap");
+        if (displayWrap) {
+          const cell = displayWrap.closest("td");
+          const editWrap = cell.querySelector(".salary-edit-wrap");
+          const input = cell.querySelector(".salary-input");
 
-        displayWrap.classList.add("d-none");
-        editWrap.classList.remove("d-none");
-        editWrap.classList.add("d-flex");
-        input.focus();
-        input.select();
-        return;
-      }
+          displayWrap.classList.add("d-none");
+          editWrap.classList.remove("d-none");
+          editWrap.classList.add("d-flex");
+          input.focus();
+          input.select();
+          return;
+        }
 
-      // Handle cancel salary edit
-      const cancelBtn = e.target.closest(".btn-cancel-salary");
-      if (cancelBtn) {
-        const cell = cancelBtn.closest("td");
+        // Handle cancel salary edit
+        const cancelBtn = e.target.closest(".btn-cancel-salary");
+        if (cancelBtn) {
+          const cell = cancelBtn.closest("td");
+          const displayWrap = cell.querySelector(".salary-display-wrap");
+          const editWrap = cell.querySelector(".salary-edit-wrap");
+          const input = cell.querySelector(".salary-input");
+
+          input.value = displayWrap.getAttribute("data-salary");
+          editWrap.classList.add("d-none");
+          editWrap.classList.remove("d-flex");
+          displayWrap.classList.remove("d-none");
+          return;
+        }
+
+        // Handle save salary edit
+        const saveBtn = e.target.closest(".btn-save-salary");
+        if (saveBtn) {
+          submitSalaryUpdate(saveBtn.closest("td"));
+          return;
+        }
+      });
+
+      // Save on Enter or cancel on Escape inside salary input
+      document.addEventListener("keydown", function(e) {
+        if (e.target.classList.contains("salary-input")) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            submitSalaryUpdate(e.target.closest("td"));
+          } else if (e.key === "Escape") {
+            const cell = e.target.closest("td");
+            const displayWrap = cell.querySelector(".salary-display-wrap");
+            const editWrap = cell.querySelector(".salary-edit-wrap");
+            e.target.value = displayWrap.getAttribute("data-salary");
+            editWrap.classList.add("d-none");
+            editWrap.classList.remove("d-flex");
+            displayWrap.classList.remove("d-none");
+          }
+        }
+      });
+
+      function submitSalaryUpdate(cell) {
         const displayWrap = cell.querySelector(".salary-display-wrap");
         const editWrap = cell.querySelector(".salary-edit-wrap");
         const input = cell.querySelector(".salary-input");
+        const empId = displayWrap.getAttribute("data-id");
+        const newSalary = input.value.trim();
 
-        input.value = displayWrap.getAttribute("data-salary");
-        editWrap.classList.add("d-none");
-        editWrap.classList.remove("d-flex");
-        displayWrap.classList.remove("d-none");
-        return;
-      }
-
-      // Handle save salary edit
-      const saveBtn = e.target.closest(".btn-save-salary");
-      if (saveBtn) {
-        submitSalaryUpdate(saveBtn.closest("td"));
-        return;
-      }
-    });
-
-    // Save on Enter or cancel on Escape inside salary input
-    document.addEventListener("keydown", function(e) {
-      if (e.target.classList.contains("salary-input")) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          submitSalaryUpdate(e.target.closest("td"));
-        } else if (e.key === "Escape") {
-          const cell = e.target.closest("td");
-          const displayWrap = cell.querySelector(".salary-display-wrap");
-          const editWrap = cell.querySelector(".salary-edit-wrap");
-          e.target.value = displayWrap.getAttribute("data-salary");
-          editWrap.classList.add("d-none");
-          editWrap.classList.remove("d-flex");
-          displayWrap.classList.remove("d-none");
-        }
-      }
-    });
-
-    function submitSalaryUpdate(cell) {
-      const displayWrap = cell.querySelector(".salary-display-wrap");
-      const editWrap = cell.querySelector(".salary-edit-wrap");
-      const input = cell.querySelector(".salary-input");
-      const empId = displayWrap.getAttribute("data-id");
-      const newSalary = input.value.trim();
-
-      if (!newSalary || isNaN(newSalary) || parseFloat(newSalary) < 0) {
-        if (typeof Swal !== 'undefined') {
-          Swal.fire({
-            icon: 'error',
-            title: 'Invalid Salary',
-            text: 'Please enter a valid non-negative salary amount.'
-          });
-        } else {
-          alert('Please enter a valid non-negative salary amount.');
-        }
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('monthly_base_salary', newSalary);
-      formData.append(csrfName, csrfHash);
-
-      fetch(`<?= site_url('employees/update-salary/') ?>${empId}`, {
-        method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'success') {
-          cell.querySelector(".salary-text").textContent = data.formatted_salary;
-          displayWrap.setAttribute("data-salary", data.raw_salary);
-          editWrap.classList.add("d-none");
-          editWrap.classList.remove("d-flex");
-          displayWrap.classList.remove("d-none");
-
-          if (typeof Swal !== 'undefined') {
-            const Toast = Swal.mixin({
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3500,
-              timerProgressBar: true
-            });
-            Toast.fire({
-              icon: 'success',
-              title: 'Success',
-              text: data.message
-            });
-          }
-        } else {
+        if (!newSalary || isNaN(newSalary) || parseFloat(newSalary) < 0) {
           if (typeof Swal !== 'undefined') {
             Swal.fire({
               icon: 'error',
-              title: 'Update Failed',
-              text: data.message || 'Failed to update salary.'
+              title: 'Invalid Salary',
+              text: 'Please enter a valid non-negative salary amount.'
             });
           } else {
-            alert(data.message || 'Failed to update salary.');
+            alert('Please enter a valid non-negative salary amount.');
           }
+          return;
         }
-      })
-      .catch(err => {
-        console.error('Error updating salary:', err);
-        if (typeof Swal !== 'undefined') {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An unexpected error occurred while updating salary.'
+
+        const formData = new FormData();
+        formData.append('monthly_base_salary', newSalary);
+        formData.append(csrfName, csrfHash);
+
+        fetch(`<?= site_url('employees/update-salary/') ?>${empId}`, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              cell.querySelector(".salary-text").textContent = data.formatted_salary;
+              displayWrap.setAttribute("data-salary", data.raw_salary);
+              editWrap.classList.add("d-none");
+              editWrap.classList.remove("d-flex");
+              displayWrap.classList.remove("d-none");
+
+              if (typeof showToast === 'function') {
+                showToast('success', data.message, 'Success!');
+              }
+            } else {
+              if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Update Failed',
+                  text: data.message || 'Failed to update salary.'
+                });
+              } else {
+                alert(data.message || 'Failed to update salary.');
+              }
+            }
+          })
+          .catch(err => {
+            console.error('Error updating salary:', err);
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred while updating salary.'
+              });
+            }
           });
-        }
-      });
-    }
-  });
+      }
+    });
 </script>
 
 <?= $this->endSection() ?>

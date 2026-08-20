@@ -75,4 +75,48 @@
   </div>
 </div>
 
+<?= $this->section('scripts') ?>
+<script>
+  $(document).ready(function () {
+    initAjaxForm('form.jquery-validation', {
+      rules: {
+        name: {
+          required: true,
+          minlength: 2,
+          maxlength: 100
+        },
+        email: {
+          required: true,
+          email: true,
+          maxlength: 100
+        },
+        role: {
+          required: true
+        },
+        status: {
+          required: true
+        }
+      },
+      messages: {
+        name: {
+          required: "Please enter the user's full name.",
+          minlength: "Name must be at least 2 characters long.",
+          maxlength: "Name cannot exceed 100 characters."
+        },
+        email: {
+          required: "Please enter a valid email address.",
+          email: "Please enter a valid email address format (e.g. user@example.com)."
+        },
+        role: {
+          required: "Please select a user role."
+        },
+        status: {
+          required: "Please select user status."
+        }
+      }
+    });
+  });
+</script>
+<?= $this->endSection() ?>
+
 <?= $this->endSection() ?>

@@ -294,7 +294,6 @@
           <thead class="table-dark text-white" style="background-color: #212631;">
             <tr>
               <th class="ps-3">Contractor Name</th>
-              <th>Code</th>
               <th class="text-end pe-3">Status</th>
             </tr>
           </thead>
@@ -303,7 +302,6 @@
               <?php foreach ($recentContractors as $c): ?>
                 <tr>
                   <td class="ps-3 fw-bold text-dark"><?= esc($c['contractor_name']) ?></td>
-                  <td><code><?= esc($c['contractor_code'] ?? 'N/A') ?></code></td>
                   <td class="text-end pe-3">
                     <?php if (($c['status'] ?? 'active') === 'active'): ?>
                       <span class="badge text-bg-success rounded-pill px-2 py-1">Active</span>

@@ -244,7 +244,7 @@
                     <option value="">Select Contractor</option>
                     <?php foreach ($contractors as $contractor): ?>
                       <option value="<?= $contractor['contractor_id'] ?>" <?= (string)old('contractor_id') === (string)$contractor['contractor_id'] ? 'selected' : '' ?>>
-                        <?= esc($contractor['contractor_name']) ?> (<?= esc($contractor['contractor_code']) ?>)
+                        <?= esc($contractor['contractor_name']) ?>
                       </option>
                     <?php endforeach; ?>
                   </select>
@@ -343,8 +343,8 @@
               <div class="row">
                 <!-- 1. Bank Account Number -->
                 <div class="col-md-3 mb-3">
-                  <label for="bank_account_number" class="form-label small fw-semibold text-secondary">Bank Account Number</label>
-                  <input type="text" name="bank_account_number" id="bank_account_number" class="form-control <?= session('errors.bank_account_number') ? 'is-invalid' : '' ?>" value="<?= old('bank_account_number') ?>" placeholder="e.g. 001234567890">
+                  <label for="bank_account_number" class="form-label small fw-semibold text-secondary">Bank Account Number <span class="text-danger">*</span></label>
+                  <input type="text" name="bank_account_number" id="bank_account_number" class="form-control <?= session('errors.bank_account_number') ? 'is-invalid' : '' ?>" value="<?= old('bank_account_number') ?>" placeholder="e.g. 001234567890" required>
                   <?php if (session('errors.bank_account_number')): ?>
                     <div class="invalid-feedback d-block"><?= session('errors.bank_account_number') ?></div>
                   <?php endif; ?>
@@ -352,8 +352,8 @@
 
                 <!-- 2. IFSC Code -->
                 <div class="col-md-3 mb-3">
-                  <label for="ifsc_code" class="form-label small fw-semibold text-secondary">IFSC Code</label>
-                  <input type="text" name="ifsc_code" id="ifsc_code" class="form-control text-uppercase <?= session('errors.ifsc_code') ? 'is-invalid' : '' ?>" value="<?= old('ifsc_code') ?>" placeholder="e.g. HDFC0001234" maxlength="11">
+                  <label for="ifsc_code" class="form-label small fw-semibold text-secondary">IFSC Code <span class="text-danger">*</span></label>
+                  <input type="text" name="ifsc_code" id="ifsc_code" class="form-control text-uppercase <?= session('errors.ifsc_code') ? 'is-invalid' : '' ?>" value="<?= old('ifsc_code') ?>" placeholder="e.g. HDFC0001234" maxlength="11" required>
                   <?php if (session('errors.ifsc_code')): ?>
                     <div class="invalid-feedback d-block ifsc-feedback-msg"><?= session('errors.ifsc_code') ?></div>
                   <?php endif; ?>
@@ -361,8 +361,8 @@
 
                 <!-- 3. Bank Name -->
                 <div class="col-md-3 mb-3">
-                  <label for="bank_name" class="form-label small fw-semibold text-secondary">Bank Name</label>
-                  <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name') ?>" placeholder="e.g. HDFC Bank">
+                  <label for="bank_name" class="form-label small fw-semibold text-secondary">Bank Name <span class="text-danger">*</span></label>
+                  <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name') ?>" placeholder="Auto-filled or enter manually" required>
                   <?php if (session('errors.bank_name')): ?>
                     <div class="invalid-feedback d-block"><?= session('errors.bank_name') ?></div>
                   <?php endif; ?>
@@ -370,8 +370,8 @@
 
                 <!-- 4. Bank Branch -->
                 <div class="col-md-3 mb-3">
-                  <label for="bank_branch" class="form-label small fw-semibold text-secondary">Bank Branch</label>
-                  <input type="text" name="bank_branch" id="bank_branch" class="form-control <?= session('errors.bank_branch') ? 'is-invalid' : '' ?>" value="<?= old('bank_branch') ?>" placeholder="e.g. Andheri West">
+                  <label for="bank_branch" class="form-label small fw-semibold text-secondary">Bank Branch <span class="text-danger">*</span></label>
+                  <input type="text" name="bank_branch" id="bank_branch" class="form-control <?= session('errors.bank_branch') ? 'is-invalid' : '' ?>" value="<?= old('bank_branch') ?>" placeholder="Auto-filled or enter manually" required>
                   <?php if (session('errors.bank_branch')): ?>
                     <div class="invalid-feedback d-block"><?= session('errors.bank_branch') ?></div>
                   <?php endif; ?>
@@ -690,11 +690,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('rev_department').textContent = department;
     document.getElementById('rev_monthly_base_salary').textContent = salaryText;
 
-    let statusBadge = '<span class="badge text-bg-secondary"><i class="bi bi-pause-circle me-1"></i>Inactive</span>';
+    let statusBadge = '<span class="badge border border-secondary text-secondary">Inactive</span>';
     if (statusVal === 'active') {
-      statusBadge = '<span class="badge text-bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>';
+      statusBadge = '<span class="badge border border-success text-success">Active</span>';
     } else if (statusVal === 'relieved') {
-      statusBadge = '<span class="badge text-bg-danger"><i class="bi bi-x-circle me-1"></i>Relieved</span>';
+      statusBadge = '<span class="badge border border-warning text-warning">Relieved</span>';
+    } else if (statusVal === 'inactive') {
+      statusBadge = '<span class="badge border border-danger text-danger">Inactive</span>';
     }
     const revStatusEl = document.getElementById('rev_status');
     if (revStatusEl) revStatusEl.innerHTML = statusBadge;
@@ -788,6 +790,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  function setFieldValidation(fieldEl, errorMsg) {
+    if (!fieldEl) return;
+    let errDiv = fieldEl.parentElement.querySelector('.invalid-feedback');
+    if (errorMsg) {
+      fieldEl.classList.add('is-invalid');
+      if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.className = 'invalid-feedback d-block';
+        fieldEl.parentElement.appendChild(errDiv);
+      } else {
+        errDiv.classList.add('d-block');
+        errDiv.style.display = 'block';
+      }
+      errDiv.textContent = errorMsg;
+    } else {
+      fieldEl.classList.remove('is-invalid');
+      if (errDiv) {
+        errDiv.textContent = '';
+        errDiv.style.display = 'none';
+      }
+    }
+  }
+
   function validateCurrentStep(step) {
     let isValid = true;
     const panel = document.getElementById('step-panel-' + step);
@@ -795,6 +820,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (step === 1) {
       const empName = document.getElementById('employee_name');
+      const phone = document.getElementById('phone_number');
       const dob = document.getElementById('date_of_birth');
       const gender = document.getElementById('gender');
 
@@ -805,13 +831,34 @@ document.addEventListener('DOMContentLoaded', function() {
         empName.classList.remove('is-invalid');
       }
 
+      if (phone && phone.value.trim()) {
+        const phoneRegex = /^[6-9]\d{9}$/;
+        if (!phoneRegex.test(phone.value.trim())) {
+          phone.classList.add('is-invalid');
+          let errDiv = phone.parentElement.querySelector('.invalid-feedback');
+          if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.className = 'invalid-feedback d-block';
+            phone.parentElement.appendChild(errDiv);
+          }
+          errDiv.textContent = 'Please enter a valid 10-digit mobile number.';
+          isValid = false;
+        } else {
+          phone.classList.remove('is-invalid');
+          const errDiv = phone.parentElement.querySelector('.invalid-feedback');
+          if (errDiv) errDiv.remove();
+        }
+      } else if (phone) {
+        phone.classList.remove('is-invalid');
+      }
+
       const todayStr = new Date().toISOString().split('T')[0];
-      if (dob.value.trim() && dob.value > todayStr) {
+      if (dob && dob.value.trim() && dob.value > todayStr) {
         dob.classList.add('is-invalid');
         const errDiv = document.getElementById('err_date_of_birth');
         if (errDiv) errDiv.textContent = 'Date of Birth cannot be a future date.';
         isValid = false;
-      } else {
+      } else if (dob) {
         dob.classList.remove('is-invalid');
       }
 
@@ -882,10 +929,85 @@ document.addEventListener('DOMContentLoaded', function() {
           exitReasonInput.classList.remove('is-invalid');
         }
       }
+    } else if (step === 3) {
+      const accNum = document.getElementById('bank_account_number');
+      const ifsc = document.getElementById('ifsc_code');
+      const bankName = document.getElementById('bank_name');
+      const bankBranch = document.getElementById('bank_branch');
+
+      if (accNum) {
+        if (!accNum.value.trim()) {
+          setFieldValidation(accNum, 'Bank Account Number is required.');
+          isValid = false;
+        } else if (accNum.value.trim().length < 9) {
+          setFieldValidation(accNum, 'Bank Account Number must be at least 9 characters.');
+          isValid = false;
+        } else {
+          setFieldValidation(accNum, null);
+        }
+      }
+
+      if (ifsc) {
+        const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/i;
+        if (!ifsc.value.trim()) {
+          setFieldValidation(ifsc, 'IFSC Code is required.');
+          isValid = false;
+        } else if (!ifscRegex.test(ifsc.value.trim())) {
+          setFieldValidation(ifsc, 'Please enter a valid 11-character IFSC Code (e.g. SBIN0000005).');
+          isValid = false;
+        } else {
+          setFieldValidation(ifsc, null);
+        }
+      }
+
+      if (bankName) {
+        if (!bankName.value.trim()) {
+          setFieldValidation(bankName, 'Bank Name is required.');
+          isValid = false;
+        } else {
+          setFieldValidation(bankName, null);
+        }
+      }
+
+      if (bankBranch) {
+        if (!bankBranch.value.trim()) {
+          setFieldValidation(bankBranch, 'Bank Branch is required.');
+          isValid = false;
+        } else {
+          setFieldValidation(bankBranch, null);
+        }
+      }
+    } else if (step === 4) {
+      const pan = document.getElementById('pan_number');
+      if (pan && pan.value.trim()) {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i;
+        if (!panRegex.test(pan.value.trim())) {
+          pan.classList.add('is-invalid');
+          let errDiv = pan.parentElement.querySelector('.invalid-feedback');
+          if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.className = 'invalid-feedback d-block';
+            errDiv.textContent = 'Please enter a valid 10-character PAN card number (e.g. ABCDE1234F).';
+            pan.parentElement.appendChild(errDiv);
+          } else {
+            errDiv.textContent = 'Please enter a valid 10-character PAN card number (e.g. ABCDE1234F).';
+            errDiv.style.display = 'block';
+          }
+          isValid = false;
+        } else {
+          pan.classList.remove('is-invalid');
+          const errDiv = pan.parentElement.querySelector('.invalid-feedback');
+          if (errDiv) errDiv.style.display = 'none';
+        }
+      } else if (pan) {
+        pan.classList.remove('is-invalid');
+      }
     } else if (step === 5) {
       const isStep1Valid = validateCurrentStep(1);
       const isStep2Valid = validateCurrentStep(2);
-      isValid = isStep1Valid && isStep2Valid;
+      const isStep3Valid = validateCurrentStep(3);
+      const isStep4Valid = validateCurrentStep(4);
+      isValid = isStep1Valid && isStep2Valid && isStep3Valid && isStep4Valid;
     }
 
     return isValid;

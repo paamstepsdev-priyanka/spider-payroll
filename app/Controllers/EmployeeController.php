@@ -24,11 +24,49 @@ class EmployeeController extends BaseController
     {
         $search       = trim((string) $this->request->getGet('search'));
         $contractorId = $this->request->getGet('contractor_id') ? (int) $this->request->getGet('contractor_id') : null;
-        $status       = trim((string) $this->request->getGet('status'));
+        $rawStatus    = $this->request->getGet('status');
+
+        // Default status is 'active' if not provided in URL
+        $status       = ($rawStatus === null) ? 'active' : trim((string) $rawStatus);
+        $filterStatus = ($status === 'all' || $status === '') ? '' : $status;
+        $sortColumn   = trim((string) $this->request->getGet('sort_column'));
+        if (empty($sortColumn)) {
+            $sortColumn = 'employee_id';
+        }
+        $sortOrder    = strtoupper(trim((string) $this->request->getGet('sort_order')));
+        if ($sortOrder !== 'ASC' && $sortOrder !== 'DESC') {
+            $sortOrder = 'DESC';
+        }
+
         $perPage      = 10;
 
-        $employees   = $this->employeeModel->getFilteredEmployees($search, $contractorId, $status, $perPage);
+        $employees   = $this->employeeModel->getFilteredEmployees($search, $contractorId, $filterStatus, $sortColumn, $sortOrder, $perPage);
         $contractors = $this->contractorModel->orderBy('contractor_name', 'ASC')->findAll();
+
+        // Helper to count status with search/contractor applied
+        $countQuery = function($st = null) use ($search, $contractorId) {
+            $builder = $this->employeeModel->builder();
+            if (!empty($search)) {
+                $builder->groupStart()
+                    ->like('employee_name', $search)
+                    ->orLike('biometric_code', $search)
+                    ->groupEnd();
+            }
+            if (!empty($contractorId)) {
+                $builder->where('contractor_id', $contractorId);
+            }
+            if (!empty($st)) {
+                $builder->where('status', $st);
+            }
+            return $builder->countAllResults();
+        };
+
+        $statusCounts = [
+            'all'      => $countQuery(),
+            'active'   => $countQuery('active'),
+            'inactive' => $countQuery('inactive'),
+            'relieved' => $countQuery('relieved'),
+        ];
 
         $data = [
             'title'        => 'Employees - Spider Payroll',
@@ -38,6 +76,9 @@ class EmployeeController extends BaseController
             'search'       => $search,
             'contractorId' => $contractorId,
             'status'       => $status,
+            'statusCounts' => $statusCounts,
+            'sortColumn'   => $sortColumn,
+            'sortOrder'    => $sortOrder,
         ];
 
         return view('employees/index', $data);
@@ -66,126 +107,61 @@ class EmployeeController extends BaseController
      */
     public function store()
     {
-        $rules = [
-            'is_direct_employee' => 'required|in_list[0,1]',
-            'employee_name'       => 'required|max_length[150]',
-            'contractor_id'       => 'permit_empty|is_natural_no_zero|is_not_unique[contractors.contractor_id]',
-            'biometric_code'      => 'permit_empty|max_length[50]|is_unique[employees.biometric_code]',
-            'phone_number'        => 'permit_empty|max_length[20]|is_unique[employees.phone_number]',
-            'gender'              => 'required|in_list[male,female,other]',
-            'date_of_birth'       => 'permit_empty|valid_date',
-            'date_of_joining'     => 'required|valid_date',
-            'date_of_leaving'     => 'permit_empty|valid_date',
-            'exit_reason'         => 'permit_empty|max_length[255]',
-            'designation'         => 'permit_empty|max_length[100]',
-            'department'          => 'permit_empty|max_length[100]',
-            'monthly_base_salary' => 'required|numeric|greater_than_equal_to[0]',
-            'bank_name'           => 'permit_empty|max_length[100]',
-            'bank_account_number' => 'permit_empty|max_length[50]|is_unique[employees.bank_account_number]',
-            'ifsc_code'           => 'permit_empty|max_length[20]',
-            'bank_branch'         => 'permit_empty|max_length[100]',
-            'pan_number'          => 'permit_empty|max_length[20]',
-            'status'              => 'required|in_list[active,relieved,inactive]',
-        ];
-
-        $messages = [
-            'is_direct_employee' => [
-                'required' => 'Please select whether this is a Direct Employee.',
-                'in_list'  => 'Please select a valid option for Direct Employee.',
-            ],
-            'employee_name' => [
-                'required'   => 'Employee Name is required.',
-                'max_length' => 'Employee Name cannot exceed 150 characters.',
-            ],
-            'contractor_id' => [
-                'is_natural_no_zero' => 'Please select a valid contractor.',
-                'is_not_unique'     => 'The selected contractor does not exist.',
-            ],
-            'biometric_code' => [
-                'max_length' => 'Biometric Code cannot exceed 50 characters.',
-                'is_unique'  => 'This Biometric Code is already assigned to another employee.',
-            ],
-            'phone_number' => [
-                'max_length' => 'Phone Number cannot exceed 20 characters.',
-                'is_unique'  => 'This Phone Number is already assigned to another employee.',
-            ],
-            'bank_account_number' => [
-                'max_length' => 'Bank Account Number cannot exceed 50 characters.',
-                'is_unique'  => 'This Bank Account Number is already assigned to another employee.',
-            ],
-            'gender' => [
-                'required' => 'Gender selection is required.',
-                'in_list'  => 'Please select a valid gender option.',
-            ],
-            'date_of_birth' => [
-                'valid_date' => 'Please enter a valid Date of Birth.',
-            ],
-            'date_of_joining' => [
-                'required'   => 'Date of Joining is required.',
-                'valid_date' => 'Please enter a valid Date of Joining.',
-            ],
-            'monthly_base_salary' => [
-                'required'               => 'Monthly Base Salary is required.',
-                'numeric'                => 'Monthly Base Salary must be a valid number.',
-                'greater_than_equal_to'  => 'Monthly Base Salary cannot be negative.',
-            ],
-            'status' => [
-                'required' => 'Status selection is required.',
-                'in_list'  => 'Please select a valid status (Active, Relieved, or Inactive).',
-            ],
-        ];
-
-        if (!$this->validate($rules, $messages)) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $this->validator->getErrors(),
-                ])->setStatusCode(422);
-            }
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
+        $dob           = trim((string) $this->request->getPost('date_of_birth'));
         $status        = $this->request->getPost('status');
         $dateOfLeaving = trim((string) $this->request->getPost('date_of_leaving'));
         $exitReason    = trim((string) $this->request->getPost('exit_reason'));
 
-        // Additional conditional business logic validation
-        $customErrors = [];
+        $bankName      = trim((string) $this->request->getPost('bank_name'));
+        $bankBranch    = trim((string) $this->request->getPost('bank_branch'));
+        $bankAccNo     = trim((string) $this->request->getPost('bank_account_number'));
+        $ifscCode      = strtoupper(trim((string) $this->request->getPost('ifsc_code')));
+        $panNo         = strtoupper(trim((string) $this->request->getPost('pan_number')));
 
-        $dob = trim((string) $this->request->getPost('date_of_birth'));
-        if (!empty($dob) && strtotime($dob) > strtotime(date('Y-m-d'))) {
-            $customErrors['date_of_birth'] = 'Date of Birth cannot be a future date.';
+        $errors = [];
+        if (!empty($biometricCode) && $this->employeeModel->where('biometric_code', $biometricCode)->first()) {
+            $errors['biometric_code'] = 'This Biometric Code is already registered with another employee.';
+        }
+        if (!empty($phoneNo) && $this->employeeModel->where('phone_number', $phoneNo)->first()) {
+            $errors['phone_number'] = 'This Phone Number is already registered with another employee.';
         }
 
-        $isDirectEmployee = (string) $this->request->getPost('is_direct_employee');
-        $rawContractorId  = $this->request->getPost('contractor_id');
-
-        if ($isDirectEmployee === '1' && empty($rawContractorId)) {
-            $customErrors['contractor_id'] = 'Please select a contractor when Direct Employee is Yes.';
+        if (empty($bankName)) {
+            $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($bankBranch)) {
+            $errors['bank_branch'] = 'Bank Branch is required.';
         }
 
-        if ($status === 'relieved') {
-            if (empty($dateOfLeaving)) {
-                $customErrors['date_of_leaving'] = 'Date of Leaving is required when marking employee as Relieved.';
-            }
-            if (empty($exitReason)) {
-                $customErrors['exit_reason'] = 'Exit Reason is required when marking employee as Relieved.';
-            }
-        } elseif (!empty($dateOfLeaving) && empty($exitReason)) {
-            $customErrors['exit_reason'] = 'Exit Reason is required if Date of Leaving is provided.';
+        if (empty($bankAccNo)) {
+            $errors['bank_account_number'] = 'Bank Account Number is required.';
+        } elseif (strlen($bankAccNo) < 9) {
+            $errors['bank_account_number'] = 'Bank Account Number must be at least 9 characters.';
+        } elseif ($this->employeeModel->where('bank_account_number', $bankAccNo)->first()) {
+            $errors['bank_account_number'] = 'This Bank Account Number is already registered with another employee.';
         }
 
-        if (!empty($customErrors)) {
-            $allErrs = array_merge($this->validator->getErrors(), $customErrors);
+        if (empty($ifscCode)) {
+            $errors['ifsc_code'] = 'IFSC Code is required.';
+        } elseif (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifscCode)) {
+            $errors['ifsc_code'] = 'Please enter a valid 11-character IFSC Code (e.g. SBIN0000005).';
+        } elseif ($this->employeeModel->where('ifsc_code', $ifscCode)->first()) {
+            $errors['ifsc_code'] = 'This IFSC Code is already registered with another employee.';
+        }
+
+        if (!empty($panNo) && $this->employeeModel->where('pan_number', $panNo)->first()) {
+            $errors['pan_number'] = 'This PAN Number is already registered with another employee.';
+        }
+
+        if (!empty($errors)) {
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON([
                     'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $allErrs,
+                    'message' => 'Please correct the highlighted errors.',
+                    'errors'  => $errors,
                 ])->setStatusCode(422);
             }
-            return redirect()->back()->withInput()->with('errors', $allErrs);
+            return redirect()->back()->withInput()->with('errors', $errors);
         }
 
         // If status is active, ensure date of leaving and exit reason are cleared
@@ -302,126 +278,63 @@ class EmployeeController extends BaseController
             throw PageNotFoundException::forPageNotFound("Employee with ID {$id} not found.");
         }
 
-        $rules = [
-            'is_direct_employee' => 'required|in_list[0,1]',
-            'employee_name'       => 'required|max_length[150]',
-            'contractor_id'       => 'permit_empty|is_natural_no_zero|is_not_unique[contractors.contractor_id]',
-            'biometric_code'      => "permit_empty|max_length[50]|is_unique[employees.biometric_code,employee_id,{$id}]",
-            'phone_number'        => "permit_empty|max_length[20]|is_unique[employees.phone_number,employee_id,{$id}]",
-            'gender'              => 'required|in_list[male,female,other]',
-            'date_of_birth'       => 'permit_empty|valid_date',
-            'date_of_joining'     => 'required|valid_date',
-            'date_of_leaving'     => 'permit_empty|valid_date',
-            'exit_reason'         => 'permit_empty|max_length[255]',
-            'designation'         => 'permit_empty|max_length[100]',
-            'department'          => 'permit_empty|max_length[100]',
-            'monthly_base_salary' => 'required|numeric|greater_than_equal_to[0]',
-            'bank_name'           => 'permit_empty|max_length[100]',
-            'bank_account_number' => "permit_empty|max_length[50]|is_unique[employees.bank_account_number,employee_id,{$id}]",
-            'ifsc_code'           => 'permit_empty|max_length[20]',
-            'bank_branch'         => 'permit_empty|max_length[100]',
-            'pan_number'          => 'permit_empty|max_length[20]',
-            'status'              => 'required|in_list[active,relieved,inactive]',
-        ];
-
-        $messages = [
-            'is_direct_employee' => [
-                'required' => 'Please select whether this is a Direct Employee.',
-                'in_list'  => 'Please select a valid option for Direct Employee.',
-            ],
-            'employee_name' => [
-                'required'   => 'Employee Name is required.',
-                'max_length' => 'Employee Name cannot exceed 150 characters.',
-            ],
-            'contractor_id' => [
-                'is_natural_no_zero' => 'Please select a valid contractor.',
-                'is_not_unique'     => 'The selected contractor does not exist.',
-            ],
-            'biometric_code' => [
-                'max_length' => 'Biometric Code cannot exceed 50 characters.',
-                'is_unique'  => 'This Biometric Code is already assigned to another employee.',
-            ],
-            'phone_number' => [
-                'max_length' => 'Phone Number cannot exceed 20 characters.',
-                'is_unique'  => 'This Phone Number is already assigned to another employee.',
-            ],
-            'bank_account_number' => [
-                'max_length' => 'Bank Account Number cannot exceed 50 characters.',
-                'is_unique'  => 'This Bank Account Number is already assigned to another employee.',
-            ],
-            'gender' => [
-                'required' => 'Gender selection is required.',
-                'in_list'  => 'Please select a valid gender option.',
-            ],
-            'date_of_birth' => [
-                'valid_date' => 'Please enter a valid Date of Birth.',
-            ],
-            'date_of_joining' => [
-                'required'   => 'Date of Joining is required.',
-                'valid_date' => 'Please enter a valid Date of Joining.',
-            ],
-            'monthly_base_salary' => [
-                'required'              => 'Monthly Base Salary is required.',
-                'numeric'               => 'Monthly Base Salary must be a valid number.',
-                'greater_than_equal_to' => 'Monthly Base Salary cannot be negative.',
-            ],
-            'status' => [
-                'required' => 'Status selection is required.',
-                'in_list'  => 'Please select a valid status (Active, Relieved, or Inactive).',
-            ],
-        ];
-
-        if (!$this->validate($rules, $messages)) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $this->validator->getErrors(),
-                ])->setStatusCode(422);
-            }
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
+        $dob           = trim((string) $this->request->getPost('date_of_birth'));
         $status        = $this->request->getPost('status');
         $dateOfLeaving = trim((string) $this->request->getPost('date_of_leaving'));
         $exitReason    = trim((string) $this->request->getPost('exit_reason'));
 
-        // Additional conditional business logic validation
-        $customErrors = [];
+        $biometricCode = trim((string) $this->request->getPost('biometric_code'));
+        $phoneNo       = trim((string) $this->request->getPost('phone_number'));
+        $bankName      = trim((string) $this->request->getPost('bank_name'));
+        $bankBranch    = trim((string) $this->request->getPost('bank_branch'));
+        $bankAccNo     = trim((string) $this->request->getPost('bank_account_number'));
+        $ifscCode      = strtoupper(trim((string) $this->request->getPost('ifsc_code')));
+        $panNo         = strtoupper(trim((string) $this->request->getPost('pan_number')));
 
-        $dob = trim((string) $this->request->getPost('date_of_birth'));
-        if (!empty($dob) && strtotime($dob) > strtotime(date('Y-m-d'))) {
-            $customErrors['date_of_birth'] = 'Date of Birth cannot be a future date.';
+        $errors = [];
+        if (!empty($biometricCode) && $this->employeeModel->where('biometric_code', $biometricCode)->where('employee_id !=', $id)->first()) {
+            $errors['biometric_code'] = 'This Biometric Code is already registered with another employee.';
+        }
+        if (!empty($phoneNo) && $this->employeeModel->where('phone_number', $phoneNo)->where('employee_id !=', $id)->first()) {
+            $errors['phone_number'] = 'This Phone Number is already registered with another employee.';
         }
 
-        $isDirectEmployee = (string) $this->request->getPost('is_direct_employee');
-        $rawContractorId  = $this->request->getPost('contractor_id');
-
-        if ($isDirectEmployee === '1' && empty($rawContractorId)) {
-            $customErrors['contractor_id'] = 'Please select a contractor when Direct Employee is Yes.';
+        if (empty($bankName)) {
+            $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($bankBranch)) {
+            $errors['bank_branch'] = 'Bank Branch is required.';
         }
 
-        if ($status === 'relieved') {
-            if (empty($dateOfLeaving)) {
-                $customErrors['date_of_leaving'] = 'Date of Leaving is required when marking employee as Relieved.';
-            }
-            if (empty($exitReason)) {
-                $customErrors['exit_reason'] = 'Exit Reason is required when marking employee as Relieved.';
-            }
-        } elseif (!empty($dateOfLeaving) && empty($exitReason)) {
-            $customErrors['exit_reason'] = 'Exit Reason is required if Date of Leaving is provided.';
+        if (empty($bankAccNo)) {
+            $errors['bank_account_number'] = 'Bank Account Number is required.';
+        } elseif (strlen($bankAccNo) < 9) {
+            $errors['bank_account_number'] = 'Bank Account Number must be at least 9 characters.';
+        } elseif ($this->employeeModel->where('bank_account_number', $bankAccNo)->where('employee_id !=', $id)->first()) {
+            $errors['bank_account_number'] = 'This Bank Account Number is already registered with another employee.';
         }
 
-        if (!empty($customErrors)) {
-            $allErrs = array_merge($this->validator->getErrors(), $customErrors);
+        if (empty($ifscCode)) {
+            $errors['ifsc_code'] = 'IFSC Code is required.';
+        } elseif (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifscCode)) {
+            $errors['ifsc_code'] = 'Please enter a valid 11-character IFSC Code (e.g. SBIN0000005).';
+        } elseif ($this->employeeModel->where('ifsc_code', $ifscCode)->where('employee_id !=', $id)->first()) {
+            $errors['ifsc_code'] = 'This IFSC Code is already registered with another employee.';
+        }
+
+        if (!empty($panNo) && $this->employeeModel->where('pan_number', $panNo)->where('employee_id !=', $id)->first()) {
+            $errors['pan_number'] = 'This PAN Number is already registered with another employee.';
+        }
+
+        if (!empty($errors)) {
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON([
                     'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $allErrs,
+                    'message' => 'Please correct the highlighted errors.',
+                    'errors'  => $errors,
                 ])->setStatusCode(422);
             }
-            return redirect()->back()->withInput()->with('errors', $allErrs);
+            return redirect()->back()->withInput()->with('errors', $errors);
         }
 
         // If status is active, clear date of leaving and exit reason

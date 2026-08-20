@@ -61,53 +61,6 @@ class UserController extends BaseController
     {
         $email = trim($this->request->getPost('email') ?? $this->request->getPost('username'));
 
-        $rules = [
-            'name'             => 'required|min_length[2]|max_length[100]',
-            'email'            => 'required|valid_email|max_length[100]|is_unique[users.username]',
-            'password'         => 'required|min_length[6]',
-            'confirm_password' => 'required|matches[password]',
-            'role'             => 'required|in_list[super_admin]',
-            'status'           => 'required|in_list[0,1]',
-        ];
-
-        $messages = [
-            'name' => [
-                'required' => 'Full Name is required.',
-            ],
-            'email' => [
-                'required'    => 'Email address is required.',
-                'valid_email' => 'Please enter a valid email address.',
-                'is_unique'   => 'This email is already taken. Please choose another.',
-            ],
-            'password' => [
-                'required'   => 'Password is required.',
-                'min_length' => 'Password must be at least 6 characters long.',
-            ],
-            'confirm_password' => [
-                'required' => 'Please confirm your password.',
-                'matches'  => 'Confirm Password does not match Password.',
-            ],
-            'role' => [
-                'required' => 'Role selection is required.',
-                'in_list'  => 'Selected role is invalid.',
-            ],
-            'status' => [
-                'required' => 'Status selection is required.',
-                'in_list'  => 'Selected status is invalid.',
-            ],
-        ];
-
-        if (!$this->validate($rules, $messages)) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $this->validator->getErrors(),
-                ])->setStatusCode(422);
-            }
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
         $userData = [
             'name'     => trim($this->request->getPost('name')),
             'username' => $email,
@@ -187,52 +140,8 @@ class UserController extends BaseController
         }
 
         $email = trim($this->request->getPost('email') ?? $this->request->getPost('username'));
-
-        $rules = [
-            'name'   => 'required|min_length[2]|max_length[100]',
-            'email'  => "required|valid_email|max_length[100]|is_unique[users.username,id,{$id}]",
-            'role'   => 'required|in_list[super_admin]',
-            'status' => 'required|in_list[0,1]',
-        ];
-
-        $messages = [
-            'name' => [
-                'required' => 'Full Name is required.',
-            ],
-            'email' => [
-                'required'    => 'Email address is required.',
-                'valid_email' => 'Please enter a valid email address.',
-                'is_unique'   => 'This email address is already taken by another user.',
-            ],
-            'role' => [
-                'required' => 'Role selection is required.',
-            ],
-            'status' => [
-                'required' => 'Status selection is required.',
-            ],
-        ];
-
         $password = $this->request->getPost('password');
         $isPasswordChanged = (!empty($password) && $password !== $user['password']);
-
-        if ($isPasswordChanged) {
-            $rules['password']         = 'min_length[6]';
-            $rules['confirm_password'] = 'matches[password]';
-
-            $messages['password']['min_length']       = 'New password must be at least 6 characters long.';
-            $messages['confirm_password']['matches'] = 'Confirm Password does not match New Password.';
-        }
-
-        if (!$this->validate($rules, $messages)) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $this->validator->getErrors(),
-                ])->setStatusCode(422);
-            }
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
 
         $updateData = [
             'name'     => trim($this->request->getPost('name')),

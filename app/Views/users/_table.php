@@ -13,7 +13,7 @@ $endCount = min($offset + $perPage, $total);
       <tr>
         <th scope="col" style="width: 70px;">#</th>
         <th scope="col">Name</th>
-        <th scope="col">Email</th>
+        <th scope="col">Username</th>
         <th scope="col">Role</th>
         <th scope="col">Status</th>
         <th scope="col">Created Date</th>
@@ -47,19 +47,19 @@ $endCount = min($offset + $perPage, $total);
               <div class="d-flex justify-content-end gap-1">
                 <!-- View Button -->
                 <a href="<?= site_url('users/view/' . $user['id']) ?>" class="btn btn-sm btn-outline-secondary" title="View Details">
-                  View
+                  <i class="bi bi-eye"></i>
                 </a>
 
                 <!-- Edit Button -->
                 <a href="<?= site_url('users/edit/' . $user['id']) ?>" class="btn btn-sm btn-outline-primary" title="Edit User">
-                  Edit
+                  <i class="bi bi-pencil"></i>
                 </a>
 
                 <!-- Delete Button with SweetAlert2 -->
                 <form method="post" action="<?= site_url('users/delete/' . $user['id']) ?>" class="d-inline">
                   <?= csrf_field() ?>
                   <button type="button" class="btn btn-sm btn-outline-danger btn-sweet-delete" data-username="<?= esc($user['username']) ?>" title="Delete User">
-                    Delete
+                    <i class="bi bi-trash"></i>
                   </button>
                 </form>
               </div>

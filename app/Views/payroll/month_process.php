@@ -201,7 +201,7 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
               if ($empCount > 0): 
               ?>
                 <option value="<?= esc($cId) ?>">
-                  <?= esc($c['contractor_name']) ?> (<?= esc($c['contractor_code']) ?>) - <?= $empCount ?> <?= $empCount === 1 ? 'Employee' : 'Employees' ?>
+                  <?= esc($c['contractor_name']) ?> - <?= $empCount ?> <?= $empCount === 1 ? 'Employee' : 'Employees' ?>
                 </option>
               <?php endif; ?>
             <?php endforeach; ?>
@@ -282,17 +282,10 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
                 <tr class="attendance-row" data-contractor-id="<?= esc($row['contractor_id']) ?>" data-biometric-code="<?= esc(strtoupper(trim($row['biometric_code'] ?? ''))) ?>">
                   <td class="fw-semibold text-body-secondary"><?= $sr++ ?></td>
                   <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="bg-primary-subtle text-primary rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 13px;">
-                        <?= esc($initial) ?>
-                      </div>
-                      <div>
-                        <div class="fw-bold text-dark mb-0"><?= esc($row['employee_name']) ?></div>
-                      </div>
-                    </div>
+                    <span class="fw-semibold text-dark" style="font-size: 13px;"><?= esc($row['employee_name']) ?></span>
                   </td>
                   <td>
-                    <span class="badge text-bg-light border text-dark fw-normal">
+                    <span class="contractor-pill">
                       <?= esc($row['contractor_name']) ?>
                     </span>
                   </td>
@@ -503,23 +496,9 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
 
                     <!-- Employee -->
                     <td>
-
-                      <div class="employee-cell">
-
-                        <div class="employee-avatar">
-                          <?= strtoupper(substr($row['employee_name'], 0, 1)) ?>
-                        </div>
-
-                        <div>
-
-                          <div class="employee-name">
-                            <?= esc($row['employee_name']) ?>
-                          </div>
-
-                        </div>
-
+                      <div class="employee-name fw-semibold text-dark" style="font-size: 13px;">
+                        <?= esc($row['employee_name']) ?>
                       </div>
-
                     </td>
 
 
@@ -633,40 +612,64 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
         </div>
       </div>
 
-      <!-- Contractor Payout Cards Grid -->
-      <h6 class="fw-bold text-dark mb-3">Contractor-wise Payout Summaries</h6>
-      <div class="row g-3">
-        <?php foreach ($contractorPayouts as $cp): ?>
-          <div class="col-12 col-md-6 col-xl-4">
-            <div class="card h-100 border shadow-sm rounded-3 p-3 bg-white">
-              <div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-3">
-                <div>
-                  <h6 class="fw-bold text-dark mb-0"><?= esc($cp['contractor_name']) ?></h6>
-                  <span class="small text-body-secondary">Code: <?= esc($cp['contractor_code']) ?></span>
-                </div>
-                <span class="badge text-bg-primary rounded-pill"><?= esc($cp['associated_employees']) ?> Staff</span>
-              </div>
-              <div class="small mb-3">
-                <div class="d-flex justify-content-between py-1 border-bottom">
-                  <span class="text-body-secondary">Bank Name:</span>
-                  <span class="fw-semibold text-dark"><?= esc($cp['bank_name']) ?></span>
-                </div>
-                <div class="d-flex justify-content-between py-1 border-bottom">
-                  <span class="text-body-secondary">Account Number:</span>
-                  <span class="fw-semibold text-dark"><?= esc($cp['bank_account_number']) ?></span>
-                </div>
-                <div class="d-flex justify-content-between py-1 border-bottom">
-                  <span class="text-body-secondary">IFSC Code:</span>
-                  <span class="fw-semibold text-dark"><?= esc($cp['ifsc_code']) ?></span>
-                </div>
-              </div>
-              <div class="d-flex justify-content-between align-items-center bg-light rounded-2 p-2 mt-auto">
-                <span class="small fw-semibold text-body-secondary">Total Payout:</span>
-                <span class="fs-5 fw-bold text-success">₹ <?= number_format($cp['total_payout'], 2) ?></span>
-              </div>
-            </div>
-          </div>
-        <?php endforeach; ?>
+      <!-- Contractor Payout Table -->
+      <div class="card border shadow-sm rounded-3 bg-white mb-4">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold text-dark mb-0">Contractor-wise Payout Summaries</h6>
+          <span class="badge text-bg-light border text-dark fw-normal"><?= count($contractorPayouts) ?> Contractors</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3" style="width: 50px;">#</th>
+                <th>Contractor Name</th>
+                <th>Bank Name</th>
+                <th>Account Number</th>
+                <th>IFSC Code</th>
+                <th class="text-center">Staff Count</th>
+                <th class="text-end">Total Payout</th>
+                <th class="text-center" style="width: 150px;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if (empty($contractorPayouts)): ?>
+                <tr>
+                  <td colspan="8" class="text-center py-4 text-body-secondary">No contractor payout records found.</td>
+                </tr>
+              <?php else: ?>
+                <?php $cpSr = 1; foreach ($contractorPayouts as $cp): ?>
+                  <tr>
+                    <td class="ps-3 fw-semibold text-body-secondary" style="font-size: 13px;"><?= $cpSr++ ?></td>
+                    <td>
+                      <span class="fw-semibold text-dark" style="font-size: 13px;"><?= esc($cp['contractor_name']) ?></span>
+                    </td>
+                    <td>
+                      <span class="text-body-secondary" style="font-size: 13px;"><?= esc($cp['bank_name']) ?></span>
+                    </td>
+                    <td>
+                      <span class="fw-semibold text-dark" style="font-size: 13px;"><?= esc($cp['bank_account_number']) ?></span>
+                    </td>
+                    <td>
+                      <span class="badge text-bg-light border text-dark fw-semibold"><?= esc($cp['ifsc_code']) ?></span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge text-bg-primary rounded-pill"><?= esc($cp['associated_employees']) ?> Staff</span>
+                    </td>
+                    <td class="text-end">
+                      <span class="fw-bold text-success" style="font-size: 13px;">₹ <?= number_format($cp['total_payout'], 2) ?></span>
+                    </td>
+                    <td class="text-center">
+                      <a href="<?= site_url("payroll/export-neft/{$year}/{$month}?contractor_id={$cp['contractor_id']}") ?>" class="btn btn-outline-success btn-sm fw-medium shadow-sm py-1 px-2" style="font-size: 12px;" title="Download Excel for <?= esc($cp['contractor_name']) ?>">
+                        <i class="bi bi-file-earmark-excel me-1"></i> Excel Sheet
+                      </a>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
       </div>
     <?php endif; ?>
   </div>
@@ -782,13 +785,18 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
 
     // Toast Notification Utility
     function showToast(icon, title, text) {
-      if (typeof Swal !== 'undefined' && Swal.mixin) {
+      if (typeof window.showToast === 'function') {
+        window.showToast(icon, text, title);
+      } else if (typeof Swal !== 'undefined' && Swal.mixin) {
         const Toast = Swal.mixin({
           toast: true,
           position: 'top-end',
           showConfirmButton: false,
           timer: 3500,
-          timerProgressBar: true
+          timerProgressBar: true,
+          background: icon === 'success' ? '#25c974' : (icon === 'error' ? '#ef4444' : '#f59e0b'),
+          color: '#ffffff',
+          iconColor: '#ffffff'
         });
         Toast.fire({
           icon: icon,
@@ -977,9 +985,9 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
           </div>
           <div class="mb-2 text-start">
             <label for="freezeConfirmInput" class="form-label small fw-bold text-dark mb-1">
-              Confirmation note / remark (optional):
+              Type <span class="text-danger fw-bold">FREEZE</span> to confirm:
             </label>
-            <input type="text" id="freezeConfirmInput" class="form-control form-control-sm text-center fw-bold" placeholder="e.g. FREEZE, DONE, OK" autocomplete="off">
+            <input type="text" id="freezeConfirmInput" class="form-control text-center fw-bold" placeholder="Type FREEZE to confirm" autocomplete="off">
           </div>
         `,
         icon: 'warning',
@@ -987,7 +995,15 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
         confirmButtonColor: '#198754',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Yes, Freeze Attendance',
-        cancelButtonText: 'Cancel'
+        cancelButtonText: 'Cancel',
+        preConfirm: () => {
+          const val = ($('#freezeConfirmInput').val() || '').trim();
+          if (val.toUpperCase() !== 'FREEZE') {
+            Swal.showValidationMessage('Please type "FREEZE" to confirm.');
+            return false;
+          }
+          return true;
+        }
       }).then((result) => {
         if (result.isConfirmed) {
           btn.prop('disabled', true).html('Freezing...');
@@ -1069,17 +1085,25 @@ $salFrozen = in_array($statusRecord['salary_status'] ?? '', ['freeze', 'frozen',
           </div>
           <div class="mb-2 text-start">
             <label for="salaryConfirmInput" class="form-label small fw-bold text-dark mb-1">
-              Confirmation note / remark (optional):
+              Type <span class="text-danger fw-bold">FREEZE</span> to confirm:
             </label>
-            <input type="text" id="salaryConfirmInput" class="form-control form-control-sm text-center fw-bold" placeholder="e.g. APPROVED, DONE, OK" autocomplete="off">
+            <input type="text" id="salaryConfirmInput" class="form-control text-center fw-bold" placeholder="Type FREEZE to confirm" autocomplete="off">
           </div>
         `,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#198754',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Approve Salary',
-        cancelButtonText: 'Cancel'
+        confirmButtonText: 'Yes, Freeze Salary',
+        cancelButtonText: 'Cancel',
+        preConfirm: () => {
+          const val = ($('#salaryConfirmInput').val() || '').trim();
+          if (val.toUpperCase() !== 'FREEZE') {
+            Swal.showValidationMessage('Please type "FREEZE" to confirm.');
+            return false;
+          }
+          return true;
+        }
       }).then((result) => {
         if (result.isConfirmed) {
           btn.prop('disabled', true).html('Approving...');

@@ -57,80 +57,65 @@ class ContractorController extends BaseController
      */
     public function store()
     {
-        $rules = [
-            'contractor_name'     => 'required|max_length[150]',
-            'contractor_code'     => 'required|max_length[30]|is_unique[contractors.contractor_code]',
-            'phone_number'        => 'permit_empty|max_length[20]|is_unique[contractors.phone_number]',
-            'email'               => 'permit_empty|valid_email|max_length[100]',
-            'address'             => 'permit_empty',
-            'bank_name'           => 'permit_empty|max_length[100]',
-            'branch_name'         => 'permit_empty|max_length[100]',
-            'bank_account_number' => 'required|max_length[50]|is_unique[contractors.bank_account_number]',
-            'ifsc_code'           => 'required|max_length[20]|is_unique[contractors.ifsc_code]',
-            'status'              => 'required|in_list[active,inactive]',
-        ];
+        $contractorName = trim((string)$this->request->getPost('contractor_name'));
+        $phoneNumber    = trim((string)$this->request->getPost('phone_number'));
+        $bankName       = trim((string)$this->request->getPost('bank_name'));
+        $branchName     = trim((string)$this->request->getPost('branch_name'));
+        $bankAccNo      = trim((string)$this->request->getPost('bank_account_number'));
+        $ifscCode       = strtoupper(trim((string)$this->request->getPost('ifsc_code')));
 
-        $messages = [
-            'contractor_name' => [
-                'required'   => 'Contractor Name is required.',
-                'max_length' => 'Contractor Name cannot exceed 150 characters.',
-            ],
-            'contractor_code' => [
-                'required'   => 'Contractor Code is required.',
-                'max_length' => 'Contractor Code cannot exceed 30 characters.',
-                'is_unique'  => 'This Contractor Code is already registered. Please enter a unique code.',
-            ],
-            'phone_number' => [
-                'max_length' => 'Phone Number cannot exceed 20 characters.',
-                'is_unique'  => 'This Phone Number is already registered by another contractor.',
-            ],
-            'email' => [
-                'valid_email' => 'Please enter a valid email address.',
-                'max_length'  => 'Email cannot exceed 100 characters.',
-            ],
-            'bank_name' => [
-                'max_length' => 'Bank Name cannot exceed 100 characters.',
-            ],
-            'branch_name' => [
-                'max_length' => 'Branch Name cannot exceed 100 characters.',
-            ],
-            'bank_account_number' => [
-                'required'   => 'Bank Account Number is required.',
-                'max_length' => 'Bank Account Number cannot exceed 50 characters.',
-                'is_unique'  => 'This Bank Account Number is already registered by another contractor.',
-            ],
-            'ifsc_code' => [
-                'required'   => 'IFSC Code is required.',
-                'max_length' => 'IFSC Code cannot exceed 20 characters.',
-                'is_unique'  => 'This IFSC Code is already registered by another contractor.',
-            ],
-            'status' => [
-                'required' => 'Status selection is required.',
-                'in_list'  => 'Please select a valid status.',
-            ],
-        ];
+        $errors = [];
+        if (empty($contractorName)) {
+            $errors['contractor_name'] = 'Contractor Name is required.';
+        }
+        if (!empty($phoneNumber) && $this->contractorModel->where('phone_number', $phoneNumber)->first()) {
+            $errors['phone_number'] = 'This Phone Number is already registered with another contractor.';
+        }
 
-        if (!$this->validate($rules, $messages)) {
+        if (empty($bankName)) {
+            $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($branchName)) {
+            $errors['branch_name'] = 'Branch Name is required.';
+        }
+
+        if (empty($bankAccNo)) {
+            $errors['bank_account_number'] = 'Bank Account Number is required.';
+        } elseif (strlen($bankAccNo) < 9) {
+            $errors['bank_account_number'] = 'Bank Account Number must be at least 9 characters.';
+        } elseif ($this->contractorModel->where('bank_account_number', $bankAccNo)->first()) {
+            $errors['bank_account_number'] = 'This Bank Account Number is already registered with another contractor.';
+        }
+
+        if (empty($ifscCode)) {
+            $errors['ifsc_code'] = 'IFSC Code is required.';
+        } elseif (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifscCode)) {
+            $errors['ifsc_code'] = 'Please enter a valid 11-character IFSC Code (e.g. SBIN0000005).';
+        } elseif ($this->contractorModel->where('ifsc_code', $ifscCode)->first()) {
+            $errors['ifsc_code'] = 'This IFSC Code is already registered with another contractor.';
+        }
+
+        if (!empty($errors)) {
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON([
                     'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $this->validator->getErrors(),
+                    'message' => 'Please correct the highlighted errors.',
+                    'errors'  => $errors,
                 ])->setStatusCode(422);
             }
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('errors', $errors);
         }
 
         $contractorData = [
-            'contractor_name'     => trim($this->request->getPost('contractor_name')),
-            'contractor_code'     => trim($this->request->getPost('contractor_code')),
-            'phone_number'        => trim($this->request->getPost('phone_number')),
-            'email'               => trim($this->request->getPost('email')),
-            'address'             => trim($this->request->getPost('address')),
-            'bank_name'           => trim($this->request->getPost('bank_name')),
-            'branch_name'         => trim($this->request->getPost('branch_name')),
-            'bank_account_number' => trim($this->request->getPost('bank_account_number')),
-            'ifsc_code'           => strtoupper(trim($this->request->getPost('ifsc_code'))),
+            'contractor_name'     => $contractorName,
+            'phone_number'        => $phoneNumber ?: null,
+            'dob'                 => trim((string)$this->request->getPost('dob')) ?: null,
+            'email'               => trim((string)$this->request->getPost('email')) ?: null,
+            'address'             => trim((string)$this->request->getPost('address')) ?: null,
+            'bank_name'           => $bankName,
+            'branch_name'         => $branchName,
+            'bank_account_number' => $bankAccNo,
+            'ifsc_code'           => $ifscCode,
             'status'              => $this->request->getPost('status'),
         ];
 
@@ -163,6 +148,9 @@ class ContractorController extends BaseController
         $contractor = $this->contractorModel->find($id);
 
         if (!$contractor) {
+            if ($this->request->isAJAX()) {
+                return '<div class="alert alert-danger mb-0">Contractor with ID ' . esc($id) . ' not found.</div>';
+            }
             throw PageNotFoundException::forPageNotFound("Contractor with ID {$id} not found.");
         }
 
@@ -170,6 +158,10 @@ class ContractorController extends BaseController
             'title'      => 'View Contractor - ' . $contractor['contractor_name'],
             'contractor' => $contractor,
         ];
+
+        if ($this->request->isAJAX()) {
+            return view('contractors/_modal_view', $data);
+        }
 
         return view('contractors/view', $data);
     }
@@ -204,80 +196,65 @@ class ContractorController extends BaseController
             throw PageNotFoundException::forPageNotFound("Contractor with ID {$id} not found.");
         }
 
-        $rules = [
-            'contractor_name'     => 'required|max_length[150]',
-            'contractor_code'     => "required|max_length[30]|is_unique[contractors.contractor_code,contractor_id,{$id}]",
-            'phone_number'        => "permit_empty|max_length[20]|is_unique[contractors.phone_number,contractor_id,{$id}]",
-            'email'               => 'permit_empty|valid_email|max_length[100]',
-            'address'             => 'permit_empty',
-            'bank_name'           => 'permit_empty|max_length[100]',
-            'branch_name'         => 'permit_empty|max_length[100]',
-            'bank_account_number' => "required|max_length[50]|is_unique[contractors.bank_account_number,contractor_id,{$id}]",
-            'ifsc_code'           => "required|max_length[20]|is_unique[contractors.ifsc_code,contractor_id,{$id}]",
-            'status'              => 'required|in_list[active,inactive]',
-        ];
+        $contractorName = trim((string)$this->request->getPost('contractor_name'));
+        $phoneNumber    = trim((string)$this->request->getPost('phone_number'));
+        $bankName       = trim((string)$this->request->getPost('bank_name'));
+        $branchName     = trim((string)$this->request->getPost('branch_name'));
+        $bankAccNo      = trim((string)$this->request->getPost('bank_account_number'));
+        $ifscCode       = strtoupper(trim((string)$this->request->getPost('ifsc_code')));
 
-        $messages = [
-            'contractor_name' => [
-                'required'   => 'Contractor Name is required.',
-                'max_length' => 'Contractor Name cannot exceed 150 characters.',
-            ],
-            'contractor_code' => [
-                'required'   => 'Contractor Code is required.',
-                'max_length' => 'Contractor Code cannot exceed 30 characters.',
-                'is_unique'  => 'This Contractor Code is already registered by another contractor.',
-            ],
-            'phone_number' => [
-                'max_length' => 'Phone Number cannot exceed 20 characters.',
-                'is_unique'  => 'This Phone Number is already registered by another contractor.',
-            ],
-            'email' => [
-                'valid_email' => 'Please enter a valid email address.',
-                'max_length'  => 'Email cannot exceed 100 characters.',
-            ],
-            'bank_name' => [
-                'max_length' => 'Bank Name cannot exceed 100 characters.',
-            ],
-            'branch_name' => [
-                'max_length' => 'Branch Name cannot exceed 100 characters.',
-            ],
-            'bank_account_number' => [
-                'required'   => 'Bank Account Number is required.',
-                'max_length' => 'Bank Account Number cannot exceed 50 characters.',
-                'is_unique'  => 'This Bank Account Number is already registered by another contractor.',
-            ],
-            'ifsc_code' => [
-                'required'   => 'IFSC Code is required.',
-                'max_length' => 'IFSC Code cannot exceed 20 characters.',
-                'is_unique'  => 'This IFSC Code is already registered by another contractor.',
-            ],
-            'status' => [
-                'required' => 'Status selection is required.',
-                'in_list'  => 'Please select a valid status.',
-            ],
-        ];
+        $errors = [];
+        if (empty($contractorName)) {
+            $errors['contractor_name'] = 'Contractor Name is required.';
+        }
+        if (!empty($phoneNumber) && $this->contractorModel->where('phone_number', $phoneNumber)->where('contractor_id !=', $id)->first()) {
+            $errors['phone_number'] = 'This Phone Number is already registered with another contractor.';
+        }
 
-        if (!$this->validate($rules, $messages)) {
+        if (empty($bankName)) {
+            $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($branchName)) {
+            $errors['branch_name'] = 'Branch Name is required.';
+        }
+
+        if (empty($bankAccNo)) {
+            $errors['bank_account_number'] = 'Bank Account Number is required.';
+        } elseif (strlen($bankAccNo) < 9) {
+            $errors['bank_account_number'] = 'Bank Account Number must be at least 9 characters.';
+        } elseif ($this->contractorModel->where('bank_account_number', $bankAccNo)->where('contractor_id !=', $id)->first()) {
+            $errors['bank_account_number'] = 'This Bank Account Number is already registered with another contractor.';
+        }
+
+        if (empty($ifscCode)) {
+            $errors['ifsc_code'] = 'IFSC Code is required.';
+        } elseif (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifscCode)) {
+            $errors['ifsc_code'] = 'Please enter a valid 11-character IFSC Code (e.g. SBIN0000005).';
+        } elseif ($this->contractorModel->where('ifsc_code', $ifscCode)->where('contractor_id !=', $id)->first()) {
+            $errors['ifsc_code'] = 'This IFSC Code is already registered with another contractor.';
+        }
+
+        if (!empty($errors)) {
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON([
                     'status'  => 'error',
-                    'message' => 'Please correct the highlighted validation errors.',
-                    'errors'  => $this->validator->getErrors(),
+                    'message' => 'Please correct the highlighted errors.',
+                    'errors'  => $errors,
                 ])->setStatusCode(422);
             }
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('errors', $errors);
         }
 
         $updateData = [
-            'contractor_name'     => trim($this->request->getPost('contractor_name')),
-            'contractor_code'     => trim($this->request->getPost('contractor_code')),
-            'phone_number'        => trim($this->request->getPost('phone_number')),
-            'email'               => trim($this->request->getPost('email')),
-            'address'             => trim($this->request->getPost('address')),
-            'bank_name'           => trim($this->request->getPost('bank_name')),
-            'branch_name'         => trim($this->request->getPost('branch_name')),
-            'bank_account_number' => trim($this->request->getPost('bank_account_number')),
-            'ifsc_code'           => strtoupper(trim($this->request->getPost('ifsc_code'))),
+            'contractor_name'     => $contractorName,
+            'phone_number'        => $phoneNumber ?: null,
+            'dob'                 => trim((string)$this->request->getPost('dob')) ?: null,
+            'email'               => trim((string)$this->request->getPost('email')) ?: null,
+            'address'             => trim((string)$this->request->getPost('address')) ?: null,
+            'bank_name'           => $bankName,
+            'branch_name'         => $branchName,
+            'bank_account_number' => $bankAccNo,
+            'ifsc_code'           => $ifscCode,
             'status'              => $this->request->getPost('status'),
         ];
 

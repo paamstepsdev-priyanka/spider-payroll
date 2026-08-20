@@ -41,6 +41,28 @@
   </div>
 </div>
 
+<!-- Contractor View Modal -->
+<div class="modal fade" id="viewContractorModal" tabindex="-1" aria-labelledby="viewContractorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-light py-3 border-bottom">
+        <h5 class="modal-title fw-semibold text-dark mb-0" id="viewContractorModalLabel">
+          <i class="bi bi-person-bounding-box me-2 text-primary"></i>Contractor Details
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" data-coreui-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4" id="modalViewBody">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <div class="text-muted small mt-2">Loading contractor view page...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("search");
@@ -88,8 +110,8 @@
       fetchContractors();
     });
 
-    // Handle AJAX Pagination Clicks
-    tableContainer.addEventListener("click", function(e) {
+    // Handle AJAX Pagination Clicks & View Modal Click
+    document.addEventListener("click", function(e) {
       const pageLink = e.target.closest(".ajax-page-link");
       if (pageLink) {
         e.preventDefault();
@@ -97,6 +119,48 @@
         if (href && href !== "#") {
           fetchContractors(href);
         }
+        return;
+      }
+
+      const viewBtn = e.target.closest(".btn-view-contractor");
+      if (viewBtn) {
+        e.preventDefault();
+        const contractorId = viewBtn.getAttribute("data-id");
+        if (!contractorId) return;
+
+        const viewModalEl = document.getElementById("viewContractorModal");
+        const modalBody = document.getElementById("modalViewBody");
+        
+        modalBody.innerHTML = `
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="text-muted small mt-2">Loading contractor details...</div>
+          </div>
+        `;
+
+        if (typeof coreui !== 'undefined' && coreui.Modal) {
+          coreui.Modal.getOrCreateInstance(viewModalEl).show();
+        } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+          bootstrap.Modal.getOrCreateInstance(viewModalEl).show();
+        } else if (typeof $ !== 'undefined' && $(viewModalEl).modal) {
+          $(viewModalEl).modal('show');
+        }
+
+        fetch("<?= site_url('contractors/view/') ?>" + contractorId, {
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        })
+        .then(res => res.text())
+        .then(html => {
+          modalBody.innerHTML = html;
+        })
+        .catch(err => {
+          console.error(err);
+          modalBody.innerHTML = '<div class="alert alert-danger mb-0">An error occurred while loading contractor details.</div>';
+        });
       }
     });
   });
