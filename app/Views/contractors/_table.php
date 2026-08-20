@@ -15,6 +15,8 @@ $endCount    = min($offset + $perPage, $total);
         <th scope="col">Contractor Name</th>
         <th scope="col">Code</th>
         <th scope="col">Phone</th>
+        <th scope="col">Bank Name</th>
+        <th scope="col">Branch Name</th>
         <th scope="col">Status</th>
         <th scope="col">Created Date</th>
         <th scope="col" class="text-end" style="width: 180px;">Actions</th>
@@ -29,6 +31,8 @@ $endCount    = min($offset + $perPage, $total);
             <td class="fw-medium text-dark" style="background-color: #ffffff !important;"><?= esc($item['contractor_name']) ?></td>
             <td style="background-color: #ffffff !important;"><code class="text-dark bg-light px-2 py-1 rounded" style="font-size: 13px;"><?= esc($item['contractor_code']) ?></code></td>
             <td style="background-color: #ffffff !important;"><?= esc($item['phone_number'] ?: '-') ?></td>
+            <td style="background-color: #ffffff !important;"><?= esc($item['bank_name'] ?: '-') ?></td>
+            <td style="background-color: #ffffff !important;"><?= esc($item['branch_name'] ?: '-') ?></td>
             <td style="background-color: #ffffff !important;">
               <?php if ($item['status'] === 'active'): ?>
                 <span class="badge border border-success text-success">Active</span>
@@ -66,7 +70,7 @@ $endCount    = min($offset + $perPage, $total);
         <?php endforeach; ?>
       <?php else: ?>
         <tr style="background-color: #ffffff !important;">
-          <td colspan="7" class="text-center py-4 text-secondary small" style="background-color: #ffffff !important;">
+          <td colspan="9" class="text-center py-4 text-secondary small" style="background-color: #ffffff !important;">
             No contractors found matching the search criteria.
           </td>
         </tr>

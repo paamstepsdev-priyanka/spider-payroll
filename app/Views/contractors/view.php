@@ -52,7 +52,15 @@
           <table class="table table-bordered mb-0 align-middle">
             <tbody>
               <tr>
-                <th scope="row" class="bg-light text-secondary" style="width: 35%;">Bank Account Number</th>
+                <th scope="row" class="bg-light text-secondary" style="width: 35%;">Bank Name</th>
+                <td class="fw-medium text-dark"><?= esc($contractor['bank_name'] ?: '-') ?></td>
+              </tr>
+              <tr>
+                <th scope="row" class="bg-light text-secondary">Branch Name</th>
+                <td class="fw-medium text-dark"><?= esc($contractor['branch_name'] ?: '-') ?></td>
+              </tr>
+              <tr>
+                <th scope="row" class="bg-light text-secondary">Bank Account Number</th>
                 <td><code class="text-dark bg-light px-2 py-1 rounded" style="font-size: 13px;"><?= esc($contractor['bank_account_number']) ?></code></td>
               </tr>
               <tr>

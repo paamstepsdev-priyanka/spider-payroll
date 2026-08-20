@@ -63,6 +63,8 @@ class ContractorController extends BaseController
             'phone_number'        => 'permit_empty|max_length[20]|is_unique[contractors.phone_number]',
             'email'               => 'permit_empty|valid_email|max_length[100]',
             'address'             => 'permit_empty',
+            'bank_name'           => 'permit_empty|max_length[100]',
+            'branch_name'         => 'permit_empty|max_length[100]',
             'bank_account_number' => 'required|max_length[50]|is_unique[contractors.bank_account_number]',
             'ifsc_code'           => 'required|max_length[20]|is_unique[contractors.ifsc_code]',
             'status'              => 'required|in_list[active,inactive]',
@@ -85,6 +87,12 @@ class ContractorController extends BaseController
             'email' => [
                 'valid_email' => 'Please enter a valid email address.',
                 'max_length'  => 'Email cannot exceed 100 characters.',
+            ],
+            'bank_name' => [
+                'max_length' => 'Bank Name cannot exceed 100 characters.',
+            ],
+            'branch_name' => [
+                'max_length' => 'Branch Name cannot exceed 100 characters.',
             ],
             'bank_account_number' => [
                 'required'   => 'Bank Account Number is required.',
@@ -119,6 +127,8 @@ class ContractorController extends BaseController
             'phone_number'        => trim($this->request->getPost('phone_number')),
             'email'               => trim($this->request->getPost('email')),
             'address'             => trim($this->request->getPost('address')),
+            'bank_name'           => trim($this->request->getPost('bank_name')),
+            'branch_name'         => trim($this->request->getPost('branch_name')),
             'bank_account_number' => trim($this->request->getPost('bank_account_number')),
             'ifsc_code'           => strtoupper(trim($this->request->getPost('ifsc_code'))),
             'status'              => $this->request->getPost('status'),
@@ -200,6 +210,8 @@ class ContractorController extends BaseController
             'phone_number'        => "permit_empty|max_length[20]|is_unique[contractors.phone_number,contractor_id,{$id}]",
             'email'               => 'permit_empty|valid_email|max_length[100]',
             'address'             => 'permit_empty',
+            'bank_name'           => 'permit_empty|max_length[100]',
+            'branch_name'         => 'permit_empty|max_length[100]',
             'bank_account_number' => "required|max_length[50]|is_unique[contractors.bank_account_number,contractor_id,{$id}]",
             'ifsc_code'           => "required|max_length[20]|is_unique[contractors.ifsc_code,contractor_id,{$id}]",
             'status'              => 'required|in_list[active,inactive]',
@@ -222,6 +234,12 @@ class ContractorController extends BaseController
             'email' => [
                 'valid_email' => 'Please enter a valid email address.',
                 'max_length'  => 'Email cannot exceed 100 characters.',
+            ],
+            'bank_name' => [
+                'max_length' => 'Bank Name cannot exceed 100 characters.',
+            ],
+            'branch_name' => [
+                'max_length' => 'Branch Name cannot exceed 100 characters.',
             ],
             'bank_account_number' => [
                 'required'   => 'Bank Account Number is required.',
@@ -256,6 +274,8 @@ class ContractorController extends BaseController
             'phone_number'        => trim($this->request->getPost('phone_number')),
             'email'               => trim($this->request->getPost('email')),
             'address'             => trim($this->request->getPost('address')),
+            'bank_name'           => trim($this->request->getPost('bank_name')),
+            'branch_name'         => trim($this->request->getPost('branch_name')),
             'bank_account_number' => trim($this->request->getPost('bank_account_number')),
             'ifsc_code'           => strtoupper(trim($this->request->getPost('ifsc_code'))),
             'status'              => $this->request->getPost('status'),

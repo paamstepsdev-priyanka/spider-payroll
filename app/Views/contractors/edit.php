@@ -108,6 +108,26 @@
                 <?php endif; ?>
               </div>
             </div>
+
+            <div class="row">
+              <!-- Bank Name -->
+              <div class="col-md-6 mb-3">
+                <label for="bank_name" class="form-label fw-medium">Bank Name</label>
+                <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name', $contractor['bank_name']) ?>" placeholder="e.g. State Bank of India">
+                <?php if (session('errors.bank_name')): ?>
+                  <div class="invalid-feedback d-block"><?= session('errors.bank_name') ?></div>
+                <?php endif; ?>
+              </div>
+
+              <!-- Branch Name -->
+              <div class="col-md-6 mb-3">
+                <label for="branch_name" class="form-label fw-medium">Branch Name</label>
+                <input type="text" name="branch_name" id="branch_name" class="form-control <?= session('errors.branch_name') ? 'is-invalid' : '' ?>" value="<?= old('branch_name', $contractor['branch_name']) ?>" placeholder="e.g. Andheri West">
+                <?php if (session('errors.branch_name')): ?>
+                  <div class="invalid-feedback d-block"><?= session('errors.branch_name') ?></div>
+                <?php endif; ?>
+              </div>
+            </div>
           </div>
 
           <!-- SECTION 3 — STATUS -->

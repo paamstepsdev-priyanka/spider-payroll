@@ -18,6 +18,8 @@ class ContractorModel extends Model
         'phone_number',
         'email',
         'address',
+        'bank_name',
+        'branch_name',
         'bank_account_number',
         'ifsc_code',
         'status',
@@ -35,6 +37,8 @@ class ContractorModel extends Model
         'contractor_code'     => 'required|max_length[30]|is_unique[contractors.contractor_code,contractor_id,{contractor_id}]',
         'phone_number'        => 'permit_empty|max_length[20]|is_unique[contractors.phone_number,contractor_id,{contractor_id}]',
         'email'               => 'permit_empty|valid_email|max_length[100]',
+        'bank_name'           => 'permit_empty|max_length[100]',
+        'branch_name'         => 'permit_empty|max_length[100]',
         'bank_account_number' => 'required|max_length[50]|is_unique[contractors.bank_account_number,contractor_id,{contractor_id}]',
         'ifsc_code'           => 'required|max_length[20]|is_unique[contractors.ifsc_code,contractor_id,{contractor_id}]',
         'status'              => 'required|in_list[active,inactive]',
@@ -57,6 +61,12 @@ class ContractorModel extends Model
         'email' => [
             'valid_email' => 'Please enter a valid email address.',
             'max_length'  => 'Email cannot exceed 100 characters.',
+        ],
+        'bank_name' => [
+            'max_length' => 'Bank Name cannot exceed 100 characters.',
+        ],
+        'branch_name' => [
+            'max_length' => 'Branch Name cannot exceed 100 characters.',
         ],
         'bank_account_number' => [
             'required'   => 'Bank Account Number is required.',
@@ -93,6 +103,8 @@ class ContractorModel extends Model
                 ->orLike('contractor_code', $search)
                 ->orLike('phone_number', $search)
                 ->orLike('email', $search)
+                ->orLike('bank_name', $search)
+                ->orLike('branch_name', $search)
                 ->groupEnd();
         }
 
