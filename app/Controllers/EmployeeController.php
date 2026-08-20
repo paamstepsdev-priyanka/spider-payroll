@@ -67,6 +67,7 @@ class EmployeeController extends BaseController
     public function store()
     {
         $rules = [
+            'is_direct_employee' => 'required|in_list[0,1]',
             'employee_name'       => 'required|max_length[150]',
             'contractor_id'       => 'permit_empty|is_natural_no_zero|is_not_unique[contractors.contractor_id]',
             'biometric_code'      => 'permit_empty|max_length[50]|is_unique[employees.biometric_code]',
@@ -88,6 +89,10 @@ class EmployeeController extends BaseController
         ];
 
         $messages = [
+            'is_direct_employee' => [
+                'required' => 'Please select whether this is a Direct Employee.',
+                'in_list'  => 'Please select a valid option for Direct Employee.',
+            ],
             'employee_name' => [
                 'required'   => 'Employee Name is required.',
                 'max_length' => 'Employee Name cannot exceed 150 characters.',
@@ -153,6 +158,13 @@ class EmployeeController extends BaseController
             $customErrors['date_of_birth'] = 'Date of Birth cannot be a future date.';
         }
 
+        $isDirectEmployee = (string) $this->request->getPost('is_direct_employee');
+        $rawContractorId  = $this->request->getPost('contractor_id');
+
+        if ($isDirectEmployee === '1' && empty($rawContractorId)) {
+            $customErrors['contractor_id'] = 'Please select a contractor when Direct Employee is Yes.';
+        }
+
         if ($status === 'relieved') {
             if (empty($dateOfLeaving)) {
                 $customErrors['date_of_leaving'] = 'Date of Leaving is required when marking employee as Relieved.';
@@ -182,10 +194,17 @@ class EmployeeController extends BaseController
             $exitReason    = null;
         }
 
-        $contractorId = $this->request->getPost('contractor_id');
+        $isDirectEmployee = $this->request->getPost('is_direct_employee') !== null ? (string)$this->request->getPost('is_direct_employee') : '0';
+        if ($isDirectEmployee === '0') {
+            $contractorId = null;
+        } else {
+            $rawContractorId = $this->request->getPost('contractor_id');
+            $contractorId = !empty($rawContractorId) ? (int) $rawContractorId : null;
+        }
 
         $employeeData = [
-            'contractor_id'       => !empty($contractorId) ? (int) $contractorId : null,
+            'is_direct_employee' => $isDirectEmployee,
+            'contractor_id'       => $contractorId,
             'biometric_code'      => trim((string) $this->request->getPost('biometric_code')) ?: null,
             'phone_number'        => trim((string) $this->request->getPost('phone_number')) ?: null,
             'employee_name'       => trim((string) $this->request->getPost('employee_name')),
@@ -284,6 +303,7 @@ class EmployeeController extends BaseController
         }
 
         $rules = [
+            'is_direct_employee' => 'required|in_list[0,1]',
             'employee_name'       => 'required|max_length[150]',
             'contractor_id'       => 'permit_empty|is_natural_no_zero|is_not_unique[contractors.contractor_id]',
             'biometric_code'      => "permit_empty|max_length[50]|is_unique[employees.biometric_code,employee_id,{$id}]",
@@ -305,6 +325,10 @@ class EmployeeController extends BaseController
         ];
 
         $messages = [
+            'is_direct_employee' => [
+                'required' => 'Please select whether this is a Direct Employee.',
+                'in_list'  => 'Please select a valid option for Direct Employee.',
+            ],
             'employee_name' => [
                 'required'   => 'Employee Name is required.',
                 'max_length' => 'Employee Name cannot exceed 150 characters.',
@@ -370,6 +394,13 @@ class EmployeeController extends BaseController
             $customErrors['date_of_birth'] = 'Date of Birth cannot be a future date.';
         }
 
+        $isDirectEmployee = (string) $this->request->getPost('is_direct_employee');
+        $rawContractorId  = $this->request->getPost('contractor_id');
+
+        if ($isDirectEmployee === '1' && empty($rawContractorId)) {
+            $customErrors['contractor_id'] = 'Please select a contractor when Direct Employee is Yes.';
+        }
+
         if ($status === 'relieved') {
             if (empty($dateOfLeaving)) {
                 $customErrors['date_of_leaving'] = 'Date of Leaving is required when marking employee as Relieved.';
@@ -399,10 +430,17 @@ class EmployeeController extends BaseController
             $exitReason    = null;
         }
 
-        $contractorId = $this->request->getPost('contractor_id');
+        $isDirectEmployee = $this->request->getPost('is_direct_employee') !== null ? (string)$this->request->getPost('is_direct_employee') : '0';
+        if ($isDirectEmployee === '0') {
+            $contractorId = null;
+        } else {
+            $rawContractorId = $this->request->getPost('contractor_id');
+            $contractorId = !empty($rawContractorId) ? (int) $rawContractorId : null;
+        }
 
         $updateData = [
-            'contractor_id'       => !empty($contractorId) ? (int) $contractorId : null,
+            'is_direct_employee' => $isDirectEmployee,
+            'contractor_id'       => $contractorId,
             'biometric_code'      => trim((string) $this->request->getPost('biometric_code')) ?: null,
             'phone_number'        => trim((string) $this->request->getPost('phone_number')) ?: null,
             'employee_name'       => trim((string) $this->request->getPost('employee_name')),

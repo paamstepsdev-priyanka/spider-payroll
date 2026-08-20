@@ -224,9 +224,22 @@
             <!-- STEP 2 — EMPLOYMENT DETAILS -->
             <div class="step-panel d-none" id="step-panel-2">
               <div class="row">
-                <!-- Contractor -->
+                <!-- Direct Employee -->
                 <div class="col-md-6 mb-3">
-                  <label for="contractor_id" class="form-label small fw-semibold text-secondary">Contractor</label>
+                  <label for="is_direct_employee" class="form-label small fw-semibold text-secondary">Direct Employee? <span class="text-danger">*</span></label>
+                  <select name="is_direct_employee" id="is_direct_employee" class="form-select <?= session('errors.is_direct_employee') ? 'is-invalid' : '' ?>" required>
+                    <option value="">Select Option</option>
+                    <option value="1" <?= old('is_direct_employee') === '1' ? 'selected' : '' ?>>Yes</option>
+                    <option value="0" <?= old('is_direct_employee') === '0' ? 'selected' : '' ?>>No</option>
+                  </select>
+                  <div class="invalid-feedback" id="err_is_direct_employee">
+                    <?= session('errors.is_direct_employee') ?: 'Please select whether this is a Direct Employee.' ?>
+                  </div>
+                </div>
+
+                <!-- Contractor (Shown only if Direct Employee = Yes) -->
+                <div class="col-md-6 mb-3 <?= old('is_direct_employee') === '1' ? '' : 'd-none' ?>" id="contractor-id-container">
+                  <label for="contractor_id" class="form-label small fw-semibold text-secondary">Contractor <span class="text-danger">*</span></label>
                   <select name="contractor_id" id="contractor_id" class="form-select <?= session('errors.contractor_id') ? 'is-invalid' : '' ?>">
                     <option value="">Select Contractor</option>
                     <?php foreach ($contractors as $contractor): ?>
@@ -235,10 +248,9 @@
                       </option>
                     <?php endforeach; ?>
                   </select>
-                  <div class="form-text text-muted small">Optional. Leave blank if not assigned to a contractor.</div>
-                  <?php if (session('errors.contractor_id')): ?>
-                    <div class="invalid-feedback d-block"><?= session('errors.contractor_id') ?></div>
-                  <?php endif; ?>
+                  <div class="invalid-feedback" id="err_contractor_id">
+                    <?= session('errors.contractor_id') ?: 'Please select a contractor.' ?>
+                  </div>
                 </div>
 
                 <!-- Date of Joining -->
@@ -610,6 +622,26 @@ document.addEventListener('DOMContentLoaded', function() {
     updateExitRequiredUI();
   }
 
+  const directEmpSelect = document.getElementById('is_direct_employee');
+  const contractorContainer = document.getElementById('contractor-id-container');
+  const contractorSelect = document.getElementById('contractor_id');
+
+  function updateContractorUI() {
+    if (directEmpSelect && contractorContainer) {
+      if (directEmpSelect.value === '1') {
+        contractorContainer.classList.remove('d-none');
+      } else {
+        contractorContainer.classList.add('d-none');
+        if (contractorSelect) contractorSelect.value = '';
+      }
+    }
+  }
+
+  if (directEmpSelect) {
+    directEmpSelect.addEventListener('change', updateContractorUI);
+    updateContractorUI();
+  }
+
   function formatDate(dStr) {
     if (!dStr) return '-';
     const parts = dStr.split('-');
@@ -790,9 +822,29 @@ document.addEventListener('DOMContentLoaded', function() {
         gender.classList.remove('is-invalid');
       }
     } else if (step === 2) {
+      const directEmp = document.getElementById('is_direct_employee');
       const doj = document.getElementById('date_of_joining');
       const salary = document.getElementById('monthly_base_salary');
       const status = document.getElementById('status');
+
+      if (directEmp && directEmp.value === '') {
+        directEmp.classList.add('is-invalid');
+        isValid = false;
+      } else if (directEmp) {
+        directEmp.classList.remove('is-invalid');
+      }
+
+      const contractorSelect = document.getElementById('contractor_id');
+      if (directEmp && directEmp.value === '1') {
+        if (contractorSelect && !contractorSelect.value) {
+          contractorSelect.classList.add('is-invalid');
+          isValid = false;
+        } else if (contractorSelect) {
+          contractorSelect.classList.remove('is-invalid');
+        }
+      } else if (contractorSelect) {
+        contractorSelect.classList.remove('is-invalid');
+      }
 
       if (!doj.value.trim()) {
         doj.classList.add('is-invalid');

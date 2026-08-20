@@ -13,6 +13,7 @@ class EmployeeModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
+        'is_direct_employee',
         'contractor_id',
         'biometric_code',
         'employee_name',
