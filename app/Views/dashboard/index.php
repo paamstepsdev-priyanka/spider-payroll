@@ -23,10 +23,10 @@
   </div>
 </div>
 
-<!-- Key Performance Metrics Cards (4 Stat Grid) -->
+<!-- Key Performance Metrics Cards (3 Stat Grid) -->
 <div class="row g-3 mb-4">
   <!-- Active Employees Card -->
-  <div class="col-12 col-sm-6 col-xl-6">
+  <div class="col-12 col-md-4">
     <div class="card border shadow-sm rounded-3 h-100 bg-white">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -49,7 +49,7 @@
   </div>
 
   <!-- Active Contractors Card -->
-  <div class="col-12 col-sm-6 col-xl-6">
+  <div class="col-12 col-md-4">
     <div class="card border shadow-sm rounded-3 h-100 bg-white">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -71,6 +71,28 @@
     </div>
   </div>
 
+  <!-- Upcoming Birthdays Summary Card -->
+  <div class="col-12 col-md-4">
+    <div class="card border shadow-sm rounded-3 h-100 bg-white">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <span class="text-dark fw-bold text-uppercase fs-7" style="letter-spacing: 0.5px;">Upcoming Birthdays</span>
+          <div class="rounded-3 p-2 fw-bold" style="background-color: #ffe4e6; color: #e11d48;">
+            <i class="bi bi-cake2-fill fs-5"></i>
+          </div>
+        </div>
+        <div class="d-flex align-items-baseline justify-content-between">
+          <h3 class="fw-bold text-dark mb-0"><?= count($upcomingBirthdaysWeek) ?></h3>
+          <span class="badge text-white rounded-pill px-2.5 py-1 fs-7 fw-bold" style="background-color: #e11d48;">
+            <?= count($upcomingBirthdaysMonth) ?> This Month
+          </span>
+        </div>
+        <div class="mt-2 text-secondary fw-semibold fs-7">
+          <span>Birthdays scheduled this week</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Active Month Status Banner & Quick Navigation -->
@@ -184,28 +206,27 @@
   </div>
 </div>
 
-<!-- Overview Tables Grid (Employees & Contractors) -->
-<div class="row g-3">
+<!-- Overview Tables Grid (Employees, Birthdays & Contractors) -->
+<div class="row g-3 mb-4">
   <!-- Recent Employees Table -->
-  <div class="col-lg-7">
-    <div class="card border shadow-sm rounded-3 bg-white">
+  <div class="col-lg-4">
+    <div class="card border shadow-sm rounded-3 bg-white h-100">
       <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
         <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
           <i class="bi bi-people text-emerald"></i>
-          Recently Enrolled Employees
+          Recent Employees
         </h6>
-        <a href="<?= site_url('employees') ?>" class="btn btn-sm btn-dark rounded-pill px-3 fw-bold">
-          View All Employees <i class="bi bi-arrow-right ms-1"></i>
+        <a href="<?= site_url('employees') ?>" class="btn btn-sm btn-dark rounded-pill px-2.5 py-1 fw-bold fs-7">
+          View All <i class="bi bi-arrow-right ms-1"></i>
         </a>
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-dark text-white" style="background-color: #1e293b !important;">
             <tr>
-              <th class="ps-3">Employee Name</th>
+              <th class="ps-3">Employee</th>
               <th>Designation</th>
-              <th>Contractor</th>
-              <th class="text-end pe-3">Base Salary</th>
+              <th class="text-end pe-3">Salary</th>
             </tr>
           </thead>
           <tbody>
@@ -219,13 +240,110 @@
                     <?php endif; ?>
                   </td>
                   <td><span class="badge text-bg-light border text-dark fw-bold"><?= esc($emp['designation'] ?? 'Staff') ?></span></td>
-                  <td class="text-dark fw-medium"><?= esc($emp['contractor_name'] ?? 'Direct / None') ?></td>
                   <td class="text-end pe-3 fw-bold" style="color: #047857;">₹<?= number_format((float)$emp['monthly_base_salary'], 2) ?></td>
                 </tr>
               <?php endforeach; ?>
             <?php else: ?>
               <tr>
-                <td colspan="4" class="text-center py-4 text-secondary fw-semibold">No employees registered yet.</td>
+                <td colspan="3" class="text-center py-4 text-secondary fw-semibold">No employees registered yet.</td>
+              </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Birthdays Card with Filter -->
+  <div class="col-lg-4">
+    <div class="card border shadow-sm rounded-3 bg-white h-100">
+      <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-cake2-fill text-danger fs-5"></i>
+          Upcoming Birthdays
+        </h6>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Birthday Filter">
+          <button type="button" class="btn btn-sm btn-dark active fw-bold px-2.5 py-1" id="bdayBtnWeek" onclick="showBdayTab('week')">
+            This Week <span class="badge bg-light text-dark rounded-pill ms-1" id="bdayBadgeWeek"><?= count($upcomingBirthdaysWeek) ?></span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-dark fw-bold px-2.5 py-1" id="bdayBtnMonth" onclick="showBdayTab('month')">
+            This Month <span class="badge bg-secondary text-white rounded-pill ms-1" id="bdayBadgeMonth"><?= count($upcomingBirthdaysMonth) ?></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- This Week View (Default) -->
+      <div id="bdayViewWeek" class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark text-white" style="background-color: #1e293b !important;">
+            <tr>
+              <th class="ps-3">Employee</th>
+              <th>Date</th>
+              <th class="text-end pe-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (!empty($upcomingBirthdaysWeek)): ?>
+              <?php foreach ($upcomingBirthdaysWeek as $bday): ?>
+                <tr>
+                  <td class="ps-3 fw-bold text-dark">
+                    <?= esc($bday['employee_name']) ?>
+                    <small class="d-block text-secondary fw-semibold"><?= esc($bday['designation'] ?? 'Staff') ?></small>
+                  </td>
+                  <td>
+                    <span class="fw-bold text-dark d-block"><?= esc($bday['bday_formatted']) ?></span>
+                    <small class="text-muted fw-semibold">Turning <?= esc($bday['age_turning']) ?></small>
+                  </td>
+                  <td class="text-end pe-3">
+                    <span class="badge <?= esc($bday['badge_class']) ?> rounded-pill px-2.5 py-1 fw-bold"><?= esc($bday['badge_text']) ?></span>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="3" class="text-center py-4 text-secondary fw-semibold">
+                  <i class="bi bi-balloon text-muted fs-3 d-block mb-1"></i>
+                  No birthdays this week.
+                </td>
+              </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- This Month View (Hidden by default) -->
+      <div id="bdayViewMonth" class="table-responsive d-none">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark text-white" style="background-color: #1e293b !important;">
+            <tr>
+              <th class="ps-3">Employee</th>
+              <th>Date</th>
+              <th class="text-end pe-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (!empty($upcomingBirthdaysMonth)): ?>
+              <?php foreach ($upcomingBirthdaysMonth as $bday): ?>
+                <tr>
+                  <td class="ps-3 fw-bold text-dark">
+                    <?= esc($bday['employee_name']) ?>
+                    <small class="d-block text-secondary fw-semibold"><?= esc($bday['designation'] ?? 'Staff') ?></small>
+                  </td>
+                  <td>
+                    <span class="fw-bold text-dark d-block"><?= esc($bday['bday_formatted']) ?></span>
+                    <small class="text-muted fw-semibold">Turning <?= esc($bday['age_turning']) ?></small>
+                  </td>
+                  <td class="text-end pe-3">
+                    <span class="badge <?= esc($bday['badge_class']) ?> rounded-pill px-2.5 py-1 fw-bold"><?= esc($bday['badge_text']) ?></span>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="3" class="text-center py-4 text-secondary fw-semibold">
+                  <i class="bi bi-balloon text-muted fs-3 d-block mb-1"></i>
+                  No birthdays this month.
+                </td>
               </tr>
             <?php endif; ?>
           </tbody>
@@ -235,15 +353,15 @@
   </div>
 
   <!-- Contractor Directory Overview -->
-  <div class="col-lg-5">
-    <div class="card border shadow-sm rounded-3 bg-white">
+  <div class="col-lg-4">
+    <div class="card border shadow-sm rounded-3 bg-white h-100">
       <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
         <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
           <i class="bi bi-building text-primary"></i>
           Contractors Overview
         </h6>
-        <a href="<?= site_url('contractors') ?>" class="btn btn-sm btn-dark rounded-pill px-3 fw-bold">
-          Manage Contractors <i class="bi bi-arrow-right ms-1"></i>
+        <a href="<?= site_url('contractors') ?>" class="btn btn-sm btn-dark rounded-pill px-2.5 py-1 fw-bold fs-7">
+          Manage <i class="bi bi-arrow-right ms-1"></i>
         </a>
       </div>
       <div class="table-responsive">
@@ -270,7 +388,7 @@
               <?php endforeach; ?>
             <?php else: ?>
               <tr>
-                <td colspan="3" class="text-center py-4 text-muted">No contractors registered yet.</td>
+                <td colspan="2" class="text-center py-4 text-muted">No contractors registered yet.</td>
               </tr>
             <?php endif; ?>
           </tbody>
@@ -279,4 +397,35 @@
     </div>
   </div>
 </div>
+
+<script>
+function showBdayTab(tab) {
+  const btnWeek = document.getElementById('bdayBtnWeek');
+  const btnMonth = document.getElementById('bdayBtnMonth');
+  const badgeWeek = document.getElementById('bdayBadgeWeek');
+  const badgeMonth = document.getElementById('bdayBadgeMonth');
+  const viewWeek = document.getElementById('bdayViewWeek');
+  const viewMonth = document.getElementById('bdayViewMonth');
+
+  if (tab === 'week') {
+    btnWeek.className = 'btn btn-sm btn-dark active fw-bold px-2.5 py-1';
+    btnMonth.className = 'btn btn-sm btn-outline-dark fw-bold px-2.5 py-1';
+
+    if (badgeWeek) badgeWeek.className = 'badge bg-light text-dark rounded-pill ms-1';
+    if (badgeMonth) badgeMonth.className = 'badge bg-secondary text-white rounded-pill ms-1';
+
+    viewWeek.classList.remove('d-none');
+    viewMonth.classList.add('d-none');
+  } else {
+    btnMonth.className = 'btn btn-sm btn-dark active fw-bold px-2.5 py-1';
+    btnWeek.className = 'btn btn-sm btn-outline-dark fw-bold px-2.5 py-1';
+
+    if (badgeMonth) badgeMonth.className = 'badge bg-light text-dark rounded-pill ms-1';
+    if (badgeWeek) badgeWeek.className = 'badge bg-secondary text-white rounded-pill ms-1';
+
+    viewMonth.classList.remove('d-none');
+    viewWeek.classList.add('d-none');
+  }
+}
+</script>
 <?= $this->endSection() ?>

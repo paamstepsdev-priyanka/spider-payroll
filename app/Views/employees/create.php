@@ -341,8 +341,17 @@
             <!-- STEP 3 — BANK DETAILS -->
             <div class="step-panel d-none" id="step-panel-3">
               <div class="row">
-                <!-- 1. Bank Account Number -->
-                <div class="col-md-3 mb-3">
+                <!-- 1. Account Holder Name -->
+                <div class="col-md-4 mb-3">
+                  <label for="account_holder_name" class="form-label small fw-semibold text-secondary">Account Holder Name <span class="text-danger">*</span></label>
+                  <input type="text" name="account_holder_name" id="account_holder_name" class="form-control <?= session('errors.account_holder_name') ? 'is-invalid' : '' ?>" value="<?= old('account_holder_name') ?>" placeholder="Name as per bank records" required>
+                  <?php if (session('errors.account_holder_name')): ?>
+                    <div class="invalid-feedback d-block"><?= session('errors.account_holder_name') ?></div>
+                  <?php endif; ?>
+                </div>
+
+                <!-- 2. Bank Account Number -->
+                <div class="col-md-4 mb-3">
                   <label for="bank_account_number" class="form-label small fw-semibold text-secondary">Bank Account Number <span class="text-danger">*</span></label>
                   <input type="text" name="bank_account_number" id="bank_account_number" class="form-control <?= session('errors.bank_account_number') ? 'is-invalid' : '' ?>" value="<?= old('bank_account_number') ?>" placeholder="e.g. 001234567890" required>
                   <?php if (session('errors.bank_account_number')): ?>
@@ -350,17 +359,19 @@
                   <?php endif; ?>
                 </div>
 
-                <!-- 2. IFSC Code -->
-                <div class="col-md-3 mb-3">
+                <!-- 3. IFSC Code -->
+                <div class="col-md-4 mb-3">
                   <label for="ifsc_code" class="form-label small fw-semibold text-secondary">IFSC Code <span class="text-danger">*</span></label>
                   <input type="text" name="ifsc_code" id="ifsc_code" class="form-control text-uppercase <?= session('errors.ifsc_code') ? 'is-invalid' : '' ?>" value="<?= old('ifsc_code') ?>" placeholder="e.g. HDFC0001234" maxlength="11" required>
                   <?php if (session('errors.ifsc_code')): ?>
                     <div class="invalid-feedback d-block ifsc-feedback-msg"><?= session('errors.ifsc_code') ?></div>
                   <?php endif; ?>
                 </div>
+              </div>
 
-                <!-- 3. Bank Name -->
-                <div class="col-md-3 mb-3">
+              <div class="row">
+                <!-- 4. Bank Name -->
+                <div class="col-md-6 mb-3">
                   <label for="bank_name" class="form-label small fw-semibold text-secondary">Bank Name <span class="text-danger">*</span></label>
                   <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name') ?>" placeholder="Auto-filled or enter manually" required>
                   <?php if (session('errors.bank_name')): ?>
@@ -368,8 +379,8 @@
                   <?php endif; ?>
                 </div>
 
-                <!-- 4. Bank Branch -->
-                <div class="col-md-3 mb-3">
+                <!-- 5. Bank Branch -->
+                <div class="col-md-6 mb-3">
                   <label for="bank_branch" class="form-label small fw-semibold text-secondary">Bank Branch <span class="text-danger">*</span></label>
                   <input type="text" name="bank_branch" id="bank_branch" class="form-control <?= session('errors.bank_branch') ? 'is-invalid' : '' ?>" value="<?= old('bank_branch') ?>" placeholder="Auto-filled or enter manually" required>
                   <?php if (session('errors.bank_branch')): ?>
@@ -495,19 +506,23 @@
                 </div>
                 <div class="card-body p-3">
                   <div class="row g-3">
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-4">
+                      <div class="text-secondary text-capitalize" style="font-size: 12px;">Account Holder Name</div>
+                      <div class="fw-bold text-dark mt-1" id="rev_account_holder_name">-</div>
+                    </div>
+                    <div class="col-6 col-md-4">
                       <div class="text-secondary text-capitalize" style="font-size: 12px;">Account Number</div>
                       <div class="fw-bold text-dark font-monospace mt-1" id="rev_bank_account_number">-</div>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-4">
                       <div class="text-secondary text-capitalize" style="font-size: 12px;">IFSC Code</div>
                       <div class="fw-bold text-dark font-monospace mt-1" id="rev_ifsc_code">-</div>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-6">
                       <div class="text-secondary text-capitalize" style="font-size: 12px;">Bank Name</div>
                       <div class="fw-bold text-dark mt-1" id="rev_bank_name">-</div>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-6">
                       <div class="text-secondary text-capitalize" style="font-size: 12px;">Bank Branch</div>
                       <div class="fw-bold text-dark mt-1" id="rev_bank_branch">-</div>
                     </div>
@@ -671,6 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateLeaving = formatDate(document.getElementById('date_of_leaving')?.value.trim());
     const exitReason = document.getElementById('exit_reason')?.value.trim() || '-';
 
+    const accHolder = document.getElementById('account_holder_name')?.value.trim() || '-';
     const accNum = document.getElementById('bank_account_number')?.value.trim() || '-';
     const ifsc = document.getElementById('ifsc_code')?.value.trim().toUpperCase() || '-';
     const bankName = document.getElementById('bank_name')?.value.trim() || '-';
@@ -713,6 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (exitColReason) exitColReason.classList.add('d-none');
     }
 
+    document.getElementById('rev_account_holder_name').textContent = accHolder;
     document.getElementById('rev_bank_account_number').textContent = accNum;
     document.getElementById('rev_ifsc_code').textContent = ifsc;
     document.getElementById('rev_bank_name').textContent = bankName;
@@ -930,10 +947,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     } else if (step === 3) {
+      const accHolder = document.getElementById('account_holder_name');
       const accNum = document.getElementById('bank_account_number');
       const ifsc = document.getElementById('ifsc_code');
       const bankName = document.getElementById('bank_name');
       const bankBranch = document.getElementById('bank_branch');
+
+      if (accHolder) {
+        if (!accHolder.value.trim()) {
+          setFieldValidation(accHolder, 'Account Holder Name is required.');
+          isValid = false;
+        } else if (accHolder.value.trim().length > 150) {
+          setFieldValidation(accHolder, 'Account Holder Name cannot exceed 150 characters.');
+          isValid = false;
+        } else {
+          setFieldValidation(accHolder, null);
+        }
+      }
 
       if (accNum) {
         if (!accNum.value.trim()) {

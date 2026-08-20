@@ -112,11 +112,12 @@ class EmployeeController extends BaseController
         $dateOfLeaving = trim((string) $this->request->getPost('date_of_leaving'));
         $exitReason    = trim((string) $this->request->getPost('exit_reason'));
 
-        $bankName      = trim((string) $this->request->getPost('bank_name'));
-        $bankBranch    = trim((string) $this->request->getPost('bank_branch'));
-        $bankAccNo     = trim((string) $this->request->getPost('bank_account_number'));
-        $ifscCode      = strtoupper(trim((string) $this->request->getPost('ifsc_code')));
-        $panNo         = strtoupper(trim((string) $this->request->getPost('pan_number')));
+        $bankName          = trim((string) $this->request->getPost('bank_name'));
+        $accountHolderName = trim((string) $this->request->getPost('account_holder_name'));
+        $bankBranch        = trim((string) $this->request->getPost('bank_branch'));
+        $bankAccNo         = trim((string) $this->request->getPost('bank_account_number'));
+        $ifscCode          = strtoupper(trim((string) $this->request->getPost('ifsc_code')));
+        $panNo             = strtoupper(trim((string) $this->request->getPost('pan_number')));
 
         $errors = [];
         if (!empty($biometricCode) && $this->employeeModel->where('biometric_code', $biometricCode)->first()) {
@@ -128,6 +129,9 @@ class EmployeeController extends BaseController
 
         if (empty($bankName)) {
             $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($accountHolderName)) {
+            $errors['account_holder_name'] = 'Account Holder Name is required.';
         }
         if (empty($bankBranch)) {
             $errors['bank_branch'] = 'Bank Branch is required.';
@@ -193,6 +197,7 @@ class EmployeeController extends BaseController
             'department'          => trim((string) $this->request->getPost('department')) ?: null,
             'monthly_base_salary' => (float) $this->request->getPost('monthly_base_salary'),
             'bank_name'           => trim((string) $this->request->getPost('bank_name')) ?: null,
+            'account_holder_name' => $accountHolderName,
             'bank_account_number' => trim((string) $this->request->getPost('bank_account_number')) ?: null,
             'ifsc_code'           => strtoupper(trim((string) $this->request->getPost('ifsc_code'))) ?: null,
             'bank_branch'         => trim((string) $this->request->getPost('bank_branch')) ?: null,
@@ -285,11 +290,12 @@ class EmployeeController extends BaseController
 
         $biometricCode = trim((string) $this->request->getPost('biometric_code'));
         $phoneNo       = trim((string) $this->request->getPost('phone_number'));
-        $bankName      = trim((string) $this->request->getPost('bank_name'));
-        $bankBranch    = trim((string) $this->request->getPost('bank_branch'));
-        $bankAccNo     = trim((string) $this->request->getPost('bank_account_number'));
-        $ifscCode      = strtoupper(trim((string) $this->request->getPost('ifsc_code')));
-        $panNo         = strtoupper(trim((string) $this->request->getPost('pan_number')));
+        $bankName          = trim((string) $this->request->getPost('bank_name'));
+        $accountHolderName = trim((string) $this->request->getPost('account_holder_name'));
+        $bankBranch        = trim((string) $this->request->getPost('bank_branch'));
+        $bankAccNo         = trim((string) $this->request->getPost('bank_account_number'));
+        $ifscCode          = strtoupper(trim((string) $this->request->getPost('ifsc_code')));
+        $panNo             = strtoupper(trim((string) $this->request->getPost('pan_number')));
 
         $errors = [];
         if (!empty($biometricCode) && $this->employeeModel->where('biometric_code', $biometricCode)->where('employee_id !=', $id)->first()) {
@@ -301,6 +307,9 @@ class EmployeeController extends BaseController
 
         if (empty($bankName)) {
             $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($accountHolderName)) {
+            $errors['account_holder_name'] = 'Account Holder Name is required.';
         }
         if (empty($bankBranch)) {
             $errors['bank_branch'] = 'Bank Branch is required.';
@@ -366,6 +375,7 @@ class EmployeeController extends BaseController
             'department'          => trim((string) $this->request->getPost('department')) ?: null,
             'monthly_base_salary' => (float) $this->request->getPost('monthly_base_salary'),
             'bank_name'           => trim((string) $this->request->getPost('bank_name')) ?: null,
+            'account_holder_name' => $accountHolderName,
             'bank_account_number' => trim((string) $this->request->getPost('bank_account_number')) ?: null,
             'ifsc_code'           => strtoupper(trim((string) $this->request->getPost('ifsc_code'))) ?: null,
             'bank_branch'         => trim((string) $this->request->getPost('bank_branch')) ?: null,

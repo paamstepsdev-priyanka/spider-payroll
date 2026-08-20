@@ -137,6 +137,10 @@ $maskPan = function ($pan) {
       </h6>
       <div class="row g-3">
         <div class="col-6 col-md-3">
+          <div class="text-secondary small fw-semibold">Account Holder Name</div>
+          <div class="fs-6 text-dark fw-medium mt-1"><?= esc($employee['account_holder_name'] ?? '-') ?></div>
+        </div>
+        <div class="col-6 col-md-3">
           <div class="text-secondary small fw-semibold">Bank Account Number</div>
           <div class="fs-6 text-dark fw-monospace mt-1">
             <?= esc($maskBankAccount($employee['bank_account_number'])) ?>

@@ -38,6 +38,10 @@
     <table class="table table-bordered mb-0 align-middle">
       <tbody>
         <tr>
+          <th scope="row" class="bg-light text-secondary" style="width: 35%;">Account Holder Name</th>
+          <td class="fw-medium text-dark"><?= esc($contractor['account_holder_name'] ?? '-') ?></td>
+        </tr>
+        <tr>
           <th scope="row" class="bg-light text-secondary" style="width: 35%;">Bank Name</th>
           <td class="fw-medium text-dark"><?= esc($contractor['bank_name'] ?: '-') ?></td>
         </tr>

@@ -57,12 +57,13 @@ class ContractorController extends BaseController
      */
     public function store()
     {
-        $contractorName = trim((string)$this->request->getPost('contractor_name'));
-        $phoneNumber    = trim((string)$this->request->getPost('phone_number'));
-        $bankName       = trim((string)$this->request->getPost('bank_name'));
-        $branchName     = trim((string)$this->request->getPost('branch_name'));
-        $bankAccNo      = trim((string)$this->request->getPost('bank_account_number'));
-        $ifscCode       = strtoupper(trim((string)$this->request->getPost('ifsc_code')));
+        $contractorName    = trim((string)$this->request->getPost('contractor_name'));
+        $phoneNumber       = trim((string)$this->request->getPost('phone_number'));
+        $bankName          = trim((string)$this->request->getPost('bank_name'));
+        $accountHolderName = trim((string)$this->request->getPost('account_holder_name'));
+        $branchName        = trim((string)$this->request->getPost('branch_name'));
+        $bankAccNo         = trim((string)$this->request->getPost('bank_account_number'));
+        $ifscCode          = strtoupper(trim((string)$this->request->getPost('ifsc_code')));
 
         $errors = [];
         if (empty($contractorName)) {
@@ -74,6 +75,9 @@ class ContractorController extends BaseController
 
         if (empty($bankName)) {
             $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($accountHolderName)) {
+            $errors['account_holder_name'] = 'Account Holder Name is required.';
         }
         if (empty($branchName)) {
             $errors['branch_name'] = 'Branch Name is required.';
@@ -113,6 +117,7 @@ class ContractorController extends BaseController
             'email'               => trim((string)$this->request->getPost('email')) ?: null,
             'address'             => trim((string)$this->request->getPost('address')) ?: null,
             'bank_name'           => $bankName,
+            'account_holder_name' => $accountHolderName,
             'branch_name'         => $branchName,
             'bank_account_number' => $bankAccNo,
             'ifsc_code'           => $ifscCode,
@@ -196,12 +201,13 @@ class ContractorController extends BaseController
             throw PageNotFoundException::forPageNotFound("Contractor with ID {$id} not found.");
         }
 
-        $contractorName = trim((string)$this->request->getPost('contractor_name'));
-        $phoneNumber    = trim((string)$this->request->getPost('phone_number'));
-        $bankName       = trim((string)$this->request->getPost('bank_name'));
-        $branchName     = trim((string)$this->request->getPost('branch_name'));
-        $bankAccNo      = trim((string)$this->request->getPost('bank_account_number'));
-        $ifscCode       = strtoupper(trim((string)$this->request->getPost('ifsc_code')));
+        $contractorName    = trim((string)$this->request->getPost('contractor_name'));
+        $phoneNumber       = trim((string)$this->request->getPost('phone_number'));
+        $bankName          = trim((string)$this->request->getPost('bank_name'));
+        $accountHolderName = trim((string)$this->request->getPost('account_holder_name'));
+        $branchName        = trim((string)$this->request->getPost('branch_name'));
+        $bankAccNo         = trim((string)$this->request->getPost('bank_account_number'));
+        $ifscCode          = strtoupper(trim((string)$this->request->getPost('ifsc_code')));
 
         $errors = [];
         if (empty($contractorName)) {
@@ -213,6 +219,9 @@ class ContractorController extends BaseController
 
         if (empty($bankName)) {
             $errors['bank_name'] = 'Bank Name is required.';
+        }
+        if (empty($accountHolderName)) {
+            $errors['account_holder_name'] = 'Account Holder Name is required.';
         }
         if (empty($branchName)) {
             $errors['branch_name'] = 'Branch Name is required.';
@@ -252,6 +261,7 @@ class ContractorController extends BaseController
             'email'               => trim((string)$this->request->getPost('email')) ?: null,
             'address'             => trim((string)$this->request->getPost('address')) ?: null,
             'bank_name'           => $bankName,
+            'account_holder_name' => $accountHolderName,
             'branch_name'         => $branchName,
             'bank_account_number' => $bankAccNo,
             'ifsc_code'           => $ifscCode,

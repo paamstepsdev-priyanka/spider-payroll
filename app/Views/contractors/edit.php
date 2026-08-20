@@ -90,6 +90,15 @@
             </h6>
 
             <div class="row">
+              <!-- Account Holder Name -->
+              <div class="col-md-6 mb-3">
+                <label for="account_holder_name" class="form-label fw-medium">Account Holder Name <span class="text-danger">*</span></label>
+                <input type="text" name="account_holder_name" id="account_holder_name" class="form-control <?= session('errors.account_holder_name') ? 'is-invalid' : '' ?>" value="<?= old('account_holder_name', $contractor['account_holder_name'] ?? '') ?>" placeholder="Name as per bank records" required>
+                <?php if (session('errors.account_holder_name')): ?>
+                  <div class="invalid-feedback d-block"><?= session('errors.account_holder_name') ?></div>
+                <?php endif; ?>
+              </div>
+
               <!-- Bank Account Number -->
               <div class="col-md-6 mb-3">
                 <label for="bank_account_number" class="form-label fw-medium">Bank Account Number <span class="text-danger">*</span></label>
@@ -98,20 +107,20 @@
                   <div class="invalid-feedback d-block"><?= session('errors.bank_account_number') ?></div>
                 <?php endif; ?>
               </div>
+            </div>
 
+            <div class="row">
               <!-- IFSC Code -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label for="ifsc_code" class="form-label fw-medium">IFSC Code <span class="text-danger">*</span></label>
                 <input type="text" name="ifsc_code" id="ifsc_code" class="form-control text-uppercase <?= session('errors.ifsc_code') ? 'is-invalid' : '' ?>" value="<?= old('ifsc_code', $contractor['ifsc_code']) ?>" maxlength="20" required>
                 <?php if (session('errors.ifsc_code')): ?>
                   <div class="invalid-feedback d-block"><?= session('errors.ifsc_code') ?></div>
                 <?php endif; ?>
               </div>
-            </div>
 
-            <div class="row">
               <!-- Bank Name -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label for="bank_name" class="form-label fw-medium">Bank Name <span class="text-danger">*</span></label>
                 <input type="text" name="bank_name" id="bank_name" class="form-control <?= session('errors.bank_name') ? 'is-invalid' : '' ?>" value="<?= old('bank_name', $contractor['bank_name']) ?>" placeholder="Auto-filled from IFSC or enter manually" required>
                 <?php if (session('errors.bank_name')): ?>
@@ -120,7 +129,7 @@
               </div>
 
               <!-- Branch Name -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label for="branch_name" class="form-label fw-medium">Branch Name <span class="text-danger">*</span></label>
                 <input type="text" name="branch_name" id="branch_name" class="form-control <?= session('errors.branch_name') ? 'is-invalid' : '' ?>" value="<?= old('branch_name', $contractor['branch_name']) ?>" placeholder="Auto-filled from IFSC or enter manually" required>
                 <?php if (session('errors.branch_name')): ?>
@@ -191,6 +200,10 @@ document.addEventListener("DOMContentLoaded", function() {
           email: true,
           maxlength: 100
         },
+        account_holder_name: {
+          required: true,
+          maxlength: 150
+        },
         bank_account_number: {
           required: true,
           digits: true,
@@ -215,6 +228,10 @@ document.addEventListener("DOMContentLoaded", function() {
         email: {
           email: "Please enter a valid email address.",
           maxlength: "Email address cannot exceed 100 characters."
+        },
+        account_holder_name: {
+          required: "Please enter the account holder name.",
+          maxlength: "Account holder name cannot exceed 150 characters."
         },
         bank_account_number: {
           required: "Please enter the bank account number.",
